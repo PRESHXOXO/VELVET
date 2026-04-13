@@ -39,6 +39,12 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
 .song-list{display:flex;flex-direction:column;gap:8px}.song-row{display:grid;grid-template-columns:44px 54px minmax(0,1fr) auto 42px 42px;gap:12px;align-items:center;padding:12px 14px;border-radius:22px;cursor:pointer;border:1px solid transparent;background:rgba(255,255,255,.025);transition:transform .18s ease,border-color .18s ease,background .18s ease}.song-row:hover{transform:translateY(-1px);border-color:var(--line);background:rgba(255,255,255,.045)}.song-row.playing{border-color:rgba(255,94,127,.22);background:linear-gradient(135deg,rgba(255,94,127,.12),rgba(255,255,255,.028))}
 .song-num{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:12px;color:var(--muted);background:rgba(255,255,255,.035);border:1px solid var(--line2)}.song-row.playing .song-num{color:var(--accent)}.song-thumb{width:54px;height:54px;border-radius:16px;object-fit:cover;background:#000;box-shadow:0 12px 26px rgba(0,0,0,.22)}.song-main{min-width:0}.song-title{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.song-row.playing .song-title{color:#fff}.song-artist{margin-top:5px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.song-dur{min-width:66px;padding:8px 12px;border-radius:999px;text-align:center;font-size:11px;color:var(--muted);background:rgba(255,255,255,.032);border:1px solid var(--line2)}
 .song-heart,.song-add{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;border:1px solid var(--line2);background:rgba(255,255,255,.035);color:var(--muted);cursor:pointer;transition:transform .18s ease,color .18s ease,border-color .18s ease,background .18s ease}.song-heart:hover,.song-add:hover{transform:translateY(-1px);color:var(--text);border-color:var(--line)}.song-heart svg,.song-add svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none}.song-heart.liked{color:var(--accent);background:rgba(255,94,127,.12);border-color:rgba(255,94,127,.18)}
+.artist-link,.meta-link{padding:0;border:none;background:none;color:inherit;font:inherit;cursor:pointer;transition:color .18s ease,opacity .18s ease}.artist-link:hover,.meta-link:hover{color:var(--text)}.song-artist .artist-link{font-size:11px;color:var(--muted)}.song-artist .artist-link:hover{text-decoration:underline}.exp-artist .artist-link,.nmeta .artist-link{color:var(--muted)}
+.results-stack{display:flex;flex-direction:column;gap:22px;margin-top:18px}.result-block{display:flex;flex-direction:column;gap:14px}.result-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}.result-head h3{font-family:"Cormorant Garamond",serif;font-size:32px;line-height:.95;font-weight:500}.result-head span{color:var(--muted);font-size:12px;line-height:1.6}.search-summary{margin-top:16px}
+.artist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}.artist-card{position:relative;overflow:hidden;min-height:238px;padding:18px;border-radius:26px;border:1px solid var(--line);background:radial-gradient(circle at top right,rgba(255,180,108,.14),transparent 28%),linear-gradient(160deg,rgba(255,94,127,.14),rgba(255,255,255,.03));cursor:pointer;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}.artist-card:hover{transform:translateY(-4px);border-color:rgba(255,94,127,.22);box-shadow:0 24px 50px rgba(0,0,0,.26)}.artist-card:after{content:"";position:absolute;right:-18px;bottom:-22px;width:138px;height:138px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%);opacity:.7}
+.artist-avatar{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.12);background:rgba(7,7,11,.26);box-shadow:0 14px 30px rgba(0,0,0,.22);font-family:"Cormorant Garamond",serif;font-size:30px;letter-spacing:.04em}.artist-card h3{position:relative;z-index:1;margin-top:18px;font-family:"Cormorant Garamond",serif;font-size:34px;line-height:.92;font-weight:500;max-width:8ch}.artist-card p{position:relative;z-index:1;margin-top:12px;font-size:13px;line-height:1.7;color:rgba(250,242,238,.78)}.artist-tags,.artist-highlights,.artist-stats{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px}
+.artist-tags{margin-top:14px}.artist-tags span,.artist-highlights span{padding:8px 11px;border-radius:999px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:rgba(255,255,255,.05);border:1px solid var(--line2);color:rgba(250,242,238,.8)}.artist-stats{margin-top:18px}.artist-stat{min-width:74px;padding:11px 12px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid var(--line2)}.artist-stat strong{display:block;font-size:18px;line-height:1}.artist-stat span{display:block;margin-top:5px;font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.artist-hero{position:relative;overflow:hidden;padding:30px;border-radius:32px;border:1px solid var(--line);background:radial-gradient(circle at left top,rgba(255,94,127,.2),transparent 28%),radial-gradient(circle at 84% 18%,rgba(255,180,108,.2),transparent 24%),linear-gradient(140deg,rgba(255,255,255,.04),rgba(255,255,255,.018))}.artist-shell{position:relative;z-index:1;display:grid;grid-template-columns:126px minmax(0,1fr);gap:24px;align-items:center}.artist-monogram{width:126px;height:126px;border-radius:34px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.12);background:rgba(9,9,13,.28);box-shadow:0 22px 44px rgba(0,0,0,.26);font-family:"Cormorant Garamond",serif;font-size:58px;letter-spacing:.06em}.artist-copy h2{font-family:"Cormorant Garamond",serif;font-size:clamp(3rem,6vw,4.6rem);line-height:.92;font-weight:500}.artist-copy p{margin-top:12px;max-width:62ch;color:var(--muted);font-size:14px;line-height:1.8}.artist-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.artist-highlights{margin-top:18px}
 .search-shell{display:flex;align-items:center;gap:12px;padding:12px;border-radius:22px;border:1px solid var(--line);background:rgba(255,255,255,.03)}.search-shell svg{width:18px;height:18px;stroke:var(--muted);stroke-width:1.8;fill:none;flex-shrink:0}.search-shell input{flex:1;min-width:0;border:none;outline:none;background:transparent;color:var(--text);font-size:14px}.search-shell input::placeholder{color:rgba(250,242,238,.42)}.quick-chip{padding:10px 14px;border-radius:999px;border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;font-size:11px}
 .empty-state{padding:18px;border-radius:22px;border:1px dashed var(--line);background:rgba(255,255,255,.022);color:var(--muted);font-size:13px;line-height:1.7}.spinner{width:28px;height:28px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:34px auto}@keyframes spin{to{transform:rotate(360deg)}}
 .now{height:108px;margin:0 18px 18px;padding:0 18px;display:none;align-items:center;gap:18px;border-radius:28px;border:1px solid var(--line);background:rgba(10,10,16,.94);box-shadow:0 18px 50px rgba(0,0,0,.26);backdrop-filter:blur(24px)}.now.visible{display:flex}.now-left{display:flex;align-items:center;gap:14px;min-width:0}.nart{width:64px;height:64px;border-radius:20px;overflow:hidden;cursor:pointer;border:1px solid var(--line);flex-shrink:0}.nart img{width:100%;height:100%;object-fit:cover}
@@ -59,8 +65,8 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
 .toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);padding:12px 16px;border-radius:999px;border:1px solid var(--line);background:rgba(16,16,24,.94);box-shadow:0 18px 34px rgba(0,0,0,.28);font-size:12px;opacity:0;transition:opacity .2s ease,transform .2s ease;z-index:90}.toast.show{opacity:1;transform:translateX(-50%) translateY(-2px)}
 #yt-wrap{position:fixed;left:-9999px;top:0;width:480px;height:270px}
 @media (max-width:1180px){.shell{padding:12px 12px 0;gap:12px}.sidebar{width:248px;min-width:248px}.hero{grid-template-columns:1fr}.hero-spotlight{max-width:none;justify-self:stretch}.now{height:auto;flex-wrap:wrap;padding:16px 18px}.center{order:3;width:100%}}
-@media (max-width:860px){body{overflow:auto}.shell{flex-direction:column}.sidebar,.main{border-radius:24px}.sidebar{width:auto;min-width:0}.brand-note,.sidebar-foot,.divider{display:none}.nav{padding:14px}.nav-group{margin-bottom:14px}.app-topbar{padding:18px 18px 8px;flex-direction:column}.content{padding:8px 18px 160px}.hero,.feature-panel,.exp-surface{padding:22px}.section-title,.feature-panel h2{font-size:34px}.cards,.station-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.song-row{grid-template-columns:44px 54px minmax(0,1fr) 42px 42px}.song-dur{display:none}.now-left{width:100%}.right{width:100%;justify-content:space-between}.volume-shell{flex:1}.qpanel{right:12px;left:12px;top:auto;width:auto;bottom:122px}}
-@media (max-width:640px){.cards,.station-grid{grid-template-columns:1fr}.hero h1{font-size:3.3rem}.hero-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.hero-stat{min-width:0}.song-row{grid-template-columns:44px 54px minmax(0,1fr);grid-template-areas:"num thumb main" "num thumb actions";align-items:start}.song-num{grid-area:num}.song-thumb{grid-area:thumb}.song-main{grid-area:main}.song-heart,.song-add{margin-top:8px}.song-heart{grid-area:actions;justify-self:start}.song-add{grid-area:actions;justify-self:start;margin-left:50px}.exp-surface{grid-template-columns:1fr}.exp-title{font-size:3.2rem}.topbar-actions,.hero-actions,.quick-searches,.panel-actions,.row,.exp-row{width:100%}.topbar-actions .btn,.hero-actions .btn,.panel-actions .btn,.row .btn,.quick-chip{flex:1}}
+@media (max-width:860px){body{overflow:auto}.shell{flex-direction:column}.sidebar,.main{border-radius:24px}.sidebar{width:auto;min-width:0}.brand-note,.sidebar-foot,.divider{display:none}.nav{padding:14px}.nav-group{margin-bottom:14px}.app-topbar{padding:18px 18px 8px;flex-direction:column}.content{padding:8px 18px 160px}.hero,.feature-panel,.exp-surface,.artist-hero{padding:22px}.section-title,.feature-panel h2{font-size:34px}.cards,.station-grid,.artist-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.artist-shell{grid-template-columns:1fr}.song-row{grid-template-columns:44px 54px minmax(0,1fr) 42px 42px}.song-dur{display:none}.now-left{width:100%}.right{width:100%;justify-content:space-between}.volume-shell{flex:1}.qpanel{right:12px;left:12px;top:auto;width:auto;bottom:122px}}
+@media (max-width:640px){.cards,.station-grid,.artist-grid{grid-template-columns:1fr}.hero h1{font-size:3.3rem}.hero-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.hero-stat{min-width:0}.song-row{grid-template-columns:44px 54px minmax(0,1fr);grid-template-areas:"num thumb main" "num thumb actions";align-items:start}.song-num{grid-area:num}.song-thumb{grid-area:thumb}.song-main{grid-area:main}.song-heart,.song-add{margin-top:8px}.song-heart{grid-area:actions;justify-self:start}.song-add{grid-area:actions;justify-self:start;margin-left:50px}.exp-surface{grid-template-columns:1fr}.exp-title{font-size:3.2rem}.artist-copy h2{font-size:3.2rem}.topbar-actions,.hero-actions,.quick-searches,.panel-actions,.row,.exp-row,.artist-actions{width:100%}.topbar-actions .btn,.hero-actions .btn,.panel-actions .btn,.row .btn,.quick-chip,.artist-actions .btn{flex:1}}
 </style>
 </head>
 <body>
@@ -77,6 +83,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
         <div class="nav-item active" data-page="home" onclick="showPage('home')"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span><span class="nav-copy"><strong>Home</strong><small>Tonight's moodboard</small></span></div>
         <div class="nav-item" data-page="genres" onclick="showPage('genres')"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/></svg></span><span class="nav-copy"><strong>Stations</strong><small>Move between moods</small></span></div>
         <div class="nav-item" data-page="search" onclick="showPage('search');focusSearch()"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg></span><span class="nav-copy"><strong>Search</strong><small>Find something silky</small></span></div>
+        <div class="nav-item" data-page="artists" onclick="showPage('artists')"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.6-3.8 5-6 8-6s6.4 2.2 8 6"/></svg></span><span class="nav-copy"><strong>Artists</strong><small>Profiles and essentials</small></span></div>
       </div>
       <div class="divider"></div>
       <div class="nav-group">
@@ -105,6 +112,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
       </div>
       <div class="topbar-actions">
         <button class="btn ghost compact" onclick="showPage('search');focusSearch()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg><span>Search</span></button>
+        <button class="btn subtle compact" onclick="showPage('artists')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.6-3.8 5-6 8-6s6.4 2.2 8 6"/></svg><span>Artists</span></button>
         <button class="btn subtle compact" onclick="showPage('library')"><svg viewBox="0 0 24 24"><path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span>Library</span></button>
         <button class="btn red compact" onclick="openCreatePlaylist()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>New Playlist</span></button>
       </div>
@@ -119,6 +127,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
           <div class="hero-actions">
             <button class="btn red" onclick="playStationByIndex(0)"><svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></svg><span>Start 90s R&amp;B</span></button>
             <button class="btn ghost" onclick="showPage('genres')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16"/></svg><span>Explore Stations</span></button>
+            <button class="btn subtle" onclick="showPage('artists')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.6-3.8 5-6 8-6s6.4 2.2 8 6"/></svg><span>Meet the Artists</span></button>
           </div>
           <div class="hero-meta">
             <div class="hero-stat"><strong id="heroPlaylistCount">0</strong><span>Playlists</span></div>
@@ -135,6 +144,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
         </div>
       </div>
       <section class="section"><div class="section-head"><div><div class="section-kicker">Stations</div><div class="section-title">Genre Stations</div></div><div class="section-link" onclick="showPage('genres')">See all</div></div><div id="homeStations" class="station-grid"></div></section>
+      <section class="section"><div class="section-head"><div><div class="section-kicker">Faces of Velvet</div><div class="section-title">Featured Artists</div></div><div class="section-link" onclick="showPage('artists')">Browse Artists</div></div><div id="homeArtists" class="artist-grid"></div></section>
       <section class="section"><div class="section-head"><div><div class="section-kicker">Back to it</div><div class="section-title">Recently Played</div></div></div><div id="homeRecent" class="cards"></div></section>
       <section class="section"><div class="section-head"><div><div class="section-kicker">For tonight</div><div class="section-title">Top Picks</div></div></div><div id="homeTopPicks" class="song-list"></div></section>
     </div></div>
@@ -143,7 +153,11 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
 
     <div id="page-station" class="page"><div class="content"><div class="feature-panel"><div><div class="panel-label">Station view</div><h2 id="stationTitle">Station</h2><p id="stationSub">Live station stream</p></div><div class="panel-actions"><button class="btn red" onclick="playCurrentStation()"><svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></svg><span>Play Station</span></button><button class="btn ghost" onclick="shuffleCurrentStation()"><svg viewBox="0 0 24 24"><path d="M4 7h3l3 4 4-6 6 12h-4"/><path d="m17 7 3 3-3 3"/></svg><span>Shuffle</span></button></div></div><div id="stationLoading"></div><div id="stationSongs" class="song-list"></div></div></div>
 
-    <div id="page-search" class="page"><div class="content"><div class="feature-panel tight"><div><div class="panel-label">Search the room</div><h2>Search</h2><p>Jump straight into YouTube-powered tracks without leaving the visual flow of the app.</p></div></div><div class="search-shell"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg><input id="searchInput" placeholder="Search tracks, moods, or artists" onkeydown="if(event.key==='Enter'){doSearch()}"><button class="btn red" onclick="doSearch()"><svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></svg><span>Search</span></button></div><div class="quick-searches" style="margin-top:14px"><button class="quick-chip" onclick="runQuickSearch('neo soul essentials')">Neo Soul</button><button class="quick-chip" onclick="runQuickSearch('90s r&b classics')">90s R&amp;B</button><button class="quick-chip" onclick="runQuickSearch('slow jams love songs')">Slow Jams</button><button class="quick-chip" onclick="runQuickSearch('women of r&b')">Women of R&amp;B</button></div><div id="searchLoading"></div><div id="searchSongs" class="song-list" style="margin-top:14px"></div></div></div>
+    <div id="page-search" class="page"><div class="content"><div class="feature-panel tight"><div><div class="panel-label">Search the room</div><h2>Search</h2><p>Search now starts from Velvet's own catalog, artist profiles, and station map, so results populate fast and use the titles you actually expect to see.</p></div></div><div class="search-shell"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg><input id="searchInput" placeholder="Search tracks, moods, or artists" onkeydown="if(event.key==='Enter'){doSearch()}"><button class="btn red" onclick="doSearch()"><svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></svg><span>Search</span></button></div><div class="quick-searches" style="margin-top:14px"><button class="quick-chip" onclick="runQuickSearch('neo soul essentials')">Neo Soul</button><button class="quick-chip" onclick="runQuickSearch('90s r&b classics')">90s R&amp;B</button><button class="quick-chip" onclick="runQuickSearch('slow jams love songs')">Slow Jams</button><button class="quick-chip" onclick="runQuickSearch('women of r&b')">Women of R&amp;B</button></div><div id="searchLoading"></div><div id="searchSummary" class="topbar-pill search-summary" style="display:none"></div><div id="searchResults" class="results-stack"></div></div></div>
+
+    <div id="page-artists" class="page"><div class="content"><div class="feature-panel"><div><div class="panel-label">Editorial directory</div><h2>Artists</h2><p>Profiles, essential tracks, and routes into stations so the app feels like a catalog, not just a single playlist page.</p></div></div><div id="artistsGrid" class="artist-grid"></div></div></div>
+
+    <div id="page-artist" class="page"><div class="content"><div id="artistHero" class="artist-hero"></div><section class="section"><div class="section-head"><div><div class="section-kicker">Essentials</div><div class="section-title" id="artistTracksTitle">Top Tracks</div></div></div><div id="artistSongs" class="song-list"></div></section><section class="section"><div class="section-head"><div><div class="section-kicker">Where they fit</div><div class="section-title">Related Stations</div></div></div><div id="artistStations" class="station-grid"></div></section></div></div>
 
     <div id="page-library" class="page"><div class="content"><div class="feature-panel tight"><div><div class="panel-label">Your shelves</div><h2>Library</h2><p>Collections, saved moments, and playlists surfaced as cards instead of plain rows.</p></div></div><div id="libraryCards" class="cards"></div></div></div>
 
@@ -232,16 +246,58 @@ var seedSongs = [
   {title:'Can We Talk',artist:'Tevin Campbell',videoId:'3SoYkCAzMBk'},
   {title:'No Scrubs',artist:'TLC',videoId:'FrLequ6dUdM'},
   {title:'U Remind Me',artist:'Usher',videoId:'Bw0hsvP0jq4'},
-  {title:'Say My Name',artist:'Destinys Child',videoId:'sQgd6MccwZc'},
-  {title:'Back and Forth',artist:'Aaliyah',videoId:'N2MuM4S7VwE'},
-  {title:'Sweet Lady',artist:'Tyrese',videoId:'f8cHxydDb7o'},
+  {title:'Say My Name',artist:'Destiny\'s Child',videoId:'sQgd6MccwZc'},
+  {title:'Back & Forth',artist:'Aaliyah',videoId:'N2MuM4S7VwE'},
+  {title:'U.N.I.T.Y.',artist:'Queen Latifah',videoId:'f8cHxydDb7o'},
   {title:'Differences',artist:'Ginuwine',videoId:'U_90XNCBatY'},
   {title:'So Sick',artist:'Ne-Yo',videoId:'IxszlJppRQI'},
-  {title:'You Make Me Wanna',artist:'Usher',videoId:'bQRzrnH6_HY'},
-  {title:'Bump N Grind',artist:'R Kelly',videoId:'QQSYo_pC-QA'},
+  {title:'You Make Me Wanna...',artist:'Usher',videoId:'bQRzrnH6_HY'},
+  {title:'Bump n\' Grind',artist:'R Kelly',videoId:'QQSYo_pC-QA'},
   {title:'Fortunate',artist:'Maxwell',videoId:'TOX6fVj0f2s'},
   {title:'I Wanna Know',artist:'Joe',videoId:'WsAB0YFhIxg'}
 ];
+
+var stationNotes = [
+  {description:'Glossy hooks, crossover slow burns, and radio-built singalongs.',tags:['90s r&b','classics','slow jams']},
+  {description:'Live-feeling instrumentation, grown-room pacing, and warmer low-end.',tags:['neo soul','grown and sexy','late night']},
+  {description:'Polished hooks, ringtone-era confidence, and cleaner modern drums.',tags:['2000s r&b','club','slow jams']},
+  {description:'A softer present-day lane with breakup records and conversational vocals.',tags:['current r&b','new music','mood']},
+  {description:'Big personalities, foundational records, and crowd-tested energy.',tags:['hip hop classics','gold era','legendary']},
+  {description:'Sharper drums, higher intensity, and quicker room temperature shifts.',tags:['trap','hype','workout']},
+  {description:'The candles-down corner of the catalog: tenderness, tension, and replay value.',tags:['slow jams','love songs','midnight']},
+  {description:'Women-led cuts with strong hooks, point-of-view, and swagger.',tags:['women of r&b','girl power','icons']},
+  {description:'Shared-memory favorites built for instant recognition.',tags:['throwback','classics','nostalgia']},
+  {description:'Quicker BPMs and choruses that feel physical the moment they drop.',tags:['workout','energy','upbeat']},
+  {description:'Cooler textures and smoother delivery without losing melody.',tags:['chill vibes','drive','smooth']},
+  {description:'Easy-start records for slow mornings, windows open, coffee on.',tags:['sunday morning','soul','easy listening']}
+];
+var seedMeta = [
+  {artistSlug:'tevin-campbell',year:'1993',tags:['90s r&b','new jack swing','slow jams']},
+  {artistSlug:'tlc',year:'1999',tags:['90s r&b','women of r&b','girl groups']},
+  {artistSlug:'usher',year:'2001',tags:['2000s r&b','club','male vocals']},
+  {artistSlug:'destiny-s-child',year:'1999',tags:['90s r&b','women of r&b','girl groups']},
+  {artistSlug:'aaliyah',year:'1994',tags:['90s r&b','women of r&b','swing']},
+  {artistSlug:'queen-latifah',year:'1993',tags:['hip hop classics','women of r&b','rap classics']},
+  {artistSlug:'ginuwine',year:'2001',tags:['2000s r&b','slow jams','male vocals']},
+  {artistSlug:'ne-yo',year:'2006',tags:['2000s r&b','breakup songs','current r&b']},
+  {artistSlug:'usher',year:'1997',tags:['90s r&b','slow jams','male vocals']},
+  {artistSlug:'r-kelly',year:'1993',tags:['90s r&b','slow jams','midnight']},
+  {artistSlug:'maxwell',year:'1999',tags:['neo soul','love songs','slow jams']},
+  {artistSlug:'joe',year:'1999',tags:['neo soul','slow jams','male vocals']}
+];
+var artistProfiles = {
+  'aaliyah':{name:'Aaliyah',tagline:'Sleek, airy, and always a little ahead of the room.',bio:'Velvet uses Aaliyah to hold the cooler edge of 90s R&B: swing in the drums, softness in the delivery, and a silhouette that still feels modern.',gradient:'linear-gradient(135deg,#231329,#5f3059)',tags:['cool swing','after-hours','women of r&b']},
+  'destiny-s-child':{name:'Destiny\'s Child',tagline:'Precision harmonies with a sharper point of view.',bio:'This profile anchors the group-driven side of the app: tightly stacked vocals, unforgettable hooks, and the kind of records that change the mood as soon as the chorus hits.',gradient:'linear-gradient(135deg,#1b1235,#6c2b58)',tags:['harmonies','girl groups','big hooks']},
+  'ginuwine':{name:'Ginuwine',tagline:'Confident leads, glossy production, and late-night pacing.',bio:'Ginuwine sits in Velvet\'s smoother mid-tempo pocket, where every record feels built for dim lights, patient grooves, and a little extra charisma.',gradient:'linear-gradient(135deg,#102435,#2b5974)',tags:['mid-tempo','smooth','slow jams']},
+  'joe':{name:'Joe',tagline:'Tender hooks and grown-man honesty.',bio:'Joe gives the catalog one of its most dependable romantic lanes: clean melodies, calm confidence, and songs that stay gentle without going soft.',gradient:'linear-gradient(135deg,#2d1608,#7b4a2d)',tags:['neo soul adjacent','romance','singer-songwriter feel']},
+  'maxwell':{name:'Maxwell',tagline:'Rich harmonies, live-band warmth, and velvet pacing.',bio:'Maxwell is the bridge between classic soul elegance and the roomier side of neo soul, which is why his page feels like the center of the app\'s softer, warmer lane.',gradient:'linear-gradient(135deg,#24160d,#84533a)',tags:['neo soul','warm bass','grown room']},
+  'ne-yo':{name:'Ne-Yo',tagline:'Precise pop-R&B writing with a breakup soundtrack edge.',bio:'When Velvet needs clean hooks and modern polish, Ne-Yo is the move. His profile is the polished side of the catalog: lean drums, direct lyrics, and instantly readable choruses.',gradient:'linear-gradient(135deg,#101f37,#2c5684)',tags:['2000s polish','breakup songs','radio gold']},
+  'queen-latifah':{name:'Queen Latifah',tagline:'Authority, message, and cross-lane confidence.',bio:'Queen Latifah broadens the room beyond slow jams. Her page keeps the catalog rooted in hip hop history while still feeling at home beside R&B records with personality and weight.',gradient:'linear-gradient(135deg,#2b1111,#7b2d2d)',tags:['hip hop history','icons','statement records']},
+  'r-kelly':{name:'R Kelly',tagline:'Midnight pacing and unmistakable early-90s slow jam structure.',bio:'This page reflects the quieter, more sensual lane of Velvet\'s catalog, focused on atmosphere, low lights, and records built to move slowly.',gradient:'linear-gradient(135deg,#20161d,#5f4456)',tags:['slow jams','midnight','90s r&b']},
+  'tevin-campbell':{name:'Tevin Campbell',tagline:'Bright tenor, big choruses, and early-90s lift.',bio:'Tevin Campbell opens up the brighter side of the catalog with youthful urgency and polished new-jack swing energy that still feels warm inside the Velvet palette.',gradient:'linear-gradient(135deg,#2a1122,#7f3a5f)',tags:['new jack swing','bright hooks','90s essentials']},
+  'tlc':{name:'TLC',tagline:'Playful delivery, iconic hooks, and attitude that still lands.',bio:'TLC represents the lighter-on-its-feet side of the room: records with bounce, personality, and enough edge to keep the catalog from feeling too uniform.',gradient:'linear-gradient(135deg,#182019,#466a43)',tags:['girl groups','attitude','classics']},
+  'usher':{name:'Usher',tagline:'Pure star power across both club records and slow burns.',bio:'Usher is one of Velvet\'s connective tissues. He links late-90s smoothness to 2000s polish, which makes his profile the easiest bridge between stations, moods, and eras.',gradient:'linear-gradient(135deg,#131c2f,#385b7d)',tags:['star power','club to slow jam','essential'] }
+};
 
 var player = null;
 var playerReady = false;
@@ -258,8 +314,12 @@ var recent = readStorage('vlv_recent', []);
 var stationTracksMap = {};
 var currentStation = null;
 var activePlaylistId = null;
+var activeArtistSlug = null;
+var lastSearchQuery = '';
 var pendingAddTrack = null;
 
+stations = stations.map(function(st, i){ return Object.assign({}, st, stationNotes[i] || {}); });
+seedSongs = seedSongs.map(function(track, i){ return Object.assign({}, track, seedMeta[i] || {}); });
 seedSongs.forEach(function(t){ t.thumb = ytThumb(t.videoId); });
 
 function ytThumb(id){ return 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; }
@@ -272,6 +332,7 @@ function pauseIcon(){ return '<svg viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 
 function heartIcon(){ return '<svg viewBox="0 0 24 24"><path d="m12 21-1.4-1.3C5.4 14.9 2 11.8 2 8.1 2 5 4.4 3 7.2 3c1.6 0 3.2.8 4.2 2.1C12.6 3.8 14.2 3 15.8 3 18.6 3 21 5 21 8.1c0 3.7-3.4 6.8-8.6 11.6L12 21z"/></svg>'; }
 function plusIcon(){ return '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>'; }
 function playButtonMarkup(state){ var pause = state === 'Pause'; return (pause ? pauseIcon() : playIcon()) + '<span>' + state + '</span>'; }
+function encodeTrackPayload(track){ return encodeURIComponent(JSON.stringify(track)).replace(/'/g, '%27'); }
 function runQuickSearch(q){ var i = document.getElementById('searchInput'); if(i){ i.value = q; } doSearch(); }
 function updateHeroStats(){
   var a = document.getElementById('heroPlaylistCount');
@@ -280,6 +341,107 @@ function updateHeroStats(){
   if(a){ a.textContent = playlists.length; }
   if(b){ b.textContent = liked.length; }
   if(c){ c.textContent = recent.length; }
+}
+function slugify(text){ return String(text || '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+function normalizeSearch(text){ return String(text || '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+function setHash(route){ var next = '#' + route; if(location.hash === next){ return; } location.hash = next; }
+function monogramText(name){ return String(name || 'V').split(/\s+/).filter(Boolean).slice(0, 2).map(function(part){ return part.charAt(0).toUpperCase(); }).join(''); }
+function ensureArtistSlug(track){ if(track && !track.artistSlug && track.artist){ track.artistSlug = slugify(track.artist); } return track; }
+function dedupeTracks(list){
+  var seen = {};
+  return (list || []).filter(function(track){
+    if(!track || !track.videoId || seen[track.videoId]){ return false; }
+    seen[track.videoId] = true;
+    return true;
+  }).map(ensureArtistSlug);
+}
+function getAllCatalogTracks(){
+  var groups = [seedSongs, liked, recent];
+  playlists.forEach(function(pl){ groups.push(pl.songs || []); });
+  stations.forEach(function(_, i){ groups.push(getStationTracks(i)); });
+  return dedupeTracks([].concat.apply([], groups));
+}
+function getArtistSlugs(){
+  var seen = {};
+  var slugs = [];
+  Object.keys(artistProfiles).forEach(function(slug){ seen[slug] = true; slugs.push(slug); });
+  getAllCatalogTracks().forEach(function(track){
+    var slug = track.artistSlug || slugify(track.artist);
+    if(slug && !seen[slug]){ seen[slug] = true; slugs.push(slug); }
+  });
+  return slugs;
+}
+function getArtistName(slug){
+  if(artistProfiles[slug] && artistProfiles[slug].name){ return artistProfiles[slug].name; }
+  var track = getAllCatalogTracks().find(function(item){ return (item.artistSlug || slugify(item.artist)) === slug; });
+  if(track){ return track.artist; }
+  return String(slug || 'Artist').split('-').map(function(part){ return part.charAt(0).toUpperCase() + part.slice(1); }).join(' ');
+}
+function getArtistTracks(slug){
+  return getAllCatalogTracks().filter(function(track){ return (track.artistSlug || slugify(track.artist)) === slug; });
+}
+function getArtistStations(slug){
+  return stations.map(function(st, i){ return {station:st,index:i}; }).filter(function(entry){
+    return getStationTracks(entry.index).some(function(track){ return (track.artistSlug || slugify(track.artist)) === slug; });
+  });
+}
+function getArtistProfile(slug){
+  var profile = artistProfiles[slug] || {};
+  return {
+    slug:slug,
+    name:profile.name || getArtistName(slug),
+    tagline:profile.tagline || 'A Velvet profile built from the songs in your current catalog.',
+    bio:profile.bio || 'This artist page collects the songs, stations, and quick paths that already exist inside Velvet so the app feels like a browsable music space, not just a single player screen.',
+    gradient:profile.gradient || 'linear-gradient(135deg,#18131f,#4b3558)',
+    tags:profile.tags || ['velvet catalog','profile','editorial']
+  };
+}
+function artistLinkHtml(subject, className){
+  var name = typeof subject === 'string' ? subject : (subject ? (subject.artist || subject.name || '') : '');
+  if(!name){ return ''; }
+  var slug = typeof subject === 'string' ? slugify(subject) : (subject.artistSlug || subject.slug || slugify(name));
+  return '<button class="' + (className || 'artist-link') + '" onclick="event.stopPropagation();openArtist(\'' + slug + '\')">' + escapeHtml(name) + '</button>';
+}
+function stationCardHtml(st, i, badge){
+  return '<div class="station-card" style="background:' + st.gradient + '" onclick="openStation(' + i + ')"><span class="station-badge">' + escapeHtml(badge || 'Station') + '</span><h4>' + escapeHtml(st.name) + '</h4><p>' + escapeHtml(st.description || st.query) + '</p><div class="station-play">' + playIcon() + '<span>Open</span></div></div>';
+}
+function artistCardHtml(slug){
+  var profile = getArtistProfile(slug);
+  var tracks = getArtistTracks(slug);
+  var stationCount = getArtistStations(slug).length;
+  return '<div class="artist-card" style="background:' + profile.gradient + '" onclick="openArtist(\'' + slug + '\')"><div class="artist-avatar">' + monogramText(profile.name) + '</div><h3>' + escapeHtml(profile.name) + '</h3><p>' + escapeHtml(profile.tagline) + '</p><div class="artist-tags">' + profile.tags.slice(0, 3).map(function(tag){ return '<span>' + escapeHtml(tag) + '</span>'; }).join('') + '</div><div class="artist-stats"><div class="artist-stat"><strong>' + tracks.length + '</strong><span>Tracks</span></div><div class="artist-stat"><strong>' + stationCount + '</strong><span>Stations</span></div></div></div>';
+}
+function resultSectionHtml(title, note, body){
+  return '<section class="result-block"><div class="result-head"><h3>' + escapeHtml(title) + '</h3><span>' + escapeHtml(note) + '</span></div>' + body + '</section>';
+}
+function scoreSearch(query, fields){
+  var normalizedQuery = normalizeSearch(query);
+  if(!normalizedQuery){ return 0; }
+  var haystack = normalizeSearch(fields.join(' '));
+  if(!haystack){ return 0; }
+  var score = 0;
+  if(haystack === normalizedQuery){ score += 60; }
+  if(haystack.indexOf(normalizedQuery) >= 0){ score += 30; }
+  normalizedQuery.split(' ').filter(Boolean).forEach(function(token){
+    if(haystack.indexOf(token) >= 0){ score += token.length > 2 ? 8 : 4; }
+  });
+  return score;
+}
+function searchCatalog(query){
+  var trackMatches = getAllCatalogTracks().map(function(track){
+    var score = scoreSearch(query, [track.title, track.artist, (track.tags || []).join(' '), track.year || '']);
+    if(normalizeSearch(track.title) === normalizeSearch(query)){ score += 40; }
+    if(normalizeSearch(track.artist) === normalizeSearch(query)){ score += 24; }
+    return {item:track,score:score};
+  }).filter(function(entry){ return entry.score > 0; }).sort(function(a, b){ return b.score - a.score; }).map(function(entry){ return entry.item; }).slice(0, 18);
+  var artistMatches = getArtistSlugs().map(function(slug){
+    var profile = getArtistProfile(slug);
+    return {item:profile,score:scoreSearch(query, [profile.name, profile.tagline, profile.bio, (profile.tags || []).join(' ')])};
+  }).filter(function(entry){ return entry.score > 0; }).sort(function(a, b){ return b.score - a.score; }).map(function(entry){ return entry.item; }).slice(0, 8);
+  var stationMatches = stations.map(function(st, i){
+    return {item:{station:st,index:i},score:scoreSearch(query, [st.name, st.query, st.description || '', (st.tags || []).join(' ')])};
+  }).filter(function(entry){ return entry.score > 0; }).sort(function(a, b){ return b.score - a.score; }).map(function(entry){ return entry.item; }).slice(0, 6);
+  return {tracks:trackMatches,artists:artistMatches,stations:stationMatches};
 }
 function findTrackByVideoId(videoId){
   var groups = [queue, seedSongs, liked, recent];
@@ -292,7 +454,15 @@ function findTrackByVideoId(videoId){
   return null;
 }
 function cloneTrack(track){
-  return {title:track.title,artist:track.artist,videoId:track.videoId,thumb:track.thumb || ytThumb(track.videoId)};
+  return ensureArtistSlug({
+    title:track.title,
+    artist:track.artist,
+    artistSlug:track.artistSlug || slugify(track.artist),
+    videoId:track.videoId,
+    thumb:track.thumb || ytThumb(track.videoId),
+    year:track.year || '',
+    tags:(track.tags || []).slice()
+  });
 }
 function getStationTracks(i){
   var st = stations[i];
@@ -306,10 +476,18 @@ function getStationTracks(i){
   return stationTracksMap[i];
 }
 
-function showPage(page){
+function showPage(page, skipHash){
   document.querySelectorAll('.page').forEach(function(el){ el.classList.remove('active'); });
   var target = document.getElementById('page-' + page); if(target){ target.classList.add('active'); }
-  document.querySelectorAll('.nav-item').forEach(function(el){ el.classList.remove('active'); if(el.dataset.page === page){ el.classList.add('active'); } });
+  var navPage = page === 'artist' ? 'artists' : (page === 'station' ? 'genres' : page);
+  document.querySelectorAll('.nav-item').forEach(function(el){ el.classList.remove('active'); if(el.dataset.page === navPage){ el.classList.add('active'); } });
+  if(!skipHash){
+    var routes = {home:'home',genres:'genres',search:'search',artists:'artists',library:'library',liked:'liked',recent:'recent'};
+    if(routes[page]){ setHash(routes[page]); }
+  }
+  if(page === 'search'){ renderSearchView(); }
+  if(page === 'artists'){ renderArtistsPage(); }
+  if(page === 'artist'){ renderArtistPage(); }
   if(page === 'liked'){ renderLikedPage(); }
   if(page === 'recent'){ renderRecentPage(); }
   if(page === 'library'){ renderLibrary(); }
@@ -330,10 +508,30 @@ function renderStations(){
   var all = document.getElementById('allStations');
   home.innerHTML = ''; all.innerHTML = '';
   stations.forEach(function(st, i){
-    var h = '<div class="station-card" style="background:' + st.gradient + '" onclick="openStation(' + i + ')"><span class="station-badge">Station</span><h4>' + escapeHtml(st.name) + '</h4><p>' + escapeHtml(st.query) + '</p><div class="station-play">' + playIcon() + '<span>Open</span></div></div>';
+    var h = stationCardHtml(st, i, 'Station');
     if(i < 6){ home.innerHTML += h; }
     all.innerHTML += h;
   });
+}
+function renderHomeArtists(){
+  var featured = getArtistSlugs().slice(0, 6);
+  document.getElementById('homeArtists').innerHTML = featured.map(artistCardHtml).join('') || '<div class="empty-state">Artist profiles appear once the catalog has something to surface.</div>';
+}
+function renderArtistsPage(){
+  var slugs = getArtistSlugs();
+  document.getElementById('artistsGrid').innerHTML = slugs.map(artistCardHtml).join('') || '<div class="empty-state">No artist profiles are ready yet.</div>';
+}
+function renderArtistPage(){
+  if(!activeArtistSlug){ return; }
+  var profile = getArtistProfile(activeArtistSlug);
+  var tracks = getArtistTracks(activeArtistSlug);
+  var relatedStations = getArtistStations(activeArtistSlug);
+  storeRows('artistRows', tracks);
+  document.getElementById('artistHero').style.background = 'radial-gradient(circle at left top,rgba(255,94,127,.2),transparent 28%),radial-gradient(circle at 84% 18%,rgba(255,180,108,.2),transparent 24%),' + profile.gradient;
+  document.getElementById('artistHero').innerHTML = '<div class="artist-shell"><div class="artist-monogram">' + monogramText(profile.name) + '</div><div class="artist-copy"><div class="panel-label">Artist profile</div><h2>' + escapeHtml(profile.name) + '</h2><p>' + escapeHtml(profile.bio) + '</p><div class="artist-highlights">' + profile.tags.slice(0, 4).map(function(tag){ return '<span>' + escapeHtml(tag) + '</span>'; }).join('') + '</div><div class="artist-actions"><button class="btn red" onclick="playArtist(\'' + activeArtistSlug + '\')"><svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></svg><span>Play Essentials</span></button><button class="btn ghost" onclick="shuffleArtist(\'' + activeArtistSlug + '\')"><svg viewBox="0 0 24 24"><path d="M4 7h3l3 4 4-6 6 12h-4"/><path d="m17 7 3 3-3 3"/></svg><span>Shuffle Artist</span></button><button class="btn subtle" onclick="showPage(\'artists\')"><svg viewBox="0 0 24 24"><path d="M15 6h6v6"/><path d="M9 18H3v-6"/><path d="m21 6-7 7"/><path d="m3 18 7-7"/></svg><span>Back to Artists</span></button></div></div></div>';
+  document.getElementById('artistTracksTitle').textContent = profile.name + ' Essentials';
+  document.getElementById('artistSongs').innerHTML = tracks.map(function(track, i){ return songRowHtml(track, i, 'artistRows', 'row'); }).join('') || '<div class="empty-state">No tracks from this artist are in the current catalog yet.</div>';
+  document.getElementById('artistStations').innerHTML = relatedStations.map(function(entry){ return stationCardHtml(entry.station, entry.index, 'Related'); }).join('') || '<div class="empty-state">No station cross-links yet for this artist.</div>';
 }
 
 function renderHomeTopPicks(){
@@ -348,6 +546,39 @@ function renderHomeRecent(){
   document.getElementById('homeRecent').innerHTML = list.map(function(t, i){
     return '<div class="card" onclick="playSeedIdx(\'recentCards\',' + i + ')"><div class="card-media"><img src="' + t.thumb + '" alt=""><span class="card-pin">Recent</span></div><div class="meta"><b>' + escapeHtml(t.title) + '</b><span>' + escapeHtml(t.artist) + '</span></div></div>';
   }).join('');
+}
+function renderSearchView(){
+  var summary = document.getElementById('searchSummary');
+  var resultsBox = document.getElementById('searchResults');
+  var q = (document.getElementById('searchInput').value || '').trim();
+  lastSearchQuery = q;
+  if(!q){
+    summary.style.display = 'none';
+    resultsBox.innerHTML = [
+      resultSectionHtml('Browse Artists', 'Profiles and entry points into the catalog.', '<div class="artist-grid">' + getArtistSlugs().slice(0, 6).map(artistCardHtml).join('') + '</div>'),
+      resultSectionHtml('Start With Stations', 'Quick moods you can jump into immediately.', '<div class="station-grid">' + stations.slice(0, 4).map(function(st, i){ return stationCardHtml(st, i, 'Station'); }).join('') + '</div>'),
+      resultSectionHtml('Tonight\'s Essentials', 'The current seed tracks powering Velvet.', '<div class="song-list">' + seedSongs.slice(0, 6).map(function(track, i){ return songRowHtml(track, i, 'homeTop', 'row'); }).join('') + '</div>')
+    ].join('');
+    return;
+  }
+  var matches = searchCatalog(q);
+  var sections = [];
+  var total = matches.tracks.length + matches.artists.length + matches.stations.length;
+  summary.textContent = total + ' result' + (total === 1 ? '' : 's') + ' for "' + q + '"';
+  summary.style.display = 'inline-flex';
+  if(matches.artists.length){
+    sections.push(resultSectionHtml('Artist Matches', 'Profiles that match the name, tone, or tags.', '<div class="artist-grid">' + matches.artists.map(function(profile){ return artistCardHtml(profile.slug); }).join('') + '</div>'));
+  }
+  if(matches.stations.length){
+    sections.push(resultSectionHtml('Station Matches', 'Moods and lanes connected to your search.', '<div class="station-grid">' + matches.stations.map(function(entry){ return stationCardHtml(entry.station, entry.index, 'Station'); }).join('') + '</div>'));
+  }
+  if(matches.tracks.length){
+    storeRows('searchRows', matches.tracks);
+    sections.push(resultSectionHtml('Track Matches', 'Catalog tracks using corrected titles and artists.', '<div class="song-list">' + matches.tracks.map(function(track, i){ return songRowHtml(track, i, 'searchRows', 'row'); }).join('') + '</div>'));
+  } else {
+    storeRows('searchRows', []);
+  }
+  resultsBox.innerHTML = sections.join('') || '<div class="empty-state">No direct matches yet. Try artist names like Usher, moods like Neo Soul, or exact titles like U.N.I.T.Y.</div>';
 }
 
 async function fetchSongs(query, max){
@@ -368,30 +599,45 @@ async function fetchSongs(query, max){
 
 function openStation(i){
   currentStation = i;
-  showPage('station');
+  showPage('station', true);
   var st = stations[i];
   document.getElementById('stationTitle').textContent = st.name;
-  document.getElementById('stationSub').textContent = st.query + ' · auto-loaded mix';
+  document.getElementById('stationSub').textContent = (st.description || st.query) + ' · auto-loaded mix';
   var load = document.getElementById('stationLoading');
   var tracks = getStationTracks(i);
   storeStations('station_' + i, tracks);
   storeRows('stationRows', tracks);
   document.getElementById('stationSongs').innerHTML = tracks.map(function(t, idx){ return songRowHtml(t, idx, 'stationRows', 'row'); }).join('') || '<div class="empty-state">This station does not have a local mix yet.</div>';
   load.innerHTML = '<div class="topbar-pill">Loaded instantly from the built-in station mix</div>';
+  setHash('station-' + i);
 }
 function playStationByIndex(i){ openStation(i); playCurrentStation(); }
 function playCurrentStation(){ if(currentStation === null){ return; } var arr = getStationTracks(currentStation); playFromArray(arr, 0); }
 function shuffleCurrentStation(){ if(currentStation === null){ return; } var arr = getStationTracks(currentStation).slice(); if(!arr.length){ return; } arr.sort(function(){ return Math.random() - 0.5; }); playFromArray(arr, 0); }
+function openArtist(slug){
+  activeArtistSlug = slug;
+  showPage('artist', true);
+  renderArtistPage();
+  setHash('artist-' + slug);
+}
+function playArtist(slug){
+  var tracks = getArtistTracks(slug);
+  if(!tracks.length){ return; }
+  openArtist(slug);
+  playFromArray(tracks, 0);
+}
+function shuffleArtist(slug){
+  var tracks = getArtistTracks(slug).slice();
+  if(!tracks.length){ return; }
+  openArtist(slug);
+  tracks.sort(function(){ return Math.random() - 0.5; });
+  playFromArray(tracks, 0);
+}
 
-async function doSearch(){
-  showPage('search');
-  var q = document.getElementById('searchInput').value.trim();
-  if(!q){ return; }
-  document.getElementById('searchLoading').innerHTML = '<div class="spinner"></div>';
-  var tracks = await fetchSongs(q, 20);
-  storeRows('searchRows', tracks);
-  document.getElementById('searchSongs').innerHTML = tracks.map(function(t, i){ return songRowHtml(t, i, 'searchRows', 'row'); }).join('');
+function doSearch(){
   document.getElementById('searchLoading').innerHTML = '';
+  showPage('search');
+  renderSearchView();
 }
 
 function songRowHtml(t, i, storeId, mode){
@@ -401,10 +647,10 @@ function songRowHtml(t, i, storeId, mode){
   return '<div class="song-row ' + (playing ? 'playing' : '') + '" onclick="' + clickFn + '(\'' + storeId + '\',' + i + ')">' +
   '<div class="song-num">' + (i + 1) + '</div>' +
   '<img class="song-thumb" src="' + t.thumb + '" alt="">' +
-  '<div class="song-main"><div class="song-title">' + escapeHtml(t.title) + '</div><div class="song-artist">' + escapeHtml(t.artist) + '</div></div>' +
+  '<div class="song-main"><div class="song-title">' + escapeHtml(t.title) + '</div><div class="song-artist">' + artistLinkHtml(t, 'artist-link') + '</div></div>' +
   '<div class="song-dur">--:--</div>' +
   '<button class="song-heart ' + (likedOn ? 'liked' : '') + '" onclick="event.stopPropagation();toggleLikeById(\'' + t.videoId + '\')">' + heartIcon() + '</button>' +
-  '<button class="song-add" onclick="event.stopPropagation();openAddToPlaylist(\'' + encodeURIComponent(JSON.stringify(t)) + '\')">' + plusIcon() + '</button>' +
+  '<button class="song-add" onclick="event.stopPropagation();openAddToPlaylist(\'' + encodeTrackPayload(t) + '\')">' + plusIcon() + '</button>' +
   '</div>';
 }
 
@@ -419,6 +665,7 @@ function renderSidebarPlaylists(){
 }
 function renderLibrary(){
   var cards = [
+    {name:'Artist Profiles',sub:getArtistSlugs().length + ' artists',click:'showPage(\'artists\')',thumb:seedSongs[2] ? seedSongs[2].thumb : ''},
     {name:'Liked Songs',sub:liked.length + ' songs',click:'showPage(\'liked\')',thumb:liked[0] ? liked[0].thumb : ''},
     {name:'Recently Played',sub:recent.length + ' songs',click:'showPage(\'recent\')',thumb:recent[0] ? recent[0].thumb : ''}
   ];
@@ -579,9 +826,9 @@ function updateNowUI(){
   document.getElementById('expArt').src = currentTrack.thumb;
   document.getElementById('expBg').style.backgroundImage = 'url(' + currentTrack.thumb + ')';
   document.getElementById('nowTitle').textContent = currentTrack.title;
-  document.getElementById('nowArtist').textContent = currentTrack.artist;
+  document.getElementById('nowArtist').innerHTML = artistLinkHtml(currentTrack, 'artist-link');
   document.getElementById('expTitle').textContent = currentTrack.title;
-  document.getElementById('expArtist').textContent = currentTrack.artist;
+  document.getElementById('expArtist').innerHTML = artistLinkHtml(currentTrack, 'artist-link');
   updateNowLike();
 }
 function updateNowLike(){
@@ -614,14 +861,16 @@ function refreshVisibleLists(){
   if(document.getElementById('page-liked').classList.contains('active')){ renderLikedPage(); }
   if(document.getElementById('page-recent').classList.contains('active')){ renderRecentPage(); }
   if(document.getElementById('page-library').classList.contains('active')){ renderLibrary(); }
+  if(document.getElementById('page-artists').classList.contains('active')){ renderArtistsPage(); }
+  if(document.getElementById('page-artist').classList.contains('active') && activeArtistSlug){ renderArtistPage(); }
   if(document.getElementById('page-playlist').classList.contains('active') && activePlaylistId){ openPlaylist(activePlaylistId); }
   if(document.getElementById('page-station').classList.contains('active') && currentStation !== null){
     var tracks = getStationTracks(currentStation);
     storeRows('stationRows', tracks);
     document.getElementById('stationSongs').innerHTML = tracks.map(function(t, idx){ return songRowHtml(t, idx, 'stationRows', 'row'); }).join('');
   }
-  var s = window._rw_searchRows || [];
-  if(s.length){ document.getElementById('searchSongs').innerHTML = s.map(function(t, idx){ return songRowHtml(t, idx, 'searchRows', 'row'); }).join(''); }
+  if(document.getElementById('page-search').classList.contains('active')){ renderSearchView(); }
+  renderHomeArtists();
   renderHomeTopPicks();
   renderHomeRecent();
   renderSidebarPlaylists();
@@ -632,12 +881,26 @@ function escapeHtml(s){
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 function applyHashRoute(){
-  if(!location.hash){ return; }
-  var match = location.hash.match(/^#station-(\d+)$/);
-  if(match){
-    var idx = Math.max(0, Math.min(parseInt(match[1], 10), stations.length - 1));
-    openStation(idx);
+  if(!location.hash){ showPage('home', true); return; }
+  var hash = location.hash.replace(/^#/, '');
+  var stationMatch = hash.match(/^station-(\d+)$/);
+  var artistMatch = hash.match(/^artist-(.+)$/);
+  if(stationMatch){
+    var stationIndex = Math.max(0, Math.min(parseInt(stationMatch[1], 10), stations.length - 1));
+    openStation(stationIndex);
+    return;
   }
+  if(artistMatch){
+    openArtist(artistMatch[1]);
+    return;
+  }
+  if(hash === 'artists'){ showPage('artists', true); return; }
+  if(hash === 'genres'){ showPage('genres', true); return; }
+  if(hash === 'search'){ showPage('search', true); return; }
+  if(hash === 'library'){ showPage('library', true); return; }
+  if(hash === 'liked'){ showPage('liked', true); return; }
+  if(hash === 'recent'){ showPage('recent', true); return; }
+  showPage('home', true);
 }
 
 document.addEventListener('keydown', function(e){
@@ -651,9 +914,12 @@ window.addEventListener('hashchange', applyHashRoute);
 renderStations();
 stations.forEach(function(st, i){ getStationTracks(i); });
 renderSidebarPlaylists();
+renderHomeArtists();
+renderArtistsPage();
 renderHomeTopPicks();
 renderHomeRecent();
 renderLibrary();
+renderSearchView();
 setPlayText('Play');
 updateHeroStats();
 applyHashRoute();
