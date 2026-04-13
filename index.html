@@ -10,7 +10,7 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
 .shell{display:flex;flex:1;overflow:hidden;}
-.sidebar{width:235px;min-width:235px;background:var(--black2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.sidebar{width:240px;min-width:240px;background:var(--black2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
 .sidebar::-webkit-scrollbar{width:2px;}.sidebar::-webkit-scrollbar-thumb{background:var(--red);}
 .logo{padding:26px 24px 18px;border-bottom:1px solid var(--border);}
 .logo-text{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:300;letter-spacing:.16em;}
@@ -108,7 +108,7 @@ body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-se
 .ap-btn{padding:9px 20px;border-radius:50px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.06em;}
 .ap-btn.primary{background:var(--red);border:none;color:#fff;}
 .ap-btn.secondary{background:none;border:1px solid var(--border);color:var(--muted);}
-.np-bar{height:86px;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:none;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;z-index:50;}
+.np-bar{height:88px;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:none;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;z-index:50;}
 .np-bar.visible{display:flex;}
 .np-art{width:52px;height:52px;border-radius:6px;background:var(--black3);flex-shrink:0;overflow:hidden;cursor:pointer;border:1px solid var(--border);}
 .np-art img{width:100%;height:100%;object-fit:cover;}
@@ -153,7 +153,7 @@ body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-se
 .exp-vol{display:flex;align-items:center;gap:8px;}
 .exp-vol-slider{-webkit-appearance:none;flex:1;height:3px;background:rgba(255,255,255,.14);border-radius:3px;outline:none;cursor:pointer;}
 .exp-vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--white);cursor:pointer;}
-.queue-panel{position:fixed;right:0;top:0;bottom:86px;width:290px;background:var(--black2);border-left:1px solid var(--border);z-index:150;transform:translateX(100%);transition:transform .3s cubic-bezier(.25,.46,.45,.94);display:flex;flex-direction:column;}
+.queue-panel{position:fixed;right:0;top:0;bottom:88px;width:290px;background:var(--black2);border-left:1px solid var(--border);z-index:150;transform:translateX(100%);transition:transform .3s cubic-bezier(.25,.46,.45,.94);display:flex;flex-direction:column;}
 .queue-panel.open{transform:translateX(0);}
 .queue-header{padding:18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .queue-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:400;}
@@ -262,6 +262,10 @@ body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-se
         <div class="section">
           <div class="sec-head"><div class="sec-title">Recently Played</div><div class="sec-link" onclick="showPage('recent')">See all</div></div>
           <div class="cards-grid" id="recent-cards"></div>
+        </div>
+        <div class="section">
+          <div class="sec-head"><div class="sec-title">Top Picks</div></div>
+          <div class="song-list" id="picks-list"></div>
         </div>
       </div>
     </div>
@@ -451,7 +455,7 @@ body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-se
 
 <script>
 const YTKEY='AIzaSyCOPIlhlMif2rurvQB4qLkM4you1pVVQ-4';
-let ytPlayer=null,ytReady=false,queue=[],qIdx=0;
+let ytPlayer=null,playerReady=false,pendingVideoId=null,queue=[],qIdx=0;
 let isPlaying=false,doShuffle=false,doRepeat=false,progTimer=null;
 let liked=JSON.parse(localStorage.getItem('vlv_liked')||'[]');
 let playlists=JSON.parse(localStorage.getItem('vlv_playlists')||'[]');
@@ -460,18 +464,18 @@ let currentVideoId=null,addToTrack=null,currentPlaylistId=null;
 let currentStationTracks=[],currentArtistTracks=[];
 
 const stations=[
-  {id:'rnb-classics',name:'90s R&B',sub:'The golden era of R&B',query:'90s R&B hits playlist',color:'linear-gradient(135deg,#1a0030,#3d0060)',icon:'R&B',count:'50+ songs'},
-  {id:'neo-soul',name:'Neo Soul',sub:'Deep soulful grooves',query:'neo soul music playlist',color:'linear-gradient(135deg,#1a1000,#3d2800)',icon:'Soul',count:'50+ songs'},
+  {id:'rnb-classics',name:'90s R&B',sub:'The golden era of R&B',query:'90s R&B hits',color:'linear-gradient(135deg,#1a0030,#3d0060)',icon:'R&B',count:'50+ songs'},
+  {id:'neo-soul',name:'Neo Soul',sub:'Deep soulful grooves',query:'neo soul music',color:'linear-gradient(135deg,#1a1000,#3d2800)',icon:'Soul',count:'50+ songs'},
   {id:'2000s-rnb',name:'2000s R&B',sub:'Y2K era bangers',query:'2000s R&B hits',color:'linear-gradient(135deg,#001a1a,#003d3d)',icon:'Y2K',count:'50+ songs'},
-  {id:'current-rnb',name:'Current R&B',sub:'Whats hot right now',query:'2024 R&B hits new music',color:'linear-gradient(135deg,#1a0008,#3d0018)',icon:'Now',count:'50+ songs'},
-  {id:'hiphop',name:'Hip Hop Classics',sub:'Old school hip hop',query:'90s hip hop classics playlist',color:'linear-gradient(135deg,#0a0a1a,#1a1a3d)',icon:'Hip',count:'50+ songs'},
-  {id:'trap',name:'Trap & Hip Hop',sub:'Hard beats and bars',query:'trap hip hop 2023 2024',color:'linear-gradient(135deg,#1a0a00,#3d1800)',icon:'Trap',count:'50+ songs'},
-  {id:'slow-jams',name:'Slow Jams',sub:'Late night vibes only',query:'slow jams R&B love songs',color:'linear-gradient(135deg,#100018,#280030)',icon:'Slow',count:'50+ songs'},
-  {id:'girl-power',name:'Girl Power',sub:'Women running it',query:'female R&B pop hits playlist',color:'linear-gradient(135deg,#1a0010,#3d0025)',icon:'Boss',count:'50+ songs'},
+  {id:'current-rnb',name:'Current R&B',sub:'Whats hot right now',query:'2024 R&B new music',color:'linear-gradient(135deg,#1a0008,#3d0018)',icon:'Now',count:'50+ songs'},
+  {id:'hiphop',name:'Hip Hop Classics',sub:'Old school hip hop',query:'90s hip hop classics',color:'linear-gradient(135deg,#0a0a1a,#1a1a3d)',icon:'Hip',count:'50+ songs'},
+  {id:'trap',name:'Trap & Hip Hop',sub:'Hard beats and bars',query:'trap hip hop 2024',color:'linear-gradient(135deg,#1a0a00,#3d1800)',icon:'Trap',count:'50+ songs'},
+  {id:'slow-jams',name:'Slow Jams',sub:'Late night vibes only',query:'slow jams R&B',color:'linear-gradient(135deg,#100018,#280030)',icon:'Slow',count:'50+ songs'},
+  {id:'girl-power',name:'Girl Power',sub:'Women running it',query:'female R&B pop hits',color:'linear-gradient(135deg,#1a0010,#3d0025)',icon:'Boss',count:'50+ songs'},
   {id:'throwback',name:'Throwback',sub:'80s and 90s throwbacks',query:'80s 90s throwback hits',color:'linear-gradient(135deg,#001010,#002828)',icon:'Back',count:'50+ songs'},
-  {id:'workout',name:'Workout Hype',sub:'Push through it',query:'workout hype music 2024',color:'linear-gradient(135deg,#001a00,#003d00)',icon:'Hype',count:'50+ songs'},
-  {id:'chill',name:'Chill Vibes',sub:'Low key high mood',query:'chill R&B vibes playlist',color:'linear-gradient(135deg,#0a1020,#1a2040)',icon:'Chill',count:'50+ songs'},
-  {id:'sunday',name:'Sunday Morning',sub:'Easy like Sunday',query:'Sunday morning chill soul music',color:'linear-gradient(135deg,#1a1000,#302000)',icon:'Sun',count:'50+ songs'},
+  {id:'workout',name:'Workout Hype',sub:'Push through it',query:'workout hype music',color:'linear-gradient(135deg,#001a00,#003d00)',icon:'Hype',count:'50+ songs'},
+  {id:'chill',name:'Chill Vibes',sub:'Low key high mood',query:'chill R&B vibes',color:'linear-gradient(135deg,#0a1020,#1a2040)',icon:'Chill',count:'50+ songs'},
+  {id:'sunday',name:'Sunday Morning',sub:'Easy like Sunday',query:'Sunday morning soul music',color:'linear-gradient(135deg,#1a1000,#302000)',icon:'Sun',count:'50+ songs'},
 ];
 
 const artists=[
@@ -517,6 +521,21 @@ const artists=[
   {name:'Brent Faiyaz',genre:'R&B',query:'Brent Faiyaz music',img:'https://img.youtube.com/vi/K_mFRhRqc8U/hqdefault.jpg'},
 ];
 
+const seedSongs=[
+  {title:'No Scrubs',artist:'TLC',videoId:'FrLequ6dUdM',thumb:'https://img.youtube.com/vi/FrLequ6dUdM/hqdefault.jpg'},
+  {title:'Waterfalls',artist:'TLC',videoId:'8WEtxJ4-sh4',thumb:'https://img.youtube.com/vi/8WEtxJ4-sh4/hqdefault.jpg'},
+  {title:'Say My Name',artist:"Destiny's Child",videoId:'sQgd6MccwZc',thumb:'https://img.youtube.com/vi/sQgd6MccwZc/hqdefault.jpg'},
+  {title:'Bootylicious',artist:"Destiny's Child",videoId:'GbpnAGajyMc',thumb:'https://img.youtube.com/vi/GbpnAGajyMc/hqdefault.jpg'},
+  {title:'Irreplaceable',artist:'Beyonce',videoId:'2EwViQxSJJQ',thumb:'https://img.youtube.com/vi/2EwViQxSJJQ/hqdefault.jpg'},
+  {title:'Halo',artist:'Beyonce',videoId:'Vih-sCUMG9I',thumb:'https://img.youtube.com/vi/Vih-sCUMG9I/hqdefault.jpg'},
+  {title:'Snooze',artist:'SZA',videoId:'WgHNHbymmtA',thumb:'https://img.youtube.com/vi/WgHNHbymmtA/hqdefault.jpg'},
+  {title:'Kill Bill',artist:'SZA',videoId:'E9ZBBUxQCyE',thumb:'https://img.youtube.com/vi/E9ZBBUxQCyE/hqdefault.jpg'},
+  {title:'Good Days',artist:'SZA',videoId:'3iV_1ESMHaI',thumb:'https://img.youtube.com/vi/3iV_1ESMHaI/hqdefault.jpg'},
+  {title:'Made For Me',artist:'Muni Long',videoId:'3cFgpEKRfMo',thumb:'https://img.youtube.com/vi/3cFgpEKRfMo/hqdefault.jpg'},
+  {title:'Hrs and Hrs',artist:'Muni Long',videoId:'GTiMHnBFMhw',thumb:'https://img.youtube.com/vi/GTiMHnBFMhw/hqdefault.jpg'},
+  {title:'Golden',artist:'Jill Scott',videoId:'6Np6RkqYMhY',thumb:'https://img.youtube.com/vi/6Np6RkqYMhY/hqdefault.jpg'}
+];
+
 function G(id){return document.getElementById(id);}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmt(s){s=Math.floor(s||0);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
@@ -530,16 +549,16 @@ document.head.appendChild(ytTag);
 window.onYouTubeIframeAPIReady=function(){
   ytPlayer=new YT.Player('yt-wrap',{
     height:'270',width:'480',videoId:'FrLequ6dUdM',
-    playerVars:{autoplay:0,controls:0,disablekb:1,fs:0,iv_load_policy:3,modestbranding:1,playsinline:1,rel:0,origin:window.location.origin},
+    playerVars:{autoplay:0,controls:0,disablekb:1,fs:0,iv_load_policy:3,modestbranding:1,playsinline:1,rel:0,origin:'https://velvet-wet6.vercel.app'},
     events:{onReady:onYTReady,onStateChange:onYTState}
   });
 };
 
 function onYTReady(e){
-  ytReady=true;
+  playerReady=true;
   ytPlayer.setVolume(80);
   ytPlayer.stopVideo();
-  if(currentVideoId) ytPlayer.loadVideoById(currentVideoId);
+  if(pendingVideoId){ytPlayer.loadVideoById(pendingVideoId);pendingVideoId=null;}
 }
 
 function onYTState(e){
@@ -558,7 +577,8 @@ function playTrack(track,idx){
   setNPUI(track);
   updateHearts();
   document.querySelectorAll('.song-row').forEach(function(r,i){r.classList.toggle('playing',i===idx);});
-  if(ytReady&&ytPlayer) ytPlayer.loadVideoById(track.videoId);
+  if(playerReady&&ytPlayer) ytPlayer.loadVideoById(track.videoId);
+  else pendingVideoId=track.videoId;
   addToRecent(track);
   renderQueue();
 }
@@ -566,7 +586,7 @@ function playTrack(track,idx){
 function playSeed(arr,idx){queue=arr.slice();playTrack(queue[idx],idx);}
 
 function togglePlay(){
-  if(!ytPlayer||!ytReady) return;
+  if(!ytPlayer||!playerReady) return;
   if(ytPlayer.getPlayerState()===YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
   else ytPlayer.playVideo();
 }
@@ -596,13 +616,13 @@ function toggleRepeat(){
 
 function setVol(v){
   G('vol').value=v;G('exp-vol').value=v;
-  if(ytPlayer&&ytReady) ytPlayer.setVolume(parseInt(v));
+  if(ytPlayer&&playerReady) ytPlayer.setVolume(parseInt(v,10));
 }
 
 function startProg(){
   clearInterval(progTimer);
   progTimer=setInterval(function(){
-    if(!ytPlayer||!ytReady) return;
+    if(!ytPlayer||!playerReady) return;
     try{
       var cur=ytPlayer.getCurrentTime(),dur=ytPlayer.getDuration();
       if(!dur) return;
@@ -618,12 +638,12 @@ function startProg(){
 }
 
 G('np-prog-track').addEventListener('click',function(e){
-  if(!ytPlayer||!ytReady) return;
+  if(!ytPlayer||!playerReady) return;
   var r=this.getBoundingClientRect();
   ytPlayer.seekTo(((e.clientX-r.left)/r.width)*ytPlayer.getDuration(),true);
 });
 G('exp-prog-track').addEventListener('click',function(e){
-  if(!ytPlayer||!ytReady) return;
+  if(!ytPlayer||!playerReady) return;
   var r=this.getBoundingClientRect();
   ytPlayer.seekTo(((e.clientX-r.left)/r.width)*ytPlayer.getDuration(),true);
 });
@@ -667,7 +687,7 @@ async function playStation(station){
   G('station-page-sub').textContent=station.sub;
   G('station-loading').style.display='block';
   G('station-tracks').innerHTML='';
-  var tracks=await ytSearch(station.query+' music',25);
+  var tracks=await ytSearch(station.query,25);
   G('station-loading').style.display='none';
   currentStationTracks=tracks;
   if(!tracks.length){G('station-tracks').innerHTML='<div style="color:var(--muted);padding:20px 0;">No tracks loaded.</div>';return;}
@@ -832,7 +852,7 @@ function openPlaylistPage(plId){
   currentPlaylistId=plId;
   G('pl-page-title').textContent=pl.name;
   G('pl-page-count').textContent=pl.songs.length+' songs';
-  G('pl-page-thumb').textContent='🎵';
+  G('pl-page-thumb').innerHTML='&#127925;';
   if(pl.songs.length) renderRows('pl-page-list',pl.songs);
   else G('pl-page-list').innerHTML='<div style="text-align:center;color:var(--muted);padding:40px 0;">No songs yet</div>';
   showPage('playlist');
@@ -861,7 +881,7 @@ function renderSidebarPlaylists(){
   }
   el.innerHTML=playlists.map(function(pl){
     return '<div class="pl-item" onclick="openPlaylistPage('+pl.id+')">'
-      +'<div class="pl-thumb">'+(pl.songs[0]?'<img src="'+pl.songs[0].thumb+'" onerror="this.style.display=\'none\'">':'')+'🎵</div>'
+      +'<div class="pl-thumb">'+(pl.songs[0]?'<img src="'+pl.songs[0].thumb+'" onerror="this.style.display=\'none\'">':'')+'&#127925;</div>'
       +esc(pl.name)
       +'</div>';
   }).join('');
@@ -1028,6 +1048,7 @@ renderStations('all-stations',stations);
 renderArtists('home-artists',artists.slice(0,8));
 renderArtists('all-artists',artists);
 renderRecentCards();
+renderRows('picks-list',seedSongs);
 renderSidebarPlaylists();
 renderLibraryCards();
 refreshLiked();
