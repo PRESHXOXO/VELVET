@@ -215,18 +215,18 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
 var API_KEY = 'AIzaSyCOPIlhlMif2rurvQB4qLkM4you1pVVQ-4';
 var API_ENDPOINT = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10';
 var stations = [
-  {name:'90s R&B',query:'90s R&B hits',gradient:'linear-gradient(135deg,#1a0030,#3d0060)'},
-  {name:'Neo Soul',query:'neo soul music',gradient:'linear-gradient(135deg,#1a1000,#3d2800)'},
-  {name:'2000s R&B',query:'2000s R&B hits',gradient:'linear-gradient(135deg,#001a1a,#003d3d)'},
-  {name:'Current R&B',query:'2024 R&B new music',gradient:'linear-gradient(135deg,#1a0008,#3d0018)'},
-  {name:'Hip Hop Classics',query:'90s hip hop classics',gradient:'linear-gradient(135deg,#0a0a1a,#1a1a3d)'},
-  {name:'Trap and Hip Hop',query:'trap hip hop 2024',gradient:'linear-gradient(135deg,#1a0a00,#3d1800)'},
-  {name:'Slow Jams',query:'slow jams R&B',gradient:'linear-gradient(135deg,#100018,#280030)'},
-  {name:'Girl Power',query:'female R&B pop hits',gradient:'linear-gradient(135deg,#1a0010,#3d0025)'},
-  {name:'Throwback',query:'80s 90s throwback hits',gradient:'linear-gradient(135deg,#001010,#002828)'},
-  {name:'Workout Hype',query:'workout hype music',gradient:'linear-gradient(135deg,#001a00,#003d00)'},
-  {name:'Chill Vibes',query:'chill R&B vibes',gradient:'linear-gradient(135deg,#0a1020,#1a2040)'},
-  {name:'Sunday Morning',query:'Sunday morning soul music',gradient:'linear-gradient(135deg,#1a1000,#302000)'}
+  {name:'90s R&B',query:'90s R&B hits',gradient:'linear-gradient(135deg,#1a0030,#3d0060)',seedIndexes:[0,1,3,4,8,10]},
+  {name:'Neo Soul',query:'neo soul music',gradient:'linear-gradient(135deg,#1a1000,#3d2800)',seedIndexes:[10,11,5,6,7,0]},
+  {name:'2000s R&B',query:'2000s R&B hits',gradient:'linear-gradient(135deg,#001a1a,#003d3d)',seedIndexes:[2,5,6,7,8,11]},
+  {name:'Current R&B',query:'2024 R&B new music',gradient:'linear-gradient(135deg,#1a0008,#3d0018)',seedIndexes:[7,11,2,5,6,10]},
+  {name:'Hip Hop Classics',query:'90s hip hop classics',gradient:'linear-gradient(135deg,#0a0a1a,#1a1a3d)',seedIndexes:[1,3,4,8,0,2]},
+  {name:'Trap and Hip Hop',query:'trap hip hop 2024',gradient:'linear-gradient(135deg,#1a0a00,#3d1800)',seedIndexes:[7,2,5,6,1,8]},
+  {name:'Slow Jams',query:'slow jams R&B',gradient:'linear-gradient(135deg,#100018,#280030)',seedIndexes:[5,6,10,11,0,8]},
+  {name:'Girl Power',query:'female R&B pop hits',gradient:'linear-gradient(135deg,#1a0010,#3d0025)',seedIndexes:[1,3,4,10,7,11]},
+  {name:'Throwback',query:'80s 90s throwback hits',gradient:'linear-gradient(135deg,#001010,#002828)',seedIndexes:[0,1,3,4,8,10]},
+  {name:'Workout Hype',query:'workout hype music',gradient:'linear-gradient(135deg,#001a00,#003d00)',seedIndexes:[2,7,8,1,5,6]},
+  {name:'Chill Vibes',query:'chill R&B vibes',gradient:'linear-gradient(135deg,#0a1020,#1a2040)',seedIndexes:[10,11,0,6,7,5]},
+  {name:'Sunday Morning',query:'Sunday morning soul music',gradient:'linear-gradient(135deg,#1a1000,#302000)',seedIndexes:[10,11,0,5,6,3]}
 ];
 var seedSongs = [
   {title:'Can We Talk',artist:'Tevin Campbell',videoId:'3SoYkCAzMBk'},
@@ -291,6 +291,20 @@ function findTrackByVideoId(videoId){
   }
   return null;
 }
+function cloneTrack(track){
+  return {title:track.title,artist:track.artist,videoId:track.videoId,thumb:track.thumb || ytThumb(track.videoId)};
+}
+function getStationTracks(i){
+  var st = stations[i];
+  if(!st){ return []; }
+  if(!stationTracksMap[i]){
+    stationTracksMap[i] = (st.seedIndexes || []).map(function(idx){
+      var track = seedSongs[idx];
+      return track ? cloneTrack(track) : null;
+    }).filter(Boolean);
+  }
+  return stationTracksMap[i];
+}
 
 function showPage(page){
   document.querySelectorAll('.page').forEach(function(el){ el.classList.remove('active'); });
@@ -352,25 +366,22 @@ async function fetchSongs(query, max){
   }
 }
 
-async function openStation(i){
+function openStation(i){
   currentStation = i;
   showPage('station');
   var st = stations[i];
   document.getElementById('stationTitle').textContent = st.name;
-  document.getElementById('stationSub').textContent = st.query;
+  document.getElementById('stationSub').textContent = st.query + ' · auto-loaded mix';
   var load = document.getElementById('stationLoading');
-  load.innerHTML = '<div class="spinner"></div>';
-  document.getElementById('stationSongs').innerHTML = '';
-  var tracks = await fetchSongs(st.query, 25);
-  stationTracksMap[i] = tracks;
+  var tracks = getStationTracks(i);
   storeStations('station_' + i, tracks);
   storeRows('stationRows', tracks);
-  document.getElementById('stationSongs').innerHTML = tracks.map(function(t, idx){ return songRowHtml(t, idx, 'stationRows', 'row'); }).join('');
-  load.innerHTML = '';
+  document.getElementById('stationSongs').innerHTML = tracks.map(function(t, idx){ return songRowHtml(t, idx, 'stationRows', 'row'); }).join('') || '<div class="empty-state">This station does not have a local mix yet.</div>';
+  load.innerHTML = '<div class="topbar-pill">Loaded instantly from the built-in station mix</div>';
 }
-function playStationByIndex(i){ openStation(i).then(function(){ playCurrentStation(); }); }
-function playCurrentStation(){ if(currentStation === null){ return; } var arr = stationTracksMap[currentStation] || []; playFromArray(arr, 0); }
-function shuffleCurrentStation(){ if(currentStation === null){ return; } var arr = (stationTracksMap[currentStation] || []).slice(); if(!arr.length){ return; } arr.sort(function(){ return Math.random() - 0.5; }); playFromArray(arr, 0); }
+function playStationByIndex(i){ openStation(i); playCurrentStation(); }
+function playCurrentStation(){ if(currentStation === null){ return; } var arr = getStationTracks(currentStation); playFromArray(arr, 0); }
+function shuffleCurrentStation(){ if(currentStation === null){ return; } var arr = getStationTracks(currentStation).slice(); if(!arr.length){ return; } arr.sort(function(){ return Math.random() - 0.5; }); playFromArray(arr, 0); }
 
 async function doSearch(){
   showPage('search');
@@ -605,7 +616,7 @@ function refreshVisibleLists(){
   if(document.getElementById('page-library').classList.contains('active')){ renderLibrary(); }
   if(document.getElementById('page-playlist').classList.contains('active') && activePlaylistId){ openPlaylist(activePlaylistId); }
   if(document.getElementById('page-station').classList.contains('active') && currentStation !== null){
-    var tracks = stationTracksMap[currentStation] || [];
+    var tracks = getStationTracks(currentStation);
     storeRows('stationRows', tracks);
     document.getElementById('stationSongs').innerHTML = tracks.map(function(t, idx){ return songRowHtml(t, idx, 'stationRows', 'row'); }).join('');
   }
@@ -620,6 +631,14 @@ function refreshVisibleLists(){
 function escapeHtml(s){
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+function applyHashRoute(){
+  if(!location.hash){ return; }
+  var match = location.hash.match(/^#station-(\d+)$/);
+  if(match){
+    var idx = Math.max(0, Math.min(parseInt(match[1], 10), stations.length - 1));
+    openStation(idx);
+  }
+}
 
 document.addEventListener('keydown', function(e){
   if(e.target && e.target.tagName === 'INPUT'){ return; }
@@ -627,14 +646,17 @@ document.addEventListener('keydown', function(e){
   if(e.code === 'ArrowRight'){ nextTrack(); }
   if(e.code === 'ArrowLeft'){ prevTrack(); }
 });
+window.addEventListener('hashchange', applyHashRoute);
 
 renderStations();
+stations.forEach(function(st, i){ getStationTracks(i); });
 renderSidebarPlaylists();
 renderHomeTopPicks();
 renderHomeRecent();
 renderLibrary();
 setPlayText('Play');
 updateHeroStats();
+applyHashRoute();
 initYouTube();
 </script>
 </body>
