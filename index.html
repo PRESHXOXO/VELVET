@@ -1941,14 +1941,26 @@ function renderSearchView(){
   loadLiveSearchResults(q, total, matches.tracks);
 }
 
+var _apiErrShown = false;
+function showApiError(reason){
+  if(_apiErrShown){ return; }
+  _apiErrShown = true;
+  var banner = document.createElement('div');
+  banner.id = 'api-error-banner';
+  banner.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a0a0a;border:1px solid #c0392b;color:#e74c3c;padding:10px 18px;border-radius:10px;font-size:13px;z-index:9999;max-width:480px;text-align:center;line-height:1.4;';
+  banner.innerHTML = '<strong>YouTube API error:</strong> ' + reason + '<br><span style="color:#aaa;font-size:11px;">Check Google Cloud Console → API key restrictions</span>';
+  document.body.appendChild(banner);
+  setTimeout(function(){ banner.remove(); _apiErrShown = false; }, 12000);
+}
 async function fetchSongs(query, max, context){
   var url = API_ENDPOINT + '&key=' + encodeURIComponent(API_KEY) + '&q=' + encodeURIComponent(query) + '&maxResults=' + max;
   try{
     var res = await fetch(url);
     if(!res.ok){
       var errBody = await res.json().catch(function(){ return {}; });
-      var reason = (errBody.error && errBody.error.message) ? errBody.error.message : res.status;
+      var reason = (errBody.error && errBody.error.message) ? errBody.error.message : 'HTTP ' + res.status;
       console.warn('[Velvet] YouTube API error for "' + query + '":', reason);
+      showApiError(reason);
       return [];
     }
     var data = await res.json();
@@ -1964,6 +1976,7 @@ async function fetchSongs(query, max, context){
     return applyTrackContext(dedupeTracks(tracks), context).slice(0, max);
   }catch(err){
     console.warn('[Velvet] fetchSongs failed for "' + query + '":', err.message);
+    showApiError(err.message);
     return [];
   }
 }
