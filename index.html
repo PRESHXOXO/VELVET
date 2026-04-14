@@ -1240,9 +1240,9 @@ body{background:#050406}
           <div id="heroGuideTitle" class="spotlight-title">Start warm, then let the room deepen.</div>
           <p id="heroGuideCopy">Begin with glossy 90s R&amp;B, drift into softer neo soul, and keep a few patient slow-burn cuts close for later.</p>
           <div id="heroTrackButtons" class="hero-tracks">
-            <button class="hero-track" onclick="playFromArray(seedSongs,0)">Can We Talk<span>Tevin Campbell</span></button>
-            <button class="hero-track" onclick="playFromArray(seedSongs,5)">U.N.I.T.Y.<span>Queen Latifah</span></button>
-            <button class="hero-track" onclick="playFromArray(seedSongs,10)">Fortunate<span>Maxwell</span></button>
+            <button class="hero-track" onclick="playFromArray(seedSongs,0)">No Scrubs<span>TLC</span></button>
+            <button class="hero-track" onclick="playFromArray(seedSongs,5)">Try Again<span>Aaliyah</span></button>
+            <button class="hero-track" onclick="playFromArray(seedSongs,10)">End of the Road<span>Boyz II Men</span></button>
           </div>
           <div class="hero-meta">
             <div class="hero-stat"><strong id="heroPlaylistCount">0</strong><span>Playlists</span></div>
@@ -1360,18 +1360,18 @@ var stations = [
   {name:'Party Anthems',query:'early 2000s hip hop r&b party hits usher lil jon official audio',gradient:'linear-gradient(135deg,#1a0500,#3a1000)',seedIndexes:[2,7,8]}
 ];
 var seedSongs = [
-  {title:'Can We Talk',artist:'Tevin Campbell',videoId:'3SoYkCAzMBk'},
   {title:'No Scrubs',artist:'TLC',videoId:'FrLequ6dUdM'},
-  {title:'U Remind Me',artist:'Usher',videoId:'Bw0hsvP0jq4'},
   {title:'Say My Name',artist:'Destiny\'s Child',videoId:'sQgd6MccwZc'},
-  {title:'Back & Forth',artist:'Aaliyah',videoId:'N2MuM4S7VwE'},
-  {title:'U.N.I.T.Y.',artist:'Queen Latifah',videoId:'f8cHxydDb7o'},
-  {title:'Differences',artist:'Ginuwine',videoId:'U_90XNCBatY'},
+  {title:'Yeah!',artist:'Usher',videoId:'GxBSyx85Kp8'},
   {title:'So Sick',artist:'Ne-Yo',videoId:'IxszlJppRQI'},
   {title:'You Make Me Wanna...',artist:'Usher',videoId:'bQRzrnH6_HY'},
-  {title:'Bump n\' Grind',artist:'R Kelly',videoId:'QQSYo_pC-QA'},
-  {title:'Fortunate',artist:'Maxwell',videoId:'TOX6fVj0f2s'},
-  {title:'I Wanna Know',artist:'Joe',videoId:'WsAB0YFhIxg'}
+  {title:'Try Again',artist:'Aaliyah',videoId:'nEF_-IcnQC4'},
+  {title:'Rock the Boat',artist:'Aaliyah',videoId:'A5AAcgtMjUI'},
+  {title:'Family Affair',artist:'Mary J. Blige',videoId:'znlFu_lemsU'},
+  {title:'I Believe I Can Fly',artist:'R. Kelly',videoId:'GIQn8pab8Vc'},
+  {title:'I Wanna Be Down',artist:'Brandy',videoId:'PzpLkcfBe-A'},
+  {title:'End of the Road',artist:'Boyz II Men',videoId:'zDKO6XYXioc'},
+  {title:'If Your Girl Only Knew',artist:'Aaliyah',videoId:'v_Qy6vaMsFQ'}
 ];
 
 var stationNotes = [
@@ -1444,6 +1444,7 @@ var repeatOn = false;
 var playlists = readStorage('vlv_playlists', []);
 var liked = readStorage('vlv_liked', []);
 var recent = readStorage('vlv_recent', []);
+(function(){try{if(localStorage.getItem('vlv_cv')!=='4'){localStorage.removeItem('vlv_live_catalog');localStorage.setItem('vlv_cv','4');}}catch(e){}})();
 var liveCatalogCache = readStorage('vlv_live_catalog', {});
 var stationTracksMap = {};
 var stationLoadPromises = {};
@@ -1599,7 +1600,7 @@ function dedupeTracks(list){
     return true;
   }).map(hydrateTrack).filter(Boolean);
 }
-homeFeedTracks = getCachedTracks('home-feed');
+homeFeedTracks = (function(){ var c = getCachedTracks('home-feed'); return c.length ? mergeTrackLists(42, [c, seedSongs]) : []; })();
 function getAllCatalogTracks(){
   var groups = [seedSongs, homeFeedTracks, liked, recent];
   playlists.forEach(function(pl){ groups.push(pl.songs || []); });
@@ -1777,13 +1778,14 @@ function trimCopy(text, max){
   return value.slice(0, Math.max(0, max - 3)).trim() + '...';
 }
 async function ensureHomeFeedLoaded(){
-  if(homeFeedTracks.length){ return homeFeedTracks; }
+  if(homeFeedTracks.length > seedSongs.length){ return homeFeedTracks; }
   if(homeFeedPromise){ return homeFeedPromise; }
   homeFeedPromise = Promise.all(HOME_FEED_QUERIES.map(function(entry){
     return fetchSongsCached(entry.key, entry.query, 12, {tags:entry.tags});
   })).then(function(groups){
-    homeFeedTracks = mergeTrackLists(42, groups.concat([seedSongs]));
-    if(homeFeedTracks.length){ saveCachedTracks('home-feed', homeFeedTracks); }
+    var apiTracks = mergeTrackLists(36, groups);
+    homeFeedTracks = mergeTrackLists(42, [apiTracks, seedSongs]);
+    if(apiTracks.length){ saveCachedTracks('home-feed', apiTracks); }
     renderHeroFeature();
     renderHomeTopPicks();
     renderHomeArtists();
