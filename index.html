@@ -1100,6 +1100,41 @@ body{background:#050406}
 
 /* ── Artist hero page ───────────────────────────────────── */
 .artist-hero{box-shadow:none;border-color:rgba(255,255,255,.07)}
+
+/* ── Uniform equal-size grids — remove all asymmetric sizing */
+.station-grid,.artist-grid,.cards{gap:10px}
+#homeStations .station-card:first-child,
+#homeStations .station-card:nth-child(2){grid-column:span 4;min-height:auto}
+#homeArtists .artist-card:first-child,
+#homeArtists .artist-card:nth-child(2){grid-column:span 4;min-height:auto}
+#homeRecent .card:first-child,
+#homeRecent .card:nth-child(2),
+#homeRecent .card:nth-child(3){grid-column:span 4}
+
+/* ── Station card — fix wrapping, compact height ─────────── */
+.station-card{min-height:108px;padding:12px}
+.station-card h4{max-width:none;font-size:clamp(.85rem,1.05vw,1rem);margin-top:6px;line-height:1.2}
+.station-card p{display:none}
+.station-card__tags{display:none}
+.station-card__footer{margin-top:auto;padding-top:6px}
+.station-badge,.artist-card__label{padding:4px 8px;font-size:9px;letter-spacing:.12em}
+.station-card__count,.artist-card__count{font-size:9px}
+
+/* ── Artist card — fix wrapping, compact ────────────────── */
+.artist-card{min-height:148px;padding:12px}
+.artist-card h3{max-width:none;font-size:clamp(.85rem,1.05vw,1.05rem)}
+.artist-card p{font-size:10px;line-height:1.5;margin-top:6px}
+.artist-avatar{width:44px;height:44px;border-radius:12px;font-size:1.4rem}
+.artist-stat strong{font-size:1rem}
+
+/* ── Card thumbnails — 16:9 ratio keeps images compact ───── */
+.card-media{aspect-ratio:16/9}
+
+/* ── Section titles — reduce visual weight ───────────────── */
+.section-title,.feature-panel h2{font-size:clamp(1.1rem,1.4vw,1.4rem)}
+.section{margin-top:16px;padding-top:8px}
+.section-head{margin-bottom:8px}
+.section-deck,.feature-panel p{font-size:10px;margin-top:4px}
 </style>
 </head>
 <body>
@@ -1732,7 +1767,7 @@ function renderStations(){
   home.innerHTML = ''; all.innerHTML = '';
   stations.forEach(function(st, i){
     var h = stationCardHtml(st, i, 'Station');
-    if(i < 9){ home.innerHTML += h; }
+    if(i < 6){ home.innerHTML += h; }
     all.innerHTML += h;
   });
 }
@@ -1788,7 +1823,7 @@ function renderHeroFeature(){
 }
 
 function renderHomeTopPicks(){
-  var picks = (homeFeedTracks.length ? homeFeedTracks : getHomeFallbackTracks()).slice(0, 28);
+  var picks = (homeFeedTracks.length ? homeFeedTracks : getHomeFallbackTracks()).slice(0, 12);
   storeRows('homeTop', picks);
   var html = picks.map(function(t, i){ return songRowHtml(t, i, 'homeTop', 'row'); }).join('');
   document.getElementById('homeTopPicks').innerHTML = html || '<div class="empty-state">Top picks will appear here once Velvet pulls in more tracks.</div>';
