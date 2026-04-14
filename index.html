@@ -1336,7 +1336,7 @@ body{background:#050406}
 
 <script>
 var API_KEY = 'AIzaSyCOPIlhlMif2rurvQB4qLkM4you1pVVQ-4';
-var API_ENDPOINT = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10';
+var API_ENDPOINT = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video';
 var stations = [
   {name:'90s R&B',query:'90s R&B hits',gradient:'linear-gradient(135deg,#1a0030,#3d0060)',seedIndexes:[0,1,3,4,8,10]},
   {name:'Neo Soul',query:'neo soul music',gradient:'linear-gradient(135deg,#1a1000,#3d2800)',seedIndexes:[10,11,5,6,7,0]},
@@ -1942,17 +1942,28 @@ function renderSearchView(){
 }
 
 async function fetchSongs(query, max, context){
-  var url = API_ENDPOINT + '&videoEmbeddable=true&key=' + encodeURIComponent(API_KEY) + '&q=' + encodeURIComponent(query) + '&maxResults=' + max;
+  var url = API_ENDPOINT + '&key=' + encodeURIComponent(API_KEY) + '&q=' + encodeURIComponent(query) + '&maxResults=' + max;
   try{
     var res = await fetch(url);
-    if(!res.ok){ throw new Error('Request failed'); }
+    if(!res.ok){
+      var errBody = await res.json().catch(function(){ return {}; });
+      var reason = (errBody.error && errBody.error.message) ? errBody.error.message : res.status;
+      console.warn('[Velvet] YouTube API error for "' + query + '":', reason);
+      return [];
+    }
     var data = await res.json();
-    var tracks = (data.items || []).map(function(item){
+    if(!data.items || !data.items.length){
+      console.warn('[Velvet] YouTube API returned 0 results for "' + query + '"');
+      return [];
+    }
+    var tracks = data.items.map(function(item){
       var id = item.id && item.id.videoId ? item.id.videoId : '';
       return hydrateTrack({title:item.snippet.title,artist:item.snippet.channelTitle,thumb:ytThumb(id),videoId:id});
     }).filter(function(x){ return x && x.videoId; });
+    console.log('[Velvet] Loaded ' + tracks.length + ' tracks for "' + query + '"');
     return applyTrackContext(dedupeTracks(tracks), context).slice(0, max);
   }catch(err){
+    console.warn('[Velvet] fetchSongs failed for "' + query + '":', err.message);
     return [];
   }
 }
