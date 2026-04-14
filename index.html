@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Velvet</title>
+<title>Velvet — Private Listening Club</title>
+<meta name="description" content="After-hours R&B and soul streaming. Curated stations, artist profiles, and a full player — no login required.">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#060609;--bg2:#11121a;--panel:rgba(17,18,27,.92);--card:rgba(28,27,38,.92);--card2:rgba(255,255,255,.04);--accent:#ff5e7f;--accent2:#ef315e;--warm:#ffb46c;--text:#faf2ee;--muted:rgba(250,242,238,.66);--line:rgba(250,242,238,.1);--line2:rgba(250,242,238,.06);--tint:rgba(255,94,127,.14);--shadow:0 24px 80px rgba(0,0,0,.34);--glow:0 24px 70px rgba(239,49,94,.18)}
 *{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}button,input{font:inherit}
-body{min-height:100vh;overflow:hidden;background:radial-gradient(circle at left top,rgba(255,94,127,.18),transparent 26%),radial-gradient(circle at 82% 2%,rgba(255,180,108,.16),transparent 24%),linear-gradient(180deg,#060609 0%,#0b0c12 55%,#07070a 100%);color:var(--text);font-family:"Space Grotesk",sans-serif;display:flex;flex-direction:column}
+body{min-height:100vh;overflow:hidden;background:radial-gradient(circle at left top,rgba(255,94,127,.18),transparent 26%),radial-gradient(circle at 82% 2%,rgba(255,180,108,.16),transparent 24%),linear-gradient(180deg,#060609 0%,#0b0c12 55%,#07070a 100%);color:var(--text);font-family:"Montserrat",sans-serif;display:flex;flex-direction:column}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(120deg,rgba(255,255,255,.015),transparent 35%),radial-gradient(circle at 20% 30%,rgba(255,255,255,.035),transparent 35%);opacity:.7}
 .shell{display:flex;flex:1;min-height:0;gap:18px;padding:18px 18px 0}
 .sidebar,.main{border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(20px)}
@@ -1006,7 +1007,7 @@ input:focus-visible,
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-mark">V<span>E</span>LVET</div>
-      <div class="brand-note">After-hours streaming with stronger hierarchy, richer surfaces, and controls that finally feel like a player.</div>
+      <div class="brand-note">After-hours R&amp;B and soul. Private listening, no login, pure mood.</div>
     </div>
     <div class="nav">
       <div class="nav-group">
@@ -1808,34 +1809,7 @@ function renderStationView(i){
   }
 }
 
-function openStationStarterUnused(i){
-  currentStation = i;
-  showPage('station', true);
-  var st = stations[i];
-  document.getElementById('stationTitle').textContent = st.name;
-  document.getElementById('stationSub').textContent = (st.description || st.query) + ' · auto-loaded mix';
-  var load = document.getElementById('stationLoading');
-  var tracks = getStationTracks(i);
-  storeStations('station_' + i, tracks);
-  storeRows('stationRows', tracks);
-  document.getElementById('stationSongs').innerHTML = tracks.map(function(t, idx){ return songRowHtml(t, idx, 'stationRows', 'row'); }).join('') || '<div class="empty-state">This station does not have a local mix yet.</div>';
-  load.innerHTML = '<div class="topbar-pill">Loaded instantly from the built-in station mix</div>';
-  setHash('station-' + i);
-}
 function playStationByIndex(i){ openStation(i); playCurrentStation(); }
-async function openStationLegacyUnused(i){
-  currentStation = i;
-  showPage('station', true);
-  var st = stations[i];
-  document.getElementById('stationTitle').textContent = st.name;
-  document.getElementById('stationSub').textContent = (st.description || st.query) + ' - extended with YouTube pulls';
-  document.getElementById('stationSub').textContent = (st.description || st.query) + ' - extended with YouTube pulls';
-  renderStationView(i);
-  document.getElementById('stationSub').textContent = (st.description || st.query) + ' - extended with YouTube pulls';
-  setHash('station-' + i);
-  await ensureStationCatalogLoaded(i);
-  if(currentStation === i){ renderStationView(i); }
-}
 function playCurrentStation(){ if(currentStation === null){ return; } var arr = getStationTracks(currentStation); playFromArray(arr, 0); }
 function shuffleCurrentStation(){ if(currentStation === null){ return; } var arr = getStationTracks(currentStation).slice(); if(!arr.length){ return; } arr.sort(function(){ return Math.random() - 0.5; }); playFromArray(arr, 0); }
 function openArtist(slug){
