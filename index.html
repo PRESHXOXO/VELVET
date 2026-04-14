@@ -1000,6 +1000,107 @@ input:focus-visible,
   .hero-floating{grid-template-columns:1fr}
 }
 </style>
+<style id="velvet-flat">
+/* ── Remove decorative pseudo-elements ─────────────────── */
+body::before,body::after,
+.sidebar::before,.main::before,
+.hero::before,.hero::after,
+.feature-panel::before,.feature-panel::after,
+.station-card::before,
+.artist-card::before,
+.card::after,
+.result-block::before,
+.artist-hero::before{display:none}
+
+/* ── Solid body ─────────────────────────────────────────── */
+body{background:#050406}
+
+/* ── Solid sidebar & main panel ────────────────────────── */
+.sidebar{backdrop-filter:none;background:#0c0a10;border-color:rgba(255,255,255,.07)}
+.main{backdrop-filter:none;background:#050406;border-color:rgba(255,255,255,.07)}
+.app-topbar{background:#050406;backdrop-filter:none}
+.app-topbar::after{display:none}
+
+/* ── Hero — condensed single-row banner ─────────────────── */
+.hero{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:20px;
+  min-height:auto;
+  padding:16px 20px;
+  border-radius:12px;
+  background:#100c15;
+  box-shadow:none;
+  border-color:rgba(255,255,255,.07);
+}
+.hero-stage,.hero-spotlight{display:none}
+.hero-copy{flex:1;max-width:none;gap:10px}
+.hero-copy h1{font-size:clamp(1.15rem,1.75vw,1.65rem);max-width:none;line-height:1.18}
+.hero-copy p,.hero-meta{display:none}
+
+/* ── Feature panels ─────────────────────────────────────── */
+.feature-panel{background:#0d0b11;box-shadow:none;border-color:rgba(255,255,255,.07)}
+
+/* ── Station cards — flat + fix home overflow ───────────── */
+.station-card{box-shadow:none;border-color:rgba(255,255,255,.07)}
+.station-card h4{margin-top:8px}
+.station-card p{margin-top:4px;font-size:10px;line-height:1.5}
+.station-card__tags{margin-top:6px}
+.station-card__tags span{padding:4px 8px;font-size:9px}
+.station-card__footer{margin-top:6px}
+#homeStations .station-card p,
+#homeStations .station-card .station-card__tags{display:none}
+#homeStations .station-card .station-card__footer{margin-top:auto}
+
+/* ── Artist cards ───────────────────────────────────────── */
+.artist-card{box-shadow:none;border-color:rgba(255,255,255,.07)}
+
+/* ── Album / library cards ──────────────────────────────── */
+.card{background:#0d0b11;box-shadow:none;border-color:rgba(255,255,255,.07)}
+
+/* ── Song rows ──────────────────────────────────────────── */
+.song-row{background:#0d0b11;border-color:rgba(255,255,255,.06)}
+.song-num,.song-heart,.song-add{background:#131019;border-color:rgba(255,255,255,.06)}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn.ghost{background:#131019;border-color:rgba(255,255,255,.08)}
+.btn.subtle{background:#0d0b11;border-color:rgba(255,255,255,.06)}
+.icon-pill,.chip-btn,.exp-chip,.exp-top button,.qhead button{background:#131019;border-color:rgba(255,255,255,.07)}
+.search-shell{background:#0d0b11;border-color:rgba(255,255,255,.07);box-shadow:none}
+.header-search{background:#131019;box-shadow:none;border-color:rgba(255,255,255,.07)}
+.quick-chip{background:#131019;border-color:rgba(255,255,255,.07)}
+
+/* ── Now playing bar ────────────────────────────────────── */
+.now{backdrop-filter:none;background:#0c0a10;border-color:rgba(255,255,255,.07);box-shadow:none}
+
+/* ── Expanded player ────────────────────────────────────── */
+.expanded{backdrop-filter:none;background:rgba(4,3,7,.97)}
+.exp-surface{background:#100c15;box-shadow:none;border-color:rgba(255,255,255,.07)}
+
+/* ── Queue panel ────────────────────────────────────────── */
+.qpanel{backdrop-filter:none;background:#0c0a10;box-shadow:none;border-color:rgba(255,255,255,.07)}
+
+/* ── Modals ─────────────────────────────────────────────── */
+.modal-wrap{backdrop-filter:none;background:rgba(3,2,5,.94)}
+.modal{background:#100c15;box-shadow:none;border-color:rgba(255,255,255,.07)}
+
+/* ── Search results ─────────────────────────────────────── */
+.result-block{background:#0d0b11;box-shadow:none;border-color:rgba(255,255,255,.07)}
+.results-stack>.result-block:first-child,
+.results-stack>.result-block:nth-child(2){background:#0d0b11}
+
+/* ── Pills & labels ─────────────────────────────────────── */
+.topbar-pill,.hero-eyebrow,.panel-label,.section-kicker,.spotlight-label{background:#131019;border-color:rgba(255,255,255,.07)}
+
+/* ── Nav ─────────────────────────────────────────────────── */
+.nav-item:hover{background:rgba(255,255,255,.03)}
+.nav-item.active{background:rgba(200,16,56,.14);border-color:rgba(200,16,56,.16)}
+.playlist-item{background:#0d0b11;border-color:rgba(255,255,255,.06)}
+
+/* ── Artist hero page ───────────────────────────────────── */
+.artist-hero{box-shadow:none;border-color:rgba(255,255,255,.07)}
+</style>
 </head>
 <body>
 <div id="yt-wrap"></div>
