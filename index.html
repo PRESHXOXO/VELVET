@@ -1128,6 +1128,13 @@ body{background:#030204}
 #artistStations .station-card:first-child,
 #artistStations .station-card:nth-child(2){grid-column:span 4}
 
+/* ── Artists page ────────────────────────────────────────── */
+.artists-page-header{display:flex;flex-direction:column;gap:14px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:4px}
+.artists-alpha-bar{display:flex;flex-wrap:wrap;gap:6px}
+.alpha-btn{padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.07);background:#1e1a2a;color:rgba(247,239,233,.66);font-size:12px;font-weight:600;letter-spacing:.06em;cursor:pointer;transition:background .18s,border-color .18s,color .18s}
+.alpha-btn:hover{background:#2a2540;border-color:rgba(255,255,255,.14);color:#f7efe9}
+.alpha-btn.active{background:rgba(200,16,56,.18);border-color:rgba(200,16,56,.3);color:#f7efe9}
+
 /* ── Search page ─────────────────────────────────────────── */
 .search-bar-wrap{display:flex;flex-direction:column;gap:12px;margin-bottom:4px}
 .quick-searches{display:flex;flex-wrap:wrap;gap:8px}
@@ -1252,7 +1259,7 @@ body{background:#030204}
 
     <div id="page-search" class="page"><div class="content"><div class="search-bar-wrap"><div class="search-shell"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg><input id="searchInput" placeholder="Artists, tracks, moods…" onkeydown="if(event.key==='Enter'){doSearch()}"><button class="btn red" onclick="doSearch()"><svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></svg><span>Search</span></button></div><div class="quick-searches"><button class="quick-chip" onclick="runQuickSearch('neo soul essentials')">Neo Soul</button><button class="quick-chip" onclick="runQuickSearch('90s r&b classics')">90s R&amp;B</button><button class="quick-chip" onclick="runQuickSearch('slow jams love songs')">Slow Jams</button><button class="quick-chip" onclick="runQuickSearch('women of r&b')">Women of R&amp;B</button><button class="quick-chip" onclick="runQuickSearch('2000s r&b hits')">2000s R&amp;B</button><button class="quick-chip" onclick="runQuickSearch('aaliyah beyonce mary j blige')">Icons</button><button class="quick-chip" onclick="runQuickSearch('trap hip hop 2024')">Hip Hop</button><button class="quick-chip" onclick="runQuickSearch('chill r&b vibes')">Chill</button></div></div><div id="searchLoading"></div><div id="searchSummary" class="search-meta" style="display:none"></div><div id="searchResults"></div></div></div>
 
-    <div id="page-artists" class="page"><div class="content"><div class="feature-panel"><div><div class="panel-label">Editorial directory</div><h2>Artists</h2><p>Profiles, essential tracks, and routes into stations so the app feels like a catalog, not just a single playlist page.</p></div></div><div id="artistsGrid" class="artist-grid"></div></div></div>
+    <div id="page-artists" class="page"><div class="content"><div class="artists-page-header"><div><div class="panel-label">Editorial directory</div><h2 class="section-title" style="margin-top:6px">Artists</h2></div><div id="artistsAlphaBar" class="artists-alpha-bar"></div></div><div id="artistsGrid"></div></div></div>
 
     <div id="page-artist" class="page"><div class="content"><div id="artistHero" class="artist-hero"></div><section class="section"><div class="section-head"><div><div class="section-kicker">Essentials</div><div class="section-title" id="artistTracksTitle">Top Tracks</div></div></div><div id="artistSongs" class="song-list"></div></section><section class="section"><div class="section-head"><div><div class="section-kicker">Where they fit</div><div class="section-title">Related Stations</div></div></div><div id="artistStations" class="station-grid"></div></section></div></div>
 
@@ -1844,7 +1851,53 @@ function renderHomeArtists(){
 }
 function renderArtistsPage(){
   var slugs = getArtistSlugs();
-  document.getElementById('artistsGrid').innerHTML = slugs.map(artistCardHtml).join('') || '<div class="empty-state">No artist profiles are ready yet.</div>';
+  var activeFilter = window._artistFilter || 'all';
+
+  // Featured = explicit artistProfiles entries (up to 9)
+  var featuredSlugs = Object.keys(artistProfiles).slice(0, 9);
+  var featuredSet = {};
+  featuredSlugs.forEach(function(s){ featuredSet[s] = true; });
+
+  // Rest sorted A–Z
+  var rest = slugs.filter(function(s){ return !featuredSet[s]; });
+  rest.sort(function(a, b){ return getArtistName(a).localeCompare(getArtistName(b)); });
+
+  // Collect active first letters from all artists
+  var activeLetters = {};
+  featuredSlugs.concat(rest).forEach(function(s){
+    var l = getArtistName(s).charAt(0).toUpperCase();
+    if(/[A-Z]/.test(l)){ activeLetters[l] = true; }
+  });
+  var letters = Object.keys(activeLetters).sort();
+
+  // Render alpha bar
+  var alphaBar = document.getElementById('artistsAlphaBar');
+  if(alphaBar){
+    alphaBar.innerHTML =
+      '<button class="alpha-btn' + (activeFilter === 'all' ? ' active' : '') + '" onclick="setArtistFilter(\'all\')">All</button>' +
+      letters.map(function(l){
+        return '<button class="alpha-btn' + (activeFilter === l ? ' active' : '') + '" onclick="setArtistFilter(\'' + l + '\')">' + l + '</button>';
+      }).join('');
+  }
+
+  // Apply letter filter
+  var matchesFilter = function(s){ return activeFilter === 'all' || getArtistName(s).charAt(0).toUpperCase() === activeFilter; };
+  var filteredFeatured = featuredSlugs.filter(matchesFilter);
+  var filteredRest = rest.filter(matchesFilter);
+
+  var html = '';
+  if(filteredFeatured.length){
+    html += '<section class="search-section"><div class="search-section-head"><span class="section-title">Featured Artists</span></div><div class="artist-grid">' + filteredFeatured.map(artistCardHtml).join('') + '</div></section>';
+  }
+  if(filteredRest.length){
+    var label = activeFilter === 'all' ? 'All Artists' : 'Artists — ' + activeFilter;
+    html += '<section class="search-section"><div class="search-section-head"><span class="section-title">' + label + '</span></div><div class="artist-grid">' + filteredRest.map(artistCardHtml).join('') + '</div></section>';
+  }
+  document.getElementById('artistsGrid').innerHTML = html || '<div class="empty-state">No artists found.</div>';
+}
+function setArtistFilter(letter){
+  window._artistFilter = letter;
+  renderArtistsPage();
 }
 function renderArtistPage(){
   if(!activeArtistSlug){ return; }
