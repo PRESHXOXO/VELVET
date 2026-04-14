@@ -1437,12 +1437,29 @@ var HOME_FEED_QUERIES = [
   {key:'home-neo',query:'neo soul essentials official audio',tags:['neo soul','late night']},
   {key:'home-current',query:'current r&b official audio',tags:['current r&b','new music']},
   {key:'home-slow',query:'slow jams official audio',tags:['slow jams','midnight']},
-  {key:'home-women',query:'women of r&b official audio',tags:['women of r&b','icons']}
+  {key:'home-women',query:'women of r&b official audio',tags:['women of r&b','icons']},
+  {key:'home-2000s',query:'2000s r&b classic hits official audio',tags:['2000s r&b','throwback']},
+  {key:'home-hiphop',query:'90s hip hop classic songs official audio',tags:['hip hop classics','gold era']},
+  {key:'home-boyz2',query:'boyz ii men mariah carey 90s official audio',tags:['90s r&b','classics','slow jams']},
+  {key:'home-beyonce',query:'beyonce destiny child r&b official audio',tags:['2000s r&b','women of r&b']},
+  {key:'home-trap',query:'trap r&b 2020 2021 official audio',tags:['trap','current r&b']}
 ];
 
 stations = stations.map(function(st, i){ return Object.assign({}, st, stationNotes[i] || {}); });
 seedSongs = seedSongs.map(function(track, i){ return Object.assign({}, track, seedMeta[i] || {}); });
 seedSongs.forEach(function(t){ t.thumb = ytThumb(t.videoId); });
+
+var BUILTIN_PLAYLISTS = [
+  {id:'__bp_90s', name:'90s Essentials', kicker:'Velvet mix', note:'The definitive 90s R&B run — glossy hooks, slow burns, and new jack swing energy.', seedIdxs:[0,1,3,4,8,9]},
+  {id:'__bp_neo', name:'Neo Soul Nights', kicker:'Velvet mix', note:'Live-band warmth, grown-room pacing, and vocals built for low lights.', seedIdxs:[10,11,5,6,0]},
+  {id:'__bp_late', name:'Late Night R&B', kicker:'Velvet mix', note:'Patient, tender, and built for the back half of the evening.', seedIdxs:[9,10,11,6,5,8]},
+  {id:'__bp_women', name:'Women of R&B', kicker:'Velvet mix', note:'Iconic voices, big hooks, and the records that defined the era.', seedIdxs:[1,3,4,5,7]},
+  {id:'__bp_all', name:'Velvet Starter', kicker:'Velvet mix', note:'The full seed catalog — every Velvet essential in one place.', seedIdxs:[0,1,2,3,4,5,6,7,8,9,10,11]}
+];
+BUILTIN_PLAYLISTS.forEach(function(pl){
+  pl.songs = pl.seedIdxs.map(function(i){ return seedSongs[i]; }).filter(Boolean);
+  pl.thumb = pl.songs[0] ? pl.songs[0].thumb : '';
+});
 
 function ytThumb(id){ return 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; }
 function readStorage(k, d){ try{ var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
@@ -2029,12 +2046,30 @@ function renderLibrary(){
     {name:'Liked Songs',sub:liked.length + ' songs',note:'The personal saves you marked for another late-night pass.',pin:'Saved',kicker:'Your red stamps',click:'showPage(\'liked\')',thumb:liked[0] ? liked[0].thumb : ''},
     {name:'Recently Played',sub:recent.length + ' songs',note:'A return shelf for the records you touched most recently.',pin:'History',kicker:'Last session',click:'showPage(\'recent\')',thumb:recent[0] ? recent[0].thumb : ''}
   ];
-  playlists.forEach(function(pl){ cards.push({name:pl.name,sub:pl.songs.length + ' songs',note:'Your own sequencing for the room, ready to open and play straight through.',pin:'Playlist',kicker:'Custom sequence',click:'openPlaylist(' + pl.id + ')',thumb:pl.songs[0] ? pl.songs[0].thumb : ''}); });
+  BUILTIN_PLAYLISTS.forEach(function(pl){
+    cards.push({name:pl.name,sub:pl.songs.length + ' tracks',note:pl.note,pin:'Mix',kicker:pl.kicker,click:'openBuiltinPlaylist("' + pl.id + '")',thumb:pl.thumb});
+  });
+  stations.forEach(function(st, i){
+    var tracks = getStationTracks(i);
+    var thumb = tracks[0] ? tracks[0].thumb : (seedSongs[st.seedIndexes ? st.seedIndexes[0] : 0] || seedSongs[0]).thumb;
+    cards.push({name:st.name,sub:tracks.length + ' tracks',note:st.description || st.query,pin:'Station',kicker:(st.tags || ['music'])[0] || 'station',click:'openStation(' + i + ')',thumb:thumb});
+  });
+  playlists.forEach(function(pl){ cards.push({name:pl.name,sub:pl.songs.length + ' songs',note:'Your own sequencing for the room, ready to open and play straight through.',pin:'Playlist',kicker:'Your mix',click:'openPlaylist(' + pl.id + ')',thumb:pl.songs[0] ? pl.songs[0].thumb : ''}); });
   document.getElementById('libraryCards').innerHTML = cards.map(function(c){
     var art = c.thumb ? '<img src="' + c.thumb + '" alt="">' : '<img src="https://img.youtube.com/vi/FrLequ6dUdM/hqdefault.jpg" alt="">';
     return '<div class="card" onclick="' + c.click + '"><div class="card-media">' + art + '<span class="card-pin">' + escapeHtml(c.pin || 'Library') + '</span></div><div class="meta"><span class="card-kicker">' + escapeHtml(c.kicker || 'Velvet shelf') + '</span><b>' + escapeHtml(c.name) + '</b><span>' + escapeHtml(c.sub) + '</span><small class="card-note">' + escapeHtml(c.note || 'Open this section inside your library.') + '</small></div></div>';
   }).join('');
   updateHeroStats();
+}
+function openBuiltinPlaylist(id){
+  var pl = BUILTIN_PLAYLISTS.find(function(p){ return p.id === id; });
+  if(!pl){ return; }
+  showPage('playlist', true);
+  document.getElementById('playlistTitle').textContent = pl.name;
+  document.getElementById('playlistMeta').textContent = pl.songs.length + ' tracks · Velvet original mix';
+  storeRows('playlistRows', pl.songs);
+  document.getElementById('playlistSongs').innerHTML = pl.songs.map(function(t, i){ return songRowHtml(t, i, 'playlistRows', 'row'); }).join('') || '<div class="empty-state">No tracks loaded yet.</div>';
+  setHash('playlist-' + id);
 }
 function renderLikedPage(){ storeRows('likedRows', liked); document.getElementById('likedSongs').innerHTML = liked.map(function(t, i){ return songRowHtml(t, i, 'likedRows', 'row'); }).join('') || '<div class="empty-state">No liked songs yet. Tap the heart on any track row or in the player to start building this list.</div>'; }
 function renderRecentPage(){ storeRows('recentRows', recent); document.getElementById('recentSongs').innerHTML = recent.map(function(t, i){ return songRowHtml(t, i, 'recentRows', 'row'); }).join('') || '<div class="empty-state">No recent songs yet. Playback history will appear here once you start listening.</div>'; }
