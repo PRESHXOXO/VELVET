@@ -1127,6 +1127,17 @@ body{background:#030204}
 #libraryCards .card:nth-child(n+3){grid-column:span 4}
 #artistStations .station-card:first-child,
 #artistStations .station-card:nth-child(2){grid-column:span 4}
+
+/* ── Search page ─────────────────────────────────────────── */
+.search-bar-wrap{display:flex;flex-direction:column;gap:12px;margin-bottom:4px}
+.quick-searches{display:flex;flex-wrap:wrap;gap:8px}
+.search-section{margin-top:28px}
+.search-section-head{margin-bottom:14px}
+.search-meta{color:rgba(247,239,233,.5);font-size:12px;margin-top:16px;letter-spacing:.06em}
+/* Card playing state */
+.card-now-playing{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(200,16,56,.3);border-radius:inherit}
+.card-now-playing svg{width:28px;height:28px;fill:#fff;filter:drop-shadow(0 2px 8px rgba(0,0,0,.5))}
+.card.playing{border-color:rgba(200,16,56,.4)!important}
 </style>
 </head>
 <body>
@@ -1239,7 +1250,7 @@ body{background:#030204}
 
     <div id="page-station" class="page"><div class="content"><div class="feature-panel"><div><div class="panel-label">Station view</div><h2 id="stationTitle">Station</h2><p id="stationSub">Live station stream</p></div><div class="panel-actions"><button class="btn red" onclick="playCurrentStation()"><svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></svg><span>Play Station</span></button><button class="btn ghost" onclick="shuffleCurrentStation()"><svg viewBox="0 0 24 24"><path d="M4 7h3l3 4 4-6 6 12h-4"/><path d="m17 7 3 3-3 3"/></svg><span>Shuffle</span></button></div></div><div id="stationLoading"></div><div id="stationSongs" class="song-list"></div></div></div>
 
-    <div id="page-search" class="page"><div class="content"><div class="feature-panel tight"><div><div class="panel-label">Search the room</div><h2>Search</h2><p>Search now starts from Velvet's own catalog, artist profiles, and station map, so results populate fast and use the titles you actually expect to see.</p></div></div><div class="search-shell"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg><input id="searchInput" placeholder="Search tracks, moods, or artists" onkeydown="if(event.key==='Enter'){doSearch()}"><button class="btn red" onclick="doSearch()"><svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></svg><span>Search</span></button></div><div class="quick-searches" style="margin-top:14px"><button class="quick-chip" onclick="runQuickSearch('neo soul essentials')">Neo Soul</button><button class="quick-chip" onclick="runQuickSearch('90s r&b classics')">90s R&amp;B</button><button class="quick-chip" onclick="runQuickSearch('slow jams love songs')">Slow Jams</button><button class="quick-chip" onclick="runQuickSearch('women of r&b')">Women of R&amp;B</button></div><div id="searchLoading"></div><div id="searchSummary" class="topbar-pill search-summary" style="display:none"></div><div id="searchResults" class="results-stack"></div></div></div>
+    <div id="page-search" class="page"><div class="content"><div class="search-bar-wrap"><div class="search-shell"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></svg><input id="searchInput" placeholder="Artists, tracks, moods…" onkeydown="if(event.key==='Enter'){doSearch()}"><button class="btn red" onclick="doSearch()"><svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></svg><span>Search</span></button></div><div class="quick-searches"><button class="quick-chip" onclick="runQuickSearch('neo soul essentials')">Neo Soul</button><button class="quick-chip" onclick="runQuickSearch('90s r&b classics')">90s R&amp;B</button><button class="quick-chip" onclick="runQuickSearch('slow jams love songs')">Slow Jams</button><button class="quick-chip" onclick="runQuickSearch('women of r&b')">Women of R&amp;B</button><button class="quick-chip" onclick="runQuickSearch('2000s r&b hits')">2000s R&amp;B</button><button class="quick-chip" onclick="runQuickSearch('aaliyah beyonce mary j blige')">Icons</button><button class="quick-chip" onclick="runQuickSearch('trap hip hop 2024')">Hip Hop</button><button class="quick-chip" onclick="runQuickSearch('chill r&b vibes')">Chill</button></div></div><div id="searchLoading"></div><div id="searchSummary" class="search-meta" style="display:none"></div><div id="searchResults"></div></div></div>
 
     <div id="page-artists" class="page"><div class="content"><div class="feature-panel"><div><div class="panel-label">Editorial directory</div><h2>Artists</h2><p>Profiles, essential tracks, and routes into stations so the app feels like a catalog, not just a single playlist page.</p></div></div><div id="artistsGrid" class="artist-grid"></div></div></div>
 
@@ -1640,6 +1651,18 @@ function artistCardHtml(slug){
 function resultSectionHtml(title, note, body){
   return '<section class="result-block"><div class="result-head"><h3>' + escapeHtml(title) + '</h3><span>' + escapeHtml(note) + '</span></div>' + body + '</section>';
 }
+function searchSectionHtml(title, body){
+  return '<section class="search-section"><div class="search-section-head"><span class="section-title">' + escapeHtml(title) + '</span></div>' + body + '</section>';
+}
+function searchTrackCardHtml(track, i, storeId){
+  var playing = currentTrack && currentTrack.videoId === track.videoId;
+  var tag = (track.tags && track.tags[0]) ? track.tags[0] : 'Track';
+  return '<div class="card' + (playing ? ' playing' : '') + '" onclick="playRowIdx(\'' + storeId + '\',' + i + ')">' +
+    '<div class="card-media"><img src="' + track.thumb + '" alt="' + escapeHtml(track.title) + '" loading="lazy">' +
+    '<span class="card-pin">' + escapeHtml(tag) + '</span>' +
+    (playing ? '<div class="card-now-playing"><svg viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z"/></svg></div>' : '') +
+    '</div><div class="meta"><span class="card-kicker">' + escapeHtml(track.artist) + '</span><b>' + escapeHtml(track.title) + '</b></div></div>';
+}
 function scoreSearch(query, fields){
   var normalizedQuery = normalizeSearch(query);
   if(!normalizedQuery){ return 0; }
@@ -1890,33 +1913,34 @@ function renderSearchView(){
   if(loading){ loading.innerHTML = ''; }
   if(!q){
     summary.style.display = 'none';
-    var shelfTracks = (homeFeedTracks.length ? homeFeedTracks : getHomeFallbackTracks()).slice(0, 8);
+    var shelfTracks = (homeFeedTracks.length ? homeFeedTracks : getHomeFallbackTracks()).slice(0, 12);
+    storeRows('searchBrowse', shelfTracks);
     resultsBox.innerHTML = [
-      resultSectionHtml('Browse Artists', 'Profiles and entry points into the catalog.', '<div class="artist-grid">' + getArtistSlugs().slice(0, 6).map(artistCardHtml).join('') + '</div>'),
-      resultSectionHtml('Start With Stations', 'Quick moods you can jump into immediately.', '<div class="station-grid">' + stations.slice(0, 4).map(function(st, i){ return stationCardHtml(st, i, 'Station'); }).join('') + '</div>'),
-      resultSectionHtml('Tonight\'s Picks', 'A wider pull blending Velvet favorites with live YouTube finds.', '<div class="song-list">' + shelfTracks.map(function(track, i){ return songRowHtml(track, i, 'homeTop', 'row'); }).join('') + '</div>')
+      searchSectionHtml('Artists', '<div class="artist-grid">' + getArtistSlugs().slice(0, 6).map(artistCardHtml).join('') + '</div>'),
+      searchSectionHtml('Stations', '<div class="station-grid">' + stations.slice(0, 6).map(function(st, i){ return stationCardHtml(st, i, 'Station'); }).join('') + '</div>'),
+      searchSectionHtml('Top Picks', '<div class="cards">' + shelfTracks.map(function(t, i){ return searchTrackCardHtml(t, i, 'searchBrowse'); }).join('') + '</div>')
     ].join('');
     return;
   }
   var matches = searchCatalog(q);
-  var sections = [];
   var total = matches.tracks.length + matches.artists.length + matches.stations.length;
   summary.textContent = total + ' result' + (total === 1 ? '' : 's') + ' for "' + q + '"';
-  summary.style.display = 'inline-flex';
+  summary.style.display = 'block';
+  var sections = [];
   if(matches.artists.length){
-    sections.push(resultSectionHtml('Artist Matches', 'Profiles that match the name, tone, or tags.', '<div class="artist-grid">' + matches.artists.map(function(profile){ return artistCardHtml(profile.slug); }).join('') + '</div>'));
+    sections.push(searchSectionHtml('Artists', '<div class="artist-grid">' + matches.artists.map(function(p){ return artistCardHtml(p.slug); }).join('') + '</div>'));
   }
   if(matches.stations.length){
-    sections.push(resultSectionHtml('Station Matches', 'Moods and lanes connected to your search.', '<div class="station-grid">' + matches.stations.map(function(entry){ return stationCardHtml(entry.station, entry.index, 'Station'); }).join('') + '</div>'));
+    sections.push(searchSectionHtml('Stations', '<div class="station-grid">' + matches.stations.map(function(e){ return stationCardHtml(e.station, e.index, 'Station'); }).join('') + '</div>'));
   }
   if(matches.tracks.length){
     storeRows('searchRows', matches.tracks);
-    sections.push(resultSectionHtml('Track Matches', 'Catalog tracks using corrected titles and artists.', '<div class="song-list">' + matches.tracks.map(function(track, i){ return songRowHtml(track, i, 'searchRows', 'row'); }).join('') + '</div>'));
+    sections.push(searchSectionHtml('From Your Catalog', '<div class="cards">' + matches.tracks.map(function(t, i){ return searchTrackCardHtml(t, i, 'searchRows'); }).join('') + '</div>'));
   } else {
     storeRows('searchRows', []);
   }
-  sections.push('<section id="liveSearchSlot" class="result-block"><div class="result-head"><h3>Live from YouTube</h3><span>Pulling a wider set of songs from the full catalog.</span></div><div class="empty-state"><div class="spinner"></div></div></section>');
-  resultsBox.innerHTML = sections.join('') || '<div class="empty-state">No direct matches yet. Try artist names like Usher, moods like Neo Soul, or exact titles like U.N.I.T.Y.</div>';
+  sections.push('<section id="liveSearchSlot" class="search-section"><div class="search-section-head"><span class="section-title">Live from YouTube</span></div><div class="cards"><div class="search-loading-pill topbar-pill" style="margin:8px 0">Searching YouTube…</div></div></section>');
+  resultsBox.innerHTML = sections.join('') || '<div class="empty-state">No matches yet. Try artist names, moods, or song titles.</div>';
   loadLiveSearchResults(q, total, matches.tracks);
 }
 
@@ -1968,31 +1992,25 @@ async function fetchSongsCached(key, query, max, context){
 }
 async function loadLiveSearchResults(query, localTotal, localTracks){
   var token = ++searchRequestToken;
-  var loading = document.getElementById('searchLoading');
   var summary = document.getElementById('searchSummary');
-  if(loading){ loading.innerHTML = '<div class="topbar-pill">Pulling more songs from YouTube</div>'; }
   var seen = {};
   (localTracks || []).forEach(function(track){ seen[track.videoId] = true; });
-  var liveTracks = (await fetchSongsCached('search::' + normalizeSearch(query), query, 18))
+  var liveTracks = (await fetchSongsCached('search::' + normalizeSearch(query), query, 24))
     .filter(function(track){ return !seen[track.videoId]; })
-    .slice(0, 12);
+    .slice(0, 18);
   if(token !== searchRequestToken || lastSearchQuery !== query){ return; }
-  if(loading){ loading.innerHTML = ''; }
   var slot = document.getElementById('liveSearchSlot');
   if(!slot){ return; }
   if(!liveTracks.length){
-    if(localTotal){
-      slot.remove();
-    } else {
-      slot.outerHTML = '<div class="empty-state">No direct matches yet. Try artist names like Usher, moods like Neo Soul, or exact titles like U.N.I.T.Y.</div>';
-    }
-    summary.textContent = localTotal + ' result' + (localTotal === 1 ? '' : 's') + ' for "' + query + '"';
+    if(localTotal){ slot.remove(); }
+    else { slot.outerHTML = '<div class="empty-state">No results found. Try different keywords.</div>'; }
+    if(summary){ summary.textContent = localTotal + ' result' + (localTotal === 1 ? '' : 's') + ' for "' + query + '"'; }
     return;
   }
   storeRows('liveSearchRows', liveTracks);
-  slot.outerHTML = resultSectionHtml('Live from YouTube', 'Fresh pulls beyond Velvet\'s saved catalog.', '<div class="song-list">' + liveTracks.map(function(track, i){ return songRowHtml(track, i, 'liveSearchRows', 'row'); }).join('') + '</div>');
+  slot.outerHTML = searchSectionHtml('Live from YouTube', '<div class="cards">' + liveTracks.map(function(t, i){ return searchTrackCardHtml(t, i, 'liveSearchRows'); }).join('') + '</div>');
   var total = localTotal + liveTracks.length;
-  summary.textContent = total + ' result' + (total === 1 ? '' : 's') + ' for "' + query + '"';
+  if(summary){ summary.textContent = total + ' result' + (total === 1 ? '' : 's') + ' for "' + query + '"'; }
 }
 function renderStationView(i){
   var st = stations[i];
