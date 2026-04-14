@@ -1135,6 +1135,21 @@ body{background:#050406}
 .section{margin-top:16px;padding-top:8px}
 .section-head{margin-bottom:8px}
 .section-deck,.feature-panel p{font-size:10px;margin-top:4px}
+
+/* ── All pages: uniform equal-size grids ─────────────────── */
+/* Stations page */
+#allStations .station-card:nth-child(6n+1),
+#allStations .station-card:nth-child(6n+2){grid-column:span 4;min-height:auto}
+/* Artists page */
+#artistsGrid .artist-card:nth-child(5n+1),
+#artistsGrid .artist-card:nth-child(5n+2){grid-column:span 4;min-height:auto}
+/* Library page */
+#libraryCards .card:first-child,
+#libraryCards .card:nth-child(2),
+#libraryCards .card:nth-child(n+3){grid-column:span 4;min-height:auto}
+/* Artist detail — related stations */
+#artistStations .station-card:first-child,
+#artistStations .station-card:nth-child(2){grid-column:span 4;min-height:auto}
 </style>
 </head>
 <body>
