@@ -139,7 +139,7 @@ input:focus-visible,
 .sidebar{
   width:244px;
   min-width:244px;
-  border-radius:30px 30px 0 0;
+  border-radius:20px 20px 0 0;
   background:linear-gradient(180deg,rgba(15,14,19,.96),rgba(7,7,10,.94));
 }
 
@@ -214,7 +214,7 @@ input:focus-visible,
 .sidebar-foot{padding:16px 16px 20px}
 
 .main{
-  border-radius:34px 34px 0 0;
+  border-radius:20px 20px 0 0;
   background:
     radial-gradient(circle at top right,rgba(255,93,120,.08),transparent 18%),
     linear-gradient(180deg,rgba(13,13,17,.96),rgba(6,6,9,.92));
@@ -405,10 +405,10 @@ input:focus-visible,
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
   align-items:end;
-  gap:18px;
-  padding:22px 24px;
-  margin-bottom:18px;
-  border-radius:28px;
+  gap:16px;
+  padding:14px 18px;
+  margin-bottom:14px;
+  border-radius:18px;
   border-color:rgba(255,255,255,.08);
   background:
     radial-gradient(circle at top right,rgba(255,93,120,.12),transparent 22%),
@@ -465,10 +465,10 @@ input:focus-visible,
 
 .hero{
   grid-template-columns:minmax(0,1.02fr) minmax(250px,.82fr);
-  gap:18px;
-  min-height:300px;
-  padding:26px;
-  border-radius:30px;
+  gap:16px;
+  min-height:220px;
+  padding:18px 20px;
+  border-radius:20px;
 }
 
 .hero-copy{
@@ -631,7 +631,7 @@ input:focus-visible,
 }
 
 .section{
-  margin-top:26px;
+  margin-top:18px;
 }
 
 .section-head{
@@ -656,9 +656,9 @@ input:focus-visible,
   position:relative;
   overflow:hidden;
   grid-column:span 4;
-  min-height:192px;
-  padding:16px;
-  border-radius:24px;
+  min-height:148px;
+  padding:14px;
+  border-radius:16px;
   border:1px solid rgba(255,255,255,.08);
   background:
     linear-gradient(180deg,rgba(8,8,11,.12),rgba(8,8,11,.7)),
@@ -674,8 +674,8 @@ input:focus-visible,
 
 .station-card:before{content:"";position:absolute;inset:auto -12% -14% auto;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 70%);opacity:.7;filter:blur(10px)}
 .station-card:hover{transform:translateY(-6px);border-color:rgba(255,255,255,.16);box-shadow:0 34px 72px rgba(0,0,0,.32),0 20px 44px rgba(200,16,56,.14);filter:saturate(1.04)}
-#homeStations .station-card:first-child{grid-column:span 7;min-height:300px}
-#homeStations .station-card:nth-child(2){grid-column:span 5;min-height:248px}
+#homeStations .station-card:first-child{grid-column:span 7;min-height:200px}
+#homeStations .station-card:nth-child(2){grid-column:span 5;min-height:172px}
 #allStations .station-card:nth-child(6n+1){grid-column:span 7;min-height:260px}
 #allStations .station-card:nth-child(6n+2){grid-column:span 5;min-height:260px}
 
@@ -683,7 +683,7 @@ input:focus-visible,
 .station-badge,.artist-card__label{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(8,8,10,.26);font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
 .station-card__count,.artist-card__count{color:rgba(247,239,233,.76);font-size:10px;letter-spacing:.18em;text-transform:uppercase}
 .station-card__body{position:relative;z-index:1}
-.station-card h4{max-width:8ch;margin-top:16px;font-size:clamp(1.72rem,2.15vw,2.35rem);line-height:.92}
+.station-card h4{max-width:8ch;margin-top:12px;font-size:clamp(1.4rem,1.75vw,1.9rem);line-height:.92}
 .station-card p{max-width:22ch;margin-top:10px;color:rgba(247,239,233,.78);font-size:11px;line-height:1.65}
 .station-card__tags{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 .station-card__tags span,.artist-tags span,.artist-highlights span{display:inline-flex;align-items:center;padding:8px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.045);color:rgba(247,239,233,.78);font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
@@ -695,9 +695,9 @@ input:focus-visible,
   position:relative;
   overflow:hidden;
   grid-column:span 4;
-  min-height:250px;
-  padding:16px;
-  border-radius:24px;
+  min-height:180px;
+  padding:14px;
+  border-radius:16px;
   border:1px solid rgba(255,255,255,.08);
   background:
     linear-gradient(180deg,rgba(8,8,11,.08),rgba(8,8,11,.76)),
@@ -713,8 +713,8 @@ input:focus-visible,
 
 .artist-card:before{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.04),transparent 58%);pointer-events:none}
 .artist-card:hover{transform:translateY(-6px);border-color:rgba(255,255,255,.14);box-shadow:0 34px 72px rgba(0,0,0,.34),0 18px 36px rgba(200,16,56,.12)}
-#homeArtists .artist-card:first-child{grid-column:span 5;min-height:308px}
-#homeArtists .artist-card:nth-child(2){grid-column:span 3;min-height:308px}
+#homeArtists .artist-card:first-child{grid-column:span 5;min-height:200px}
+#homeArtists .artist-card:nth-child(2){grid-column:span 3;min-height:200px}
 #homeArtists .artist-card:nth-child(3),#homeArtists .artist-card:nth-child(4){grid-column:span 4}
 #artistsGrid .artist-card:nth-child(5n+1){grid-column:span 5;min-height:300px}
 #artistsGrid .artist-card:nth-child(5n+2){grid-column:span 3;min-height:300px}
@@ -1631,7 +1631,7 @@ function renderStations(){
   home.innerHTML = ''; all.innerHTML = '';
   stations.forEach(function(st, i){
     var h = stationCardHtml(st, i, 'Station');
-    if(i < 6){ home.innerHTML += h; }
+    if(i < 9){ home.innerHTML += h; }
     all.innerHTML += h;
   });
 }
@@ -1687,7 +1687,7 @@ function renderHeroFeature(){
 }
 
 function renderHomeTopPicks(){
-  var picks = (homeFeedTracks.length ? homeFeedTracks : getHomeFallbackTracks()).slice(0, 16);
+  var picks = (homeFeedTracks.length ? homeFeedTracks : getHomeFallbackTracks()).slice(0, 28);
   storeRows('homeTop', picks);
   var html = picks.map(function(t, i){ return songRowHtml(t, i, 'homeTop', 'row'); }).join('');
   document.getElementById('homeTopPicks').innerHTML = html || '<div class="empty-state">Top picks will appear here once Velvet pulls in more tracks.</div>';
