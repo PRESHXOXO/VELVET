@@ -1,7 +1,6 @@
-import { initPlayer } from './core/player.js';
+import { initPlayer, playTrack } from './core/player.js';
 import { initGlobalUi } from './core/ui.js';
 import { toggleLike } from './core/state.js';
-import { playTrack } from './player.js';
 
 export function initSharedApp(activePage){
   document.querySelectorAll('[data-page-link]').forEach(link => {
