@@ -51,7 +51,7 @@ export function songRow(track, index){
     track?.snippet?.thumbnails?.high?.url ||
     track?.snippet?.thumbnails?.medium?.url ||
     track?.snippet?.thumbnails?.default?.url ||
-    'https://via.placeholder.com/160x160?text=Velvet';
+    (track.videoId ? `https://i.ytimg.com/vi/${track.videoId}/hqdefault.jpg` : '');
 
   return `
     <article class="song-row">
