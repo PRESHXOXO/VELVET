@@ -13,11 +13,36 @@ export function initSharedApp(activePage){
   initPlayer();
   initGlobalUi();
 
-  window.addEventListener('velvet:toggle-like', event => {
-    const track = event.detail?.track;
-    if(!track){ return; }
-    const on = toggleLike(track);
-    toast(on ? 'Added to liked songs' : 'Removed from liked songs');
-    window.dispatchEvent(new CustomEvent('velvet:library-changed'));
-  });
+document.addEventListener('click', async (event) => {
+  const trigger = event.target.closest('[data-action]');
+  if (!trigger) return;
+
+  const action = trigger.dataset.action;
+  const index = Number(trigger.dataset.index);
+  const videoId = trigger.dataset.video;
+
+  if (action === 'play-track') {
+    event.preventDefault();
+  async function playTrackByIndex(index, videoId) {
+  const track =
+    state.currentRows?.[index] ||
+    state.stationTracks?.[index] ||
+    state.searchResults?.[index] ||
+    null;
+
+  if (!track && !videoId) return;
+  await playTrack(track || { videoId });
 }
+
+  if (action === 'toggle-like') {
+    event.preventDefault();
+    toggleLike(videoId);
+    return;
+  }
+
+  if (action === 'add-playlist') {
+    event.preventDefault();
+    openAddToPlaylist(videoId);
+    return;
+  }
+});
