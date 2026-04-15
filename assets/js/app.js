@@ -22,14 +22,6 @@ export function initSharedApp(activePage){
     const action = trigger.dataset.action;
     const videoId = trigger.dataset.video;
 
-    if (action === 'play-track') {
-      event.preventDefault();
-      if (!videoId) return;
-
-      const track = findTrackByVideoId(videoId) || { videoId };
-      await playTrack(track);
-      return;
-    }
 
     if (action === 'toggle-like') {
       event.preventDefault();
