@@ -43,10 +43,20 @@ export function stationCard(station, index){
 }
 
 export function songRow(track, index){
+  const thumb =
+    track.thumb ||
+    track.thumbnail ||
+    track.image ||
+    track.artwork ||
+    track?.snippet?.thumbnails?.high?.url ||
+    track?.snippet?.thumbnails?.medium?.url ||
+    track?.snippet?.thumbnails?.default?.url ||
+    'https://via.placeholder.com/160x160?text=Velvet';
+
   return `
     <article class="song-row">
       <button class="song-index" data-action="play-track" data-video="${track.videoId}" data-index="${index}">${index + 1}</button>
-      <img src="${track.thumb}" alt="">
+      <img src="${thumb}" alt="${track.title || 'Track artwork'}">
       <div class="song-main">
         <div class="song-title">${track.title}</div>
         <div class="song-sub">${track.artist}</div>
