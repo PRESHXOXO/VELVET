@@ -57,7 +57,12 @@ export async function pauseVideo(){
 
 export async function setVolume(volume){
   const yt = await ensurePlayer();
-  yt.setVolume(volume);
+  console.log('ensurePlayer returned:', yt);
+
+  const player = yt?.player || yt?.instance || yt?.yt || yt;
+  if (player && typeof player.setVolume === 'function') {
+    player.setVolume(volume);
+  }
 }
 
 export async function getCurrentTime(){
