@@ -98,9 +98,9 @@
 
 .stations-grid .station-card .actions .btn{
   width:auto;
-  min-height:44px;
-  padding:10px 18px;
-  font-size:11px;
+  min-height:38px;
+  padding:8px 16px;
+  font-size:10px;
   border-radius:999px;
   align-self:flex-start;
 }
