@@ -86,3 +86,30 @@
     grid-template-columns:1fr;
   }
 }
+
+/* ===== FIX OVERSIZED STATION CARD BUTTONS ===== */
+
+.stations-grid .station-card .actions{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:16px;
+}
+
+.stations-grid .station-card .actions .btn{
+  width:auto;
+  min-height:44px;
+  padding:10px 18px;
+  font-size:11px;
+  border-radius:999px;
+  align-self:flex-start;
+}
+
+.stations-grid .station-card .actions .btn-primary,
+.stations-grid .station-card .actions .btn-secondary{
+  box-shadow:none;
+}
+
+.stations-grid .station-card .actions .btn + .btn{
+  margin-top:0;
+}
