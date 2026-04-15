@@ -11,7 +11,8 @@ export function initGlobalUi(){
   document.getElementById('createPlaylistSave')?.addEventListener('click', () => {
     const input = document.getElementById('createPlaylistName');
     const playlist = createPlaylist(input.value);
-    if(playlist){
+
+    if (playlist) {
       input.value = '';
       closePlaylistModal();
       toast('Playlist created');
@@ -20,7 +21,7 @@ export function initGlobalUi(){
   });
 
   window.addEventListener('velvet:playlist-pick', event => {
-    if(!event.detail?.track){ return; }
+    if (!event.detail?.track) return;
     openAddModal(event.detail.track);
   });
 
@@ -29,7 +30,8 @@ export function initGlobalUi(){
 
 export function toast(message){
   const node = document.getElementById('toast');
-  if(!node){ return; }
+  if (!node) return;
+
   node.textContent = message;
   node.classList.add('show');
   clearTimeout(toastTimer);
@@ -37,17 +39,18 @@ export function toast(message){
 }
 
 export function resolveTrack(videoId){
-  return catalogTracks.find(track => track.videoId === videoId);
+  return catalogTracks.find(track => track.videoId === videoId) || null;
 }
 
 export function bindSongRowActions(root, handlers = {}){
-  root.querySelectorAll('[data-action]').forEach(node => {
-    node.addEventListener('click', event => {
-      const action = node.dataset.action;
-      if(handlers[action]){
-        handlers[action](event, node.dataset);
-      }
-    });
+  root.addEventListener('click', event => {
+    const trigger = event.target.closest('[data-action]');
+    if (!trigger || !root.contains(trigger)) return;
+
+    const action = trigger.dataset.action;
+    if (!handlers[action]) return;
+
+    handlers[action](event, trigger.dataset, trigger);
   });
 }
 
@@ -62,8 +65,10 @@ function closePlaylistModal(){
 function openAddModal(track){
   const modal = document.getElementById('addPlaylistModal');
   const list = document.getElementById('addPlaylistList');
-  if(!modal || !list){ return; }
+  if (!modal || !list) return;
+
   modal.dataset.video = track.videoId;
+
   list.innerHTML = state.playlists.length
     ? state.playlists.map(playlist => `
       <button class="playlist-card" data-playlist="${playlist.id}">
@@ -73,16 +78,18 @@ function openAddModal(track){
       </button>
     `).join('')
     : '<div class="empty">Create a playlist first, then come back to stack tracks.</div>';
+
   list.querySelectorAll('[data-playlist]').forEach(button => {
     button.addEventListener('click', () => {
       const added = addTrackToPlaylist(track, Number(button.dataset.playlist));
-      if(added){
+      if (added) {
         toast('Track added to playlist');
         window.dispatchEvent(new CustomEvent('velvet:library-changed'));
       }
       closeAddModal();
     });
   });
+
   modal.classList.add('open');
 }
 
