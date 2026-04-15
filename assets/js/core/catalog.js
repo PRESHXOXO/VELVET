@@ -103,3 +103,12 @@ export function searchCatalog(query){
 }
 
 export { stations };
+
+export function findTrackByVideoId(videoId){
+  for (const station of stations) {
+    const tracks = (station.seedSongs || station.tracks || []).map(hydrateTrack);
+    const match = tracks.find(track => track.videoId === videoId);
+    if (match) return match;
+  }
+  return null;
+}
