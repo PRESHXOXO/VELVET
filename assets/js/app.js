@@ -25,7 +25,9 @@ export function initSharedApp(activePage){
     if (action === 'play-track') {
       event.preventDefault();
       if (!videoId) return;
-      await playTrack({ videoId });
+
+      const track = findTrackByVideoId(videoId) || { videoId };
+      await playTrack(track);
       return;
     }
 
