@@ -54,19 +54,40 @@ export function songRow(track, index){
     (track.videoId ? `https://i.ytimg.com/vi/${track.videoId}/hqdefault.jpg` : '');
 
   return `
-    <article class="song-row" data-action="play-track" data-video="${track.videoId}" data-index="${index}">
-      <button class="song-index" data-action="play-track" data-video="${track.videoId}" data-index="${index}">${index + 1}</button>
-      <img class="song-thumb" src="${thumb}" alt="${track.title || 'Track artwork'}" data-action="play-track" data-video="${track.videoId}" data-index="${index}">
-      <div class="song-main" data-action="play-track" data-video="${track.videoId}" data-index="${index}">
+    <article class="song-row">
+      <button class="song-index" data-action="play-track" data-video="${track.videoId}" data-index="${index}">
+        ${icon('play')}
+      </button>
+
+      <img
+        class="song-thumb"
+        src="${thumb}"
+        alt="${track.title || 'Track artwork'}"
+        data-action="play-track"
+        data-video="${track.videoId}"
+        data-index="${index}"
+      >
+
+      <div
+        class="song-main"
+        data-action="play-track"
+        data-video="${track.videoId}"
+        data-index="${index}"
+      >
         <div class="song-title">${track.title}</div>
         <div class="song-sub">${track.artist}</div>
       </div>
-      <button class="btn-icon ${isLiked(track.videoId) ? 'on' : ''}" data-action="toggle-like" data-video="${track.videoId}">${icon('heart')}</button>
-      <button class="btn-icon" data-action="add-playlist" data-video="${track.videoId}">${icon('plus')}</button>
+
+      <button class="btn-icon ${isLiked(track.videoId) ? 'on' : ''}" data-action="toggle-like" data-video="${track.videoId}">
+        ${icon('heart')}
+      </button>
+
+      <button class="btn-icon" data-action="add-playlist" data-video="${track.videoId}">
+        ${icon('plus')}
+      </button>
     </article>
   `;
 }
-
 export function shelfCard(card){
   return `
     <article class="shelf-card">
