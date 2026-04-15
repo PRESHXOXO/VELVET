@@ -2,3 +2,87 @@
 .library-shelves .section-head{margin-bottom:10px}
 .library-shelves .card-grid{align-items:start}
 .search-groups{display:flex;flex-direction:column;gap:20px}
+/* ===== STATIONS PAGE REFINEMENT ===== */
+
+.stations-layout{
+  display:grid;
+  grid-template-columns:minmax(320px, 0.95fr) minmax(420px, 1.25fr);
+  gap:20px;
+  align-items:start;
+}
+
+.stations-browser{
+  min-width:0;
+}
+
+.stations-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:16px;
+}
+
+.station-card{
+  min-height:unset;
+  padding:18px;
+  border-radius:20px;
+}
+
+.station-card .actions{
+  margin-top:16px;
+}
+
+.station-card .actions .btn{
+  width:100%;
+}
+
+.station-card.is-active{
+  border-color:rgba(255,255,255,.18);
+  box-shadow:0 24px 60px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.06) inset;
+}
+
+.station-detail{
+  padding:24px;
+  border-radius:24px;
+}
+
+.station-detail-title{
+  margin-top:12px;
+}
+
+.station-detail-copy{
+  margin-top:8px;
+  max-width:42ch;
+}
+
+.station-detail-actions{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+
+.station-detail-tracks{
+  margin-top:18px;
+}
+
+.station-detail-tracks .song-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.station-detail-tracks .song-row{
+  width:100%;
+}
+
+@media (max-width:1100px){
+  .stations-layout{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width:700px){
+  .stations-grid{
+    grid-template-columns:1fr;
+  }
+}
