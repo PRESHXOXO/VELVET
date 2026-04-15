@@ -1,0 +1,4 @@
+.page-stack > section{display:flex;flex-direction:column;gap:14px}
+.library-shelves .section-head{margin-bottom:10px}
+.library-shelves .card-grid{align-items:start}
+.search-groups{display:flex;flex-direction:column;gap:20px}
