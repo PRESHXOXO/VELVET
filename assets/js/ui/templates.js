@@ -1,4 +1,4 @@
-import { state, isLiked } from '../core/state.js';
+import { isLiked } from '../core/state.js';
 
 export function icon(name){
   const icons = {
@@ -48,9 +48,9 @@ export function songRow(track, index){
     track.thumbnail ||
     track.image ||
     track.artwork ||
-    track?.snippet?.thumbnails?.high?.url ||
-    track?.snippet?.thumbnails?.medium?.url ||
-    track?.snippet?.thumbnails?.default?.url ||
+    (track.snippet && track.snippet.thumbnails && track.snippet.thumbnails.high && track.snippet.thumbnails.high.url) ||
+    (track.snippet && track.snippet.thumbnails && track.snippet.thumbnails.medium && track.snippet.thumbnails.medium.url) ||
+    (track.snippet && track.snippet.thumbnails && track.snippet.thumbnails.default && track.snippet.thumbnails.default.url) ||
     (track.videoId ? `https://i.ytimg.com/vi/${track.videoId}/hqdefault.jpg` : '');
 
   return `
@@ -74,8 +74,8 @@ export function songRow(track, index){
         data-video="${track.videoId}"
         data-index="${index}"
       >
-        <div class="song-title">${track.title}</div>
-        <div class="song-sub">${track.artist}</div>
+        <div class="song-title">${track.title || 'Unknown track'}</div>
+        <div class="song-sub">${track.artist || 'Unknown artist'}</div>
       </div>
 
       <button class="btn-icon ${isLiked(track.videoId) ? 'on' : ''}" data-action="toggle-like" data-video="${track.videoId}">
@@ -89,24 +89,6 @@ export function songRow(track, index){
   `;
 }
 
-.song-index{
-  display:grid;
-  place-items:center;
-  width:48px;
-  height:48px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.03);
-  color:var(--text);
-  cursor:pointer;
-}
-
-.song-index svg{
-  width:16px;
-  height:16px;
-  fill:currentColor;
-  stroke:none;
-}
 export function shelfCard(card){
   return `
     <article class="shelf-card">
@@ -151,7 +133,7 @@ export function emptyState(copy){
   return `<div class="empty">${copy}</div>`;
 }
 
-export function pageHead({ kicker, title, copy, linkText='', linkHref='' }){
+export function pageHead({ kicker, title, copy, linkText = '', linkHref = '' }){
   return `
     <div class="section-head">
       <div>
