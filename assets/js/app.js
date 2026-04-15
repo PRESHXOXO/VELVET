@@ -31,9 +31,30 @@ document.addEventListener('click', async (event) => {
     state.searchResults?.[index] ||
     null;
 
+async function playTrackByIndex(index, videoId) {
+  const track =
+    state.currentRows?.[index] ||
+    state.stationTracks?.[index] ||
+    state.searchResults?.[index] ||
+    null;
+
   if (!track && !videoId) return;
   await playTrack(track || { videoId });
 }
+
+document.addEventListener('click', async (event) => {
+  const trigger = event.target.closest('[data-action]');
+  if (!trigger) return;
+
+  const action = trigger.dataset.action;
+  const videoId = trigger.dataset.video;
+  const index = Number(trigger.dataset.index);
+
+  if (action === 'play-track') {
+    event.preventDefault();
+    await playTrackByIndex(index, videoId);
+    return;
+  }
 
   if (action === 'toggle-like') {
     event.preventDefault();
