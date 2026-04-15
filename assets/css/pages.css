@@ -2,6 +2,7 @@
 .library-shelves .section-head{margin-bottom:10px}
 .library-shelves .card-grid{align-items:start}
 .search-groups{display:flex;flex-direction:column;gap:20px}
+
 /* ===== STATIONS PAGE REFINEMENT ===== */
 
 .stations-layout{
@@ -21,23 +22,40 @@
   gap:16px;
 }
 
-.station-card{
+.stations-grid .station-card{
   min-height:unset;
   padding:18px;
   border-radius:20px;
 }
 
-.station-card .actions{
+.stations-grid .station-card .actions{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
   margin-top:16px;
 }
 
-.station-card .actions .btn{
-  width:100%;
+.stations-grid .station-card .actions .btn{
+  width:auto;
+  min-height:38px;
+  padding:8px 16px;
+  font-size:10px;
+  border-radius:999px;
+  align-self:flex-start;
 }
 
-.station-card.is-active{
+.stations-grid .station-card.is-active{
   border-color:rgba(255,255,255,.18);
   box-shadow:0 24px 60px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.06) inset;
+}
+
+.stations-grid .station-card .actions .btn-primary,
+.stations-grid .station-card .actions .btn-secondary{
+  box-shadow:none;
+}
+
+.stations-grid .station-card .actions .btn + .btn{
+  margin-top:0;
 }
 
 .station-detail{
@@ -85,31 +103,4 @@
   .stations-grid{
     grid-template-columns:1fr;
   }
-}
-
-/* ===== FIX OVERSIZED STATION CARD BUTTONS ===== */
-
-.stations-grid .station-card .actions{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  margin-top:16px;
-}
-
-.stations-grid .station-card .actions .btn{
-  width:auto;
-  min-height:38px;
-  padding:8px 16px;
-  font-size:10px;
-  border-radius:999px;
-  align-self:flex-start;
-}
-
-.stations-grid .station-card .actions .btn-primary,
-.stations-grid .station-card .actions .btn-secondary{
-  box-shadow:none;
-}
-
-.stations-grid .station-card .actions .btn + .btn{
-  margin-top:0;
 }
