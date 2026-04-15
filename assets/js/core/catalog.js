@@ -8,11 +8,23 @@ export function slugify(value=''){
   return normalizeSearch(value).replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 
+export function ytThumb(videoId=''){
+  return videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : '';
+}
+
 export function hydrateTrack(track){
   return {
     title: track.title || 'Unknown track',
     artist: track.artist || 'Unknown artist',
-    thumb: track.thumb || '',
+    thumb:
+      track.thumb ||
+      track.thumbnail ||
+      track.image ||
+      track.artwork ||
+      track?.snippet?.thumbnails?.high?.url ||
+      track?.snippet?.thumbnails?.medium?.url ||
+      track?.snippet?.thumbnails?.default?.url ||
+      ytThumb(track.videoId),
     videoId: track.videoId || '',
     year: track.year || '',
     moods: track.moods || []
