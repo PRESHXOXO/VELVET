@@ -23,6 +23,8 @@ function stationBrowserCard(station, index, isActive = false){
   `;
 }
 
+let hashListenerBound = false;
+
 export async function renderStationsPage(container){
   const hashMatch = window.location.hash.match(/station-(\d+)/);
   const activeIndex = hashMatch
@@ -74,7 +76,7 @@ export async function renderStationsPage(container){
           <div class="station-detail-tracks" id="stationSongList">
             ${
               queue.length
-                ? `<div class="song-list">${queue.map(songRow).join('')}</div>`
+                ? `<div class="song-list">${queue.map((track, index) => songRow(track, index)).join('')}</div>`
                 : emptyState('This station does not have a mix yet.')
             }
           </div>
@@ -84,31 +86,62 @@ export async function renderStationsPage(container){
   `;
 
   document.getElementById('playActiveStation')?.addEventListener('click', () => {
+    if (!queue.length) return;
     playFromQueue(queue, 0);
   });
 
   document.getElementById('shuffleActiveStation')?.addEventListener('click', () => {
+    if (!queue.length) return;
     const shuffled = queue.slice().sort(() => Math.random() - 0.5);
     playFromQueue(shuffled, 0);
   });
 
   bindSongRowActions(container, {
-    'play-track': (_event, data) => {
-      playFromQueue(queue, Number(data.index));
+    'play-track': (event, data) => {
+      event.preventDefault();
+      const index = Number(data.index);
+      if (Number.isNaN(index)) return;
+      playFromQueue(queue, index);
     },
 
-    'toggle-like': (_event, data) => {
+    'toggle-like': (event, data) => {
+      event.preventDefault();
+      event.stopPropagation();
+
       const track = queue.find(item => item.videoId === data.video) || resolveTrack(data.video);
+      if (!track) return;
+
       window.dispatchEvent(new CustomEvent('velvet:toggle-like', { detail: { track } }));
     },
 
-    'add-playlist': (_event, data) => {
+    'add-playlist': (event, data) => {
+      event.preventDefault();
+      event.stopPropagation();
+
       const track = queue.find(item => item.videoId === data.video) || resolveTrack(data.video);
+      if (!track) return;
+
       window.dispatchEvent(new CustomEvent('velvet:playlist-pick', { detail: { track } }));
     },
 
-    'open-station': (_event, data) => {
-      window.location.href = `stations.html#station-${data.index}`;
+    'open-station': (event, data) => {
+      event.preventDefault();
+      const nextIndex = Number(data.index);
+      if (Number.isNaN(nextIndex)) return;
+
+      const nextHash = `#station-${nextIndex}`;
+      if (window.location.hash === nextHash) {
+        renderStationsPage(container);
+      } else {
+        window.location.hash = nextHash;
+      }
     }
   });
+
+  if (!hashListenerBound) {
+    window.addEventListener('hashchange', () => {
+      renderStationsPage(container);
+    });
+    hashListenerBound = true;
+  }
 }
