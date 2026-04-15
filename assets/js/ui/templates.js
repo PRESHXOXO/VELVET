@@ -88,6 +88,25 @@ export function songRow(track, index){
     </article>
   `;
 }
+
+.song-index{
+  display:grid;
+  place-items:center;
+  width:48px;
+  height:48px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03);
+  color:var(--text);
+  cursor:pointer;
+}
+
+.song-index svg{
+  width:16px;
+  height:16px;
+  fill:currentColor;
+  stroke:none;
+}
 export function shelfCard(card){
   return `
     <article class="shelf-card">
