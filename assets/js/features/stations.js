@@ -4,22 +4,16 @@ import { playFromQueue } from '../core/player.js';
 import { pageHead, songRow, emptyState } from '../ui/templates.js';
 import { bindSongRowActions, resolveTrack } from '../core/ui.js';
 
-function stationBrowserCard(station, index, isActive = false){
+function stationBrowserItem(station, index, isActive = false){
   return `
-    <article class="station-card ${isActive ? 'is-active' : ''}" style="--station-gradient:${station.gradient}">
-      <span class="panel-kicker">Station View</span>
-      <h3>${station.name}</h3>
-      <p>${station.description || station.query}</p>
-      <div class="meta-tags">
-        <span class="mini-tag">${(station.seedIndexes || []).length || 0} seeds</span>
-        <span class="mini-tag">YouTube pull</span>
+    <button class="station-list-item ${isActive ? 'is-active' : ''}" data-action="open-station" data-index="${index}">
+      <div class="station-list-copy">
+        <span class="panel-kicker">Station</span>
+        <strong>${station.name}</strong>
+        <span>${station.description || station.query}</span>
       </div>
-      <div class="actions">
-        <button class="btn btn-primary" data-action="open-station" data-index="${index}">
-          Open Station
-        </button>
-      </div>
-    </article>
+      <span class="station-list-meta">${(station.seedIndexes || []).length || 0}</span>
+    </button>
   `;
 }
 
@@ -56,9 +50,9 @@ export async function renderStationsPage(container){
 
       <div class="stations-layout">
         <div class="stations-browser">
-          <div class="stations-grid">
-            ${stations.map((item, index) => stationBrowserCard(item, index, index === activeIndex)).join('')}
-          </div>
+          <div class="stations-list">
+  ${stations.map((item, index) => stationBrowserItem(item, index, index === activeIndex)).join('')}
+</div>
         </div>
 
         <aside class="station-detail panel detail-panel">
