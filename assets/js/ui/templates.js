@@ -123,7 +123,7 @@ export function playlistCard(playlist){
       <h4>${playlist.name}</h4>
       <p class="section-copy">${playlist.songs.length} tracks ready to stack into your room.</p>
       <div class="inline-actions">
-        <button class="btn btn-secondary" data-action="play-playlist" data-playlist="${playlist.id}">${icon('play')} Play</button>
+        <button class="btn btn-secondary" data-play-playlist="${playlist.id}" data-playlist="${playlist.id}">${icon('play')} Play</button>
       </div>
     </article>
   `;

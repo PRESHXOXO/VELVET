@@ -45,7 +45,13 @@ export function getArtistTracks(slug) {
 
 export function getArtistProfile(slug) {
   if (artistProfiles[slug]) {
-    return { slug, ...artistProfiles[slug] };
+    const profile = artistProfiles[slug];
+    return {
+      slug,
+      ...profile,
+      description: profile.description || profile.bio || profile.tagline || 'Velvet artist profile.',
+      tags: profile.tags || []
+    };
   }
 
   const tracks = getArtistTracks(slug);
