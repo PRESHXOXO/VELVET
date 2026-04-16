@@ -6,7 +6,12 @@ import { bindSongRowActions, resolveTrack } from '../core/ui.js';
 
 function stationBrowserItem(station, index, isActive = false){
   return `
-    <button class="station-list-item ${isActive ? 'is-active' : ''}" data-action="open-station" data-index="${index}">
+    <button
+      class="station-list-item ${isActive ? 'is-active' : ''}"
+      data-action="open-station"
+      data-index="${index}"
+      type="button"
+    >
       <div class="station-list-copy">
         <span class="panel-kicker">Station</span>
         <strong>${station.name}</strong>
@@ -36,8 +41,12 @@ export async function renderStationsPage(container){
   }
 
   const queue = [
-    ...localTracks,
-    ...liveTracks.filter(track => !localTracks.some(local => local.videoId === track.videoId))
+    ...localTracks.filter(track => track && track.videoId),
+    ...liveTracks.filter(track =>
+      track &&
+      track.videoId &&
+      !localTracks.some(local => local.videoId === track.videoId)
+    )
   ];
 
   container.innerHTML = `
@@ -51,8 +60,8 @@ export async function renderStationsPage(container){
       <div class="stations-layout">
         <div class="stations-browser">
           <div class="stations-list">
-  ${stations.map((item, index) => stationBrowserItem(item, index, index === activeIndex)).join('')}
-</div>
+            ${stations.map((item, index) => stationBrowserItem(item, index, index === activeIndex)).join('')}
+          </div>
         </div>
 
         <aside class="station-detail panel detail-panel">
@@ -63,8 +72,8 @@ export async function renderStationsPage(container){
           </p>
 
           <div class="inline-actions station-detail-actions">
-            <button class="btn btn-primary" id="playActiveStation">Play Station</button>
-            <button class="btn btn-secondary" id="shuffleActiveStation">Shuffle</button>
+            <button class="btn btn-primary" id="playActiveStation" type="button">Play Station</button>
+            <button class="btn btn-secondary" id="shuffleActiveStation" type="button">Shuffle</button>
           </div>
 
           <div class="station-detail-tracks" id="stationSongList">
@@ -120,10 +129,12 @@ export async function renderStationsPage(container){
 
     'open-station': (event, data) => {
       event.preventDefault();
+
       const nextIndex = Number(data.index);
       if (Number.isNaN(nextIndex)) return;
 
       const nextHash = `#station-${nextIndex}`;
+
       if (window.location.hash === nextHash) {
         renderStationsPage(container);
       } else {
