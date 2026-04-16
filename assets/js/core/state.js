@@ -1,4 +1,4 @@
-import { readStorage, writeStorage, readSession, writeSession } from './storage.js';
+﻿import { readStorage, writeStorage, readSession, writeSession } from './storage.js';
 
 export const state = {
   liked: readStorage('vlv_liked', []),
@@ -10,6 +10,12 @@ export const state = {
   volume: readSession('vlv_volume', 65),
   isPlaying: false
 };
+
+export function refreshLibraryState(){
+  state.liked = readStorage('vlv_liked', []);
+  state.recent = readStorage('vlv_recent', []);
+  state.playlists = readStorage('vlv_playlists', []);
+}
 
 export function syncLibrary(){
   writeStorage('vlv_liked', state.liked);

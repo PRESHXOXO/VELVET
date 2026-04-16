@@ -1,5 +1,5 @@
-import { initSharedApp } from '../app.js';
-import { renderHome } from '../features/home.js';
+﻿import { initSharedApp } from '../app.js';
+import { mountHomePage } from '../features/home.js';
 
 initSharedApp('home');
-renderHome(document.getElementById('pageRoot'));
+mountHomePage(document.getElementById('pageRoot'));

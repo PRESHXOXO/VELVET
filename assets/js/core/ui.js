@@ -1,4 +1,4 @@
-import { createPlaylist, addTrackToPlaylist, state } from './state.js';
+﻿import { createPlaylist, addTrackToPlaylist, state } from './state.js';
 import { catalogTracks } from './catalog.js';
 
 let toastTimer;
@@ -43,14 +43,21 @@ export function resolveTrack(videoId){
 }
 
 export function bindSongRowActions(root, handlers = {}){
+  if (!root) return;
+
+  root.__velvetSongHandlers = handlers;
+  if (root.__velvetSongBound) return;
+
+  root.__velvetSongBound = true;
   root.addEventListener('click', event => {
     const trigger = event.target.closest('[data-action]');
     if (!trigger || !root.contains(trigger)) return;
 
     const action = trigger.dataset.action;
-    if (!handlers[action]) return;
+    const currentHandlers = root.__velvetSongHandlers || {};
+    if (!currentHandlers[action]) return;
 
-    handlers[action](event, trigger.dataset, trigger);
+    currentHandlers[action](event, trigger.dataset, trigger);
   });
 }
 

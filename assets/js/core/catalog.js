@@ -1,4 +1,4 @@
-import { stations, seedSongs, artistProfiles } from '../data/catalog.js';
+﻿import { stations, seedSongs, artistProfiles } from '../data/catalog.js';
 
 export function normalizeSearch(value = '') {
   return value.toLowerCase().trim();
@@ -15,6 +15,10 @@ export function ytThumb(videoId = '') {
 }
 
 export function hydrateTrack(track = {}) {
+  const moods = Array.isArray(track.moods) && track.moods.length
+    ? track.moods
+    : (Array.isArray(track.tags) ? track.tags : []);
+
   return {
     title: track.title || 'Unknown track',
     artist: track.artist || 'Unknown artist',
@@ -29,7 +33,7 @@ export function hydrateTrack(track = {}) {
       ytThumb(track.videoId),
     videoId: track.videoId || '',
     year: track.year || '',
-    moods: Array.isArray(track.moods) ? track.moods : []
+    moods
   };
 }
 

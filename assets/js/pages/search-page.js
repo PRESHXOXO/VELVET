@@ -1,5 +1,5 @@
-import { initSharedApp } from '../app.js';
-import { renderSearchPage } from '../features/search.js';
+﻿import { initSharedApp } from '../app.js';
+import { mountSearchPage } from '../features/search.js';
 
 initSharedApp('search');
-renderSearchPage(document.getElementById('pageRoot'));
+mountSearchPage(document.getElementById('pageRoot'));
