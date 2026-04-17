@@ -1,4 +1,4 @@
-﻿import { initPlayer, playFromQueue, refreshPlayer } from './core/player.js';
+import { initPlayer, playFromQueue, refreshPlayer } from './core/player.js';
 import { findTrackByVideoId } from './core/catalog.js';
 import { getLocalSearchSnapshot, getSearchPreview, getSearchResults, normalizeQuery } from './core/search.js';
 import { initGlobalUi } from './core/ui.js';
@@ -173,7 +173,7 @@ function initTopbarSearch(activePage) {
 
   function schedulePreview() {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => updatePreview(input.value), 180);
+    debounceTimer = setTimeout(() => updatePreview(input.value), 120);
   }
 
   input.addEventListener('input', schedulePreview);

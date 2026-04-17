@@ -2,24 +2,29 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100%}
+html{scroll-behavior:smooth}
 body{
   background:
-    radial-gradient(circle at 12% 8%,rgba(255,93,120,.14),transparent 18%),
-    radial-gradient(circle at 86% 0%,rgba(239,179,119,.11),transparent 16%),
-    linear-gradient(180deg,#040405 0%,#0a0910 54%,#040405 100%);
+    radial-gradient(circle at 10% 0%,rgba(112,22,37,.18),transparent 24%),
+    radial-gradient(circle at 88% 0%,rgba(184,141,104,.08),transparent 18%),
+    radial-gradient(circle at 50% 100%,rgba(112,22,37,.08),transparent 34%),
+    linear-gradient(180deg,#030304 0%,#08070a 48%,#030304 100%);
   color:var(--text);
   font-family:"Montserrat",sans-serif;
+  line-height:1.45;
 }
 body::before{
   content:"";
-  position:fixed;inset:0;pointer-events:none;
+  position:fixed;
+  inset:0;
+  pointer-events:none;
   background:
-    radial-gradient(circle at center,transparent 58%,rgba(0,0,0,.42) 100%),
-    repeating-linear-gradient(135deg,rgba(255,255,255,.01),rgba(255,255,255,.01) 1px,transparent 1px,transparent 24px);
-  opacity:.22;
+    radial-gradient(circle at center,transparent 62%,rgba(0,0,0,.38) 100%),
+    linear-gradient(180deg,rgba(255,255,255,.015),transparent 20%,transparent 80%,rgba(255,255,255,.01));
+  opacity:.18;
 }
 img{display:block;max-width:100%}
-button,input{font:inherit}
+button,input,textarea,select{font:inherit}
 a{text-decoration:none;color:inherit}
 button{border:none;background:none;color:inherit;cursor:pointer}
 h1,h2,h3,h4,.display{
@@ -27,7 +32,8 @@ h1,h2,h3,h4,.display{
   font-weight:500;
   letter-spacing:-.02em;
 }
+::selection{background:rgba(112,22,37,.36);color:#fff}
 input:focus-visible,button:focus-visible,a:focus-visible{
   outline:none;
-  box-shadow:0 0 0 1px rgba(255,255,255,.18),0 0 0 4px rgba(243,63,100,.22);
+  box-shadow:0 0 0 1px rgba(255,255,255,.16),0 0 0 4px rgba(112,22,37,.18);
 }
