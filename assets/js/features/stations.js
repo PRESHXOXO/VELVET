@@ -1,7 +1,7 @@
 import { stations, getStationTracks } from '../core/catalog.js';
 import { fetchSongs } from '../core/youtube.js';
 import { playFromQueue } from '../core/player.js';
-import { pageHead, songRow, emptyState } from '../ui/templates.js';
+import { pageHead, songRow, emptyState, getTrackArtwork } from '../ui/templates.js';
 import { bindSongRowActions, resolveTrack } from '../core/ui.js';
 
 function stationBrowserItem(station, index, isActive = false){
@@ -48,6 +48,7 @@ export async function renderStationsPage(container){
       !localTracks.some(local => local.videoId === track.videoId)
     )
   ];
+  const focusImage = queue[0] ? getTrackArtwork(queue[0]) : '';
 
   container.innerHTML = `
     <section class="stations-page">
@@ -64,24 +65,25 @@ export async function renderStationsPage(container){
           </div>
         </div>
 
-        <aside class="station-detail panel detail-panel">
-          <span class="panel-kicker">Station View</span>
-          <div class="section-title station-detail-title">${station.name}</div>
-          <p class="section-copy station-detail-copy">
-            ${station.description || station.query}
-          </p>
-
-          <div class="inline-actions station-detail-actions">
-            <button class="btn btn-primary" id="playActiveStation" type="button">Play Station</button>
-            <button class="btn btn-secondary" id="shuffleActiveStation" type="button">Shuffle</button>
+        <aside class="station-detail panel detail-panel station-detail-panel" style="--station-focus-gradient:${station.gradient};${focusImage ? `--station-focus-image:url('${focusImage}')` : ''}">
+          <div class="station-detail-hero">
+            <div class="station-detail-copy-wrap">
+              <span class="panel-kicker">Station View</span>
+              <div class="section-title station-detail-title">${station.name}</div>
+              <p class="section-copy station-detail-copy">${station.description || station.query}</p>
+              <div class="meta-tags">${(station.tags || []).slice(0, 4).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+              <div class="inline-actions station-detail-actions">
+                <button class="btn btn-primary" id="playActiveStation" type="button">Play Station</button>
+                <button class="btn btn-secondary" id="shuffleActiveStation" type="button">Shuffle</button>
+              </div>
+            </div>
+            ${focusImage ? `<div class="station-detail-art"><img src="${focusImage}" alt="${station.name} artwork"></div>` : ''}
           </div>
 
           <div class="station-detail-tracks" id="stationSongList">
-            ${
-              queue.length
-                ? `<div class="song-list">${queue.map((track, index) => songRow(track, index)).join('')}</div>`
-                : emptyState('This station does not have a mix yet.')
-            }
+            ${queue.length
+              ? `<div class="song-list station-song-list">${queue.map((track, index) => songRow(track, index)).join('')}</div>`
+              : emptyState('This station does not have a mix yet.')}
           </div>
         </aside>
       </div>

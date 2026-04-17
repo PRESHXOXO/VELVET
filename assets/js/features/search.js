@@ -1,4 +1,4 @@
-﻿import { getSearchResults, getLocalSearchSnapshot, hasSearchMatches, normalizeQuery } from '../core/search.js';
+import { getSearchResults, getLocalSearchSnapshot, hasSearchMatches, normalizeQuery } from '../core/search.js';
 import { playFromQueue } from '../core/player.js';
 import { pageHead, artistCard, stationCard, songRow, emptyState } from '../ui/templates.js';
 import { bindSongRowActions } from '../core/ui.js';
@@ -31,34 +31,40 @@ function setQuery(query) {
 
 function renderSearchState(container, results, { loading = false } = {}) {
   const { query, matches, liveTracks } = results;
+  const totalArtists = matches.artists.length;
+  const totalStations = matches.stations.length;
+  const totalCatalogTracks = matches.tracks.length;
+  const totalLiveTracks = liveTracks.length;
+  const statChips = [
+    totalArtists ? `${totalArtists} artists` : '',
+    totalStations ? `${totalStations} stations` : '',
+    totalCatalogTracks ? `${totalCatalogTracks} catalog tracks` : '',
+    totalLiveTracks ? `${totalLiveTracks} live pulls` : ''
+  ].filter(Boolean);
 
   container.innerHTML = `
-    <section>
+    <section class="search-stage">
       ${pageHead({ kicker:'Search Velvet', title:'Search', copy:'Type once and let Velvet surface local favorites and live YouTube pulls together.' })}
       ${query ? `
-        <div class="panel search-status-panel">
-          <div>
+        <article class="panel search-hero-panel">
+          <div class="search-hero-copy">
             <span class="panel-kicker">Results for</span>
-            <div class="section-title" style="margin-top:12px">${escapeHtml(query)}</div>
+            <div class="search-hero-query">${escapeHtml(query)}</div>
+            <p class="section-copy">Velvet matches land first. Live YouTube results stream in right behind them so the room feels instant, not static.</p>
           </div>
-          <p class="section-copy">Velvet matches land first. Live YouTube results stream in right behind them.</p>
-        </div>
-      ` : '<div class="empty">Start typing in the top search bar and Velvet will respond in real time.</div>'}
+          <div class="search-hero-meta">
+            ${statChips.length ? `<div class="search-hero-stats">${statChips.map(label => `<span class="mini-tag">${label}</span>`).join('')}</div>` : ''}
+            ${loading ? '<div class="search-hero-note">Pulling fresh YouTube results...</div>' : '<div class="search-hero-note">Catalog first. Live search layered on top.</div>'}
+          </div>
+        </article>
+      ` : '<div class="panel search-hero-panel search-hero-panel--empty"><div class="search-hero-copy"><span class="panel-kicker">Search ready</span><div class="search-hero-query">Start typing.</div><p class="section-copy">Use the top search bar and Velvet will respond in real time.</p></div></div>'}
     </section>
+
     <section class="search-groups">
-      ${matches.artists.length ? `<div>${pageHead({ kicker:'Artists', title:'Artist Results', copy:'Profiles surfaced from Velvet\'s catalog.' })}<div class="artist-grid">${matches.artists.map(artistCard).join('')}</div></div>` : ''}
-      ${matches.stations.length ? `<div>${pageHead({ kicker:'Stations', title:'Station Results', copy:'Station matches shaped by the moods already inside Velvet.' })}<div class="station-grid">${matches.stations.map(entry => stationCard(entry.station, entry.index)).join('')}</div></div>` : ''}
-      ${matches.tracks.length ? `<div>${pageHead({ kicker:'Catalog', title:'From Your Catalog', copy:'Velvet matches already living in the room.' })}<div class="song-list">${matches.tracks.slice(0, 12).map(songRow).join('')}</div></div>` : ''}
-      ${liveTracks.length ? `<div>${pageHead({ kicker:'Live from YouTube', title:'Expanded Search', copy:'Fresh YouTube pulls layered on top of Velvet\'s local results.' })}<div class="song-list">${liveTracks.map(songRow).join('')}</div></div>` : ''}
-      ${loading && query ? `
-        <div class="panel search-status-panel">
-          <div>
-            <span class="panel-kicker">Searching</span>
-            <div class="section-title" style="margin-top:12px">Pulling from YouTube</div>
-          </div>
-          <p class="section-copy">Keep typing. Velvet is refreshing results without forcing a full page jump.</p>
-        </div>
-      ` : ''}
+      ${matches.artists.length ? `<article class="panel search-result-panel search-result-panel--artists">${pageHead({ kicker:'Artists', title:'Artist Results', copy:'Profiles surfaced from Velvet\'s catalog.' })}<div class="artist-grid">${matches.artists.map(artistCard).join('')}</div></article>` : ''}
+      ${matches.stations.length ? `<article class="panel search-result-panel search-result-panel--stations">${pageHead({ kicker:'Stations', title:'Station Results', copy:'Station matches shaped by the moods already inside Velvet.' })}<div class="station-grid">${matches.stations.map(entry => stationCard(entry.station, entry.index)).join('')}</div></article>` : ''}
+      ${matches.tracks.length ? `<article class="panel search-result-panel search-result-panel--catalog">${pageHead({ kicker:'Catalog', title:'From Your Catalog', copy:'Velvet matches already living in the room.' })}<div class="song-list search-song-list">${matches.tracks.slice(0, 12).map(songRow).join('')}</div></article>` : ''}
+      ${liveTracks.length ? `<article class="panel search-result-panel search-result-panel--live">${pageHead({ kicker:'Live from YouTube', title:'Expanded Search', copy:'Fresh YouTube pulls layered on top of Velvet\'s local results.' })}<div class="song-list search-song-list">${liveTracks.map(songRow).join('')}</div></article>` : ''}
       ${!query ? '' : (!loading && !hasSearchMatches(results) ? emptyState('No matches yet. Try a different keyword.') : '')}
     </section>
   `;

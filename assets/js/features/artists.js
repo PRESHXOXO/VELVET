@@ -3,6 +3,15 @@ import { playFromQueue } from '../core/player.js';
 import { pageHead, artistCard, songRow, emptyState } from '../ui/templates.js';
 import { bindSongRowActions, resolveTrack } from '../core/ui.js';
 
+function getInitials(value = '') {
+  return String(value)
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(part => part.charAt(0).toUpperCase())
+    .join('') || 'V';
+}
+
 export function renderArtistsPage(container){
   const hashMatch = window.location.hash.match(/artist-(.+)$/);
   const activeSlug = hashMatch ? hashMatch[1] : getArtistSlugs()[0];
@@ -10,26 +19,33 @@ export function renderArtistsPage(container){
   const activeProfile = getArtistProfile(activeSlug);
   const tracks = getArtistTracks(activeSlug);
   const letters = [...new Set(profiles.map(profile => profile.name.charAt(0).toUpperCase()).filter(Boolean))].sort();
+  const activeImage = activeProfile?.image || '';
 
   container.innerHTML = `
-    <section>
+    <section class="artists-page">
       ${pageHead({ kicker:'Artist Profiles', title:'Artists', copy:'Profiles and cross-links for the voices shaping Velvet.', linkText:'Back Home', linkHref:'index.html' })}
       <div class="alpha-bar">
         <button class="alpha-btn active">All</button>
         ${letters.map(letter => `<button class="alpha-btn">${letter}</button>`).join('')}
       </div>
-      <div class="split">
+      <div class="split artists-layout">
         <div class="artist-grid">${profiles.map(artistCard).join('')}</div>
-        <aside class="panel detail-panel">
-          <span class="panel-kicker">Artist Focus</span>
-          <div class="section-title" style="margin-top:12px">${activeProfile.name}</div>
-          <p class="section-copy">${activeProfile.description || 'Velvet artist profile.'}</p>
-          <div class="inline-actions">
-            <button class="btn btn-primary" id="playArtistTracks">Play Artist</button>
-            <button class="btn btn-secondary" id="shuffleArtistTracks">Shuffle</button>
+        <aside class="panel detail-panel artist-detail-panel" style="--artist-focus-gradient:${activeProfile?.gradient || 'linear-gradient(135deg,#17121a,#43253c)'};${activeImage ? `--artist-focus-image:url('${activeImage}')` : ''}">
+          <div class="artist-detail-hero">
+            <div class="artist-detail-media">${activeImage ? `<img src="${activeImage}" alt="${activeProfile.name || 'Artist artwork'}">` : `<span>${getInitials(activeProfile?.name)}</span>`}</div>
+            <div class="artist-detail-copy">
+              <span class="panel-kicker">Artist Focus</span>
+              <div class="section-title artist-detail-title">${activeProfile.name}</div>
+              <p class="section-copy">${activeProfile.description || 'Velvet artist profile.'}</p>
+              <div class="meta-tags">${(activeProfile.tags || []).slice(0, 4).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+              <div class="inline-actions">
+                <button class="btn btn-primary" id="playArtistTracks">Play Artist</button>
+                <button class="btn btn-secondary" id="shuffleArtistTracks">Shuffle</button>
+              </div>
+            </div>
           </div>
-          <div style="margin-top:18px">
-            ${tracks.length ? `<div class="song-list">${tracks.map(songRow).join('')}</div>` : emptyState('No seeded tracks yet for this artist.')}
+          <div class="artist-detail-tracklist">
+            ${tracks.length ? `<div class="song-list artist-detail-song-list">${tracks.map(songRow).join('')}</div>` : emptyState('No seeded tracks yet for this artist.')}
           </div>
         </aside>
       </div>
