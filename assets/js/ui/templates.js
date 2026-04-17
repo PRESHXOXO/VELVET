@@ -42,8 +42,8 @@ export function stationCard(station, index){
   `;
 }
 
-export function songRow(track, index){
-  const thumb =
+export function getTrackArtwork(track = {}){
+  return (
     track.thumb ||
     track.thumbnail ||
     track.image ||
@@ -51,7 +51,22 @@ export function songRow(track, index){
     (track.snippet && track.snippet.thumbnails && track.snippet.thumbnails.high && track.snippet.thumbnails.high.url) ||
     (track.snippet && track.snippet.thumbnails && track.snippet.thumbnails.medium && track.snippet.thumbnails.medium.url) ||
     (track.snippet && track.snippet.thumbnails && track.snippet.thumbnails.default && track.snippet.thumbnails.default.url) ||
-    (track.videoId ? `https://i.ytimg.com/vi/${track.videoId}/hqdefault.jpg` : '');
+    (track.videoId ? `https://i.ytimg.com/vi/${track.videoId}/hqdefault.jpg` : '')
+  );
+}
+
+export function renderPlaylistArtwork(entries = [], { emptyClass = '', emptyLabel = 'V' } = {}){
+  if (!entries.length) {
+    return `<div class="${emptyClass}">${emptyLabel}</div>`;
+  }
+
+  return entries.slice(0, 4).map(entry => `
+    <img src="${getTrackArtwork(entry.track)}" alt="${entry.track.title || 'Track artwork'}">
+  `).join('');
+}
+
+export function songRow(track, index){
+  const thumb = getTrackArtwork(track);
 
   return `
     <article class="song-row">
@@ -116,16 +131,62 @@ export function artistCard(profile){
   `;
 }
 
-export function playlistCard(playlist){
+export function libraryPlaylistCard(playlist, signature, previewEntries){
   return `
-    <article class="playlist-card">
-      <span class="panel-kicker">Playlist</span>
-      <h4>${playlist.name}</h4>
-      <p class="section-copy">${playlist.songs.length} tracks ready to stack into your room.</p>
+    <article class="library-playlist-card" style="--playlist-gradient:${signature.gradient}">
+      <div class="library-playlist-cover">
+        <div class="library-playlist-collage">
+          ${renderPlaylistArtwork(previewEntries, { emptyClass: 'library-playlist-cover-empty' })}
+        </div>
+        <span class="library-playlist-badge">${signature.topMood || 'Open Stack'}</span>
+      </div>
+
+      <div class="library-playlist-head">
+        <div>
+          <span class="panel-kicker">Playlist</span>
+          <h3>${playlist.name}</h3>
+        </div>
+        <div class="library-playlist-metric">${signature.caption}</div>
+      </div>
+
+      <p class="library-playlist-copy">${signature.summary}</p>
+      <div class="meta-tags">${signature.tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+
+      <div class="library-playlist-preview">
+        ${previewEntries.length ? previewEntries.map(entry => `
+          <button class="library-playlist-track" type="button" data-action="play-library-track" data-source="playlist" data-playlist="${playlist.id}" data-index="${entry.queueIndex}" data-video="${entry.track.videoId}">
+            <img src="${getTrackArtwork(entry.track)}" alt="${entry.track.title || 'Track artwork'}">
+            <span>
+              <strong>${entry.track.title}</strong>
+              <small>${entry.track.artist}</small>
+            </span>
+          </button>
+        `).join('') : '<div class="library-empty-inline">No tracks here yet.</div>'}
+      </div>
+
       <div class="inline-actions">
-        <button class="btn btn-secondary" data-play-playlist="${playlist.id}" data-playlist="${playlist.id}">${icon('play')} Play</button>
+        <button class="btn btn-primary" type="button" data-action="play-playlist" data-playlist="${playlist.id}">${icon('play')} Play stack</button>
       </div>
     </article>
+  `;
+}
+
+export function playlistPickerCard(playlist, signature, match, previewEntries){
+  return `
+    <button class="playlist-picker-card is-${match.tone}" data-playlist="${playlist.id}" ${match.disabled ? 'disabled' : ''}>
+      <div class="playlist-picker-art" style="--playlist-gradient:${signature.gradient}">
+        ${renderPlaylistArtwork(previewEntries, { emptyClass: 'playlist-picker-art-empty' })}
+      </div>
+      <div class="playlist-picker-copy">
+        <div class="playlist-picker-topline">
+          <span class="panel-kicker">Playlist</span>
+          <span class="playlist-picker-match is-${match.tone}">${match.label}</span>
+        </div>
+        <h4>${playlist.name}</h4>
+        <p class="section-copy">${signature.summary}</p>
+        <div class="meta-tags">${signature.tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+      </div>
+    </button>
   `;
 }
 

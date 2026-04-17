@@ -1,7 +1,8 @@
-﻿import { refreshLibraryState, isLiked, state } from '../core/state.js';
+import { refreshLibraryState, isLiked, state } from '../core/state.js';
 import { playFromQueue } from '../core/player.js';
 import { bindSongRowActions, resolveTrack } from '../core/ui.js';
-import { pageHead, emptyState, icon } from '../ui/templates.js';
+import { getPlaylistPreviewEntries, getPlaylistSignature, getPrimaryPlaylist } from '../core/playlists.js';
+import { pageHead, emptyState, icon, getTrackArtwork, libraryPlaylistCard } from '../ui/templates.js';
 
 const LIBRARY_KEYS = new Set(['vlv_liked', 'vlv_recent', 'vlv_playlists']);
 const LIBRARY_VIEWS = ['all', 'playlists', 'liked', 'recent'];
@@ -14,12 +15,6 @@ function formatCount(value, singular, plural = `${singular}s`) {
 
 function getPlaylistsTrackCount() {
   return state.playlists.reduce((total, playlist) => total + (playlist.songs?.length || 0), 0);
-}
-
-function getPrimaryPlaylist() {
-  return state.playlists
-    .slice()
-    .sort((a, b) => (b.songs?.length || 0) - (a.songs?.length || 0))[0] || null;
 }
 
 function getLastSavedLabel() {
@@ -72,6 +67,13 @@ function resolveLibraryTrack(data = {}) {
   return sourceQueue.find(track => track.videoId === data.video) || resolveTrack(data.video);
 }
 
+function renderLibraryPlaylistCard(playlist) {
+  const signature = getPlaylistSignature(playlist);
+  const previewEntries = getPlaylistPreviewEntries(playlist, 4);
+
+  return libraryPlaylistCard(playlist, signature, previewEntries);
+}
+
 function librarySongRow(track, index, source, playlistId = '') {
   return `
     <article class="song-row">
@@ -81,7 +83,7 @@ function librarySongRow(track, index, source, playlistId = '') {
 
       <img
         class="song-thumb"
-        src="${track.thumb || ''}"
+        src="${getTrackArtwork(track)}"
         alt="${track.title || 'Track artwork'}"
         data-action="play-library-track"
         data-source="${source}"
@@ -113,46 +115,10 @@ function librarySongRow(track, index, source, playlistId = '') {
   `;
 }
 
-function playlistCard(playlist) {
-  const preview = playlist.songs.slice(0, 3);
-  const latest = playlist.songs[0];
-
-  return `
-    <article class="library-playlist-card">
-      <div class="library-playlist-head">
-        <div>
-          <span class="panel-kicker">Playlist</span>
-          <h3>${playlist.name}</h3>
-        </div>
-        <div class="library-playlist-metric">${formatCount(playlist.songs.length, 'track')}</div>
-      </div>
-
-      <p class="library-playlist-copy">
-        ${latest ? `Leaning on ${latest.artist} and the rest of this stack.` : 'Still empty. Add songs from search, stations, or artist pages.'}
-      </p>
-
-      <div class="library-playlist-preview">
-        ${preview.length ? preview.map((track, index) => `
-          <button class="library-playlist-track" type="button" data-action="play-library-track" data-source="playlist" data-playlist="${playlist.id}" data-index="${index}" data-video="${track.videoId}">
-            <img src="${track.thumb || ''}" alt="${track.title || 'Track artwork'}">
-            <span>
-              <strong>${track.title}</strong>
-              <small>${track.artist}</small>
-            </span>
-          </button>
-        `).join('') : '<div class="library-empty-inline">No tracks here yet.</div>'}
-      </div>
-
-      <div class="inline-actions">
-        <button class="btn btn-primary" type="button" data-action="play-playlist" data-playlist="${playlist.id}">${icon('play')} Play stack</button>
-      </div>
-    </article>
-  `;
-}
-
 function overviewMarkup() {
   const cards = getOverviewCards();
-  const primaryPlaylist = getPrimaryPlaylist();
+  const primaryPlaylist = getPrimaryPlaylist(state.playlists);
+  const primarySignature = primaryPlaylist ? getPlaylistSignature(primaryPlaylist) : null;
 
   return `
     <section class="library-stage">
@@ -184,7 +150,7 @@ function overviewMarkup() {
         <div class="panel library-insight-panel">
           <span class="panel-kicker">Lead stack</span>
           <div class="library-insight-value">${primaryPlaylist?.name || 'No playlist yet'}</div>
-          <p class="section-copy">${primaryPlaylist ? `${formatCount(primaryPlaylist.songs.length, 'track')} ready to run.` : 'Build a stack and it will surface here automatically.'}</p>
+          <p class="section-copy">${primarySignature?.summary || 'Build a stack and it will surface here automatically.'}</p>
         </div>
       </aside>
 
@@ -204,9 +170,9 @@ function overviewMarkup() {
 function playlistsSection() {
   return `
     <section>
-      ${pageHead({ kicker:'Playlists', title:'Room stacks', copy:'Playlists stay lightweight, but they now read like active shelves with previews and quick-start actions.' })}
+      ${pageHead({ kicker:'Playlists', title:'Room stacks', copy:'Playlists now read from the actual tracks inside them, so the visuals, mood, and metadata stay aligned.' })}
       <div class="library-playlist-grid">
-        ${state.playlists.length ? state.playlists.map(playlistCard).join('') : emptyState('No playlists yet. Create one and start stacking songs from search, stations, or artists.')}
+        ${state.playlists.length ? state.playlists.map(renderLibraryPlaylistCard).join('') : emptyState('No playlists yet. Create one and start stacking songs from search, stations, or artists.')}
       </div>
     </section>
   `;

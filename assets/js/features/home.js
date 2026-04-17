@@ -1,8 +1,9 @@
-﻿import { refreshLibraryState, isLiked, state } from '../core/state.js';
+import { refreshLibraryState, state } from '../core/state.js';
 import { playFromQueue } from '../core/player.js';
 import { bindSongRowActions, resolveTrack } from '../core/ui.js';
-import { pageHead, emptyState, icon, songRow } from '../ui/templates.js';
+import { pageHead, emptyState, icon, songRow, getTrackArtwork } from '../ui/templates.js';
 import { catalogTracks, getArtistProfile, getArtistSlug, getArtistTracks, getStationTracks, stations } from '../core/catalog.js';
+import { getPlaylistPreviewEntries, getPlaylistSignature, getPrimaryPlaylist } from '../core/playlists.js';
 
 const LIBRARY_KEYS = new Set(['vlv_liked', 'vlv_recent', 'vlv_playlists']);
 
@@ -21,14 +22,8 @@ function formatCount(value, singular, plural = `${singular}s`) {
   return `${safe} ${safe === 1 ? singular : plural}`;
 }
 
-function getPrimaryPlaylist() {
-  return state.playlists
-    .slice()
-    .sort((a, b) => (b.songs?.length || 0) - (a.songs?.length || 0))[0] || null;
-}
-
 function getSpotlightTrack() {
-  return state.recent[0] || state.liked[0] || getPrimaryPlaylist()?.songs?.[0] || catalogTracks[0] || null;
+  return state.recent[0] || state.liked[0] || getPrimaryPlaylist(state.playlists)?.songs?.slice(-1)[0] || catalogTracks[0] || null;
 }
 
 function getSpotlightStations(track) {
@@ -46,7 +41,7 @@ function getSpotlightStations(track) {
 
 function getCuratedTracks(track, artistProfile) {
   const artistTracks = artistProfile ? getArtistTracks(artistProfile.slug) : [];
-  const playlistTracks = state.playlists.flatMap(playlist => playlist.songs.slice(0, 2));
+  const playlistTracks = state.playlists.flatMap(playlist => getPlaylistPreviewEntries(playlist, 2).map(entry => entry.track));
 
   return dedupeTracks([
     track,
@@ -58,10 +53,10 @@ function getCuratedTracks(track, artistProfile) {
   ]).slice(0, 8);
 }
 
-function homeMiniRow(track, index, action, extras = '') {
+function homeMiniRow(track, queueIndex, action, extras = '') {
   return `
-    <button class="home-mini-row" type="button" data-action="${action}" data-index="${index}" data-video="${track.videoId}" ${extras}>
-      <img src="${track.thumb || ''}" alt="${track.title || 'Track artwork'}">
+    <button class="home-mini-row" type="button" data-action="${action}" data-index="${queueIndex}" data-video="${track.videoId}" ${extras}>
+      <img src="${getTrackArtwork(track)}" alt="${track.title || 'Track artwork'}">
       <span class="home-mini-row-copy">
         <strong>${track.title || 'Unknown track'}</strong>
         <small>${track.artist || 'Unknown artist'}</small>
@@ -98,7 +93,9 @@ function renderHomeView(container) {
     spotlightTrack,
     ...(spotlightArtist ? getArtistTracks(spotlightArtist.slug) : [])
   ]).slice(0, 4);
-  const primaryPlaylist = getPrimaryPlaylist();
+  const primaryPlaylist = getPrimaryPlaylist(state.playlists);
+  const primaryPlaylistSignature = primaryPlaylist ? getPlaylistSignature(primaryPlaylist) : null;
+  const primaryPlaylistPreview = primaryPlaylist ? getPlaylistPreviewEntries(primaryPlaylist, 3) : [];
   const spotlightTags = (spotlightTrack?.moods || []).slice(0, 3);
   const spotlightIndex = curatedTracks.findIndex(track => track.videoId === spotlightTrack?.videoId);
 
@@ -126,7 +123,7 @@ function renderHomeView(container) {
 
           <div class="home-feature-visual">
             <div class="home-feature-art">
-              <img src="${spotlightTrack?.thumb || ''}" alt="${spotlightTrack?.title || 'Spotlight artwork'}">
+              <img src="${getTrackArtwork(spotlightTrack)}" alt="${spotlightTrack?.title || 'Spotlight artwork'}">
             </div>
             <div class="home-feature-stat-row">
               <div class="home-feature-stat">
@@ -158,11 +155,12 @@ function renderHomeView(container) {
         <article class="panel home-stack-panel">
           <span class="panel-kicker">Room Stack</span>
           <div class="home-side-title">${primaryPlaylist?.name || 'Keep building the room'}</div>
-          <p class="section-copy">${primaryPlaylist ? `${formatCount(primaryPlaylist.songs.length, 'track')} ready inside your lead playlist.` : 'Create a playlist and the strongest one will surface here automatically.'}</p>
+          <p class="section-copy">${primaryPlaylistSignature?.summary || 'Create a playlist and the strongest one will surface here automatically.'}</p>
+          ${primaryPlaylistSignature?.tags?.length ? `<div class="meta-tags">${primaryPlaylistSignature.tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>` : ''}
           <div class="home-side-list">
-            ${primaryPlaylist?.songs?.length
-              ? primaryPlaylist.songs.slice(0, 3).map((track, index) => homeMiniRow(track, index, 'play-home-playlist-track', `data-playlist="${primaryPlaylist.id}"`)).join('')
-              : (returnTracks.length ? returnTracks.slice(0, 3).map((track, index) => homeMiniRow(track, index, 'play-home-return')).join('') : '<div class="empty">Play or save a few songs and this shelf will start to feel personal fast.</div>')}
+            ${primaryPlaylistPreview.length
+              ? primaryPlaylistPreview.map(entry => homeMiniRow(entry.track, entry.queueIndex, 'play-home-playlist-track', `data-playlist="${primaryPlaylist.id}"`)).join('')
+              : (returnTracks.length ? returnTracks.map((track, index) => homeMiniRow(track, index, 'play-home-return')).join('') : '<div class="empty">Play or save a few songs and this shelf will start to feel personal fast.</div>')}
           </div>
           <div class="inline-actions">
             ${primaryPlaylist?.songs?.length ? `<button class="btn btn-primary" type="button" data-action="play-home-playlist" data-playlist="${primaryPlaylist.id}">${icon('play')} Play stack</button>` : '<button class="btn btn-primary" type="button" data-open-create-playlist>Create playlist</button>'}

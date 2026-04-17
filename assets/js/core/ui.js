@@ -1,5 +1,7 @@
-﻿import { createPlaylist, addTrackToPlaylist, state } from './state.js';
+import { createPlaylist, addTrackToPlaylist, state } from './state.js';
 import { catalogTracks } from './catalog.js';
+import { getPlaylistMatch, getPlaylistPreviewEntries, getPlaylistSignature, sortPlaylistsForTrack } from './playlists.js';
+import { playlistPickerCard } from '../ui/templates.js';
 
 let toastTimer;
 
@@ -76,18 +78,22 @@ function openAddModal(track){
 
   modal.dataset.video = track.videoId;
 
-  list.innerHTML = state.playlists.length
-    ? state.playlists.map(playlist => `
-      <button class="playlist-card" data-playlist="${playlist.id}">
-        <span class="panel-kicker">Playlist</span>
-        <h4>${playlist.name}</h4>
-        <p class="section-copy">${playlist.songs.length} tracks</p>
-      </button>
-    `).join('')
+  const orderedPlaylists = sortPlaylistsForTrack(state.playlists, track);
+
+  list.innerHTML = orderedPlaylists.length
+    ? orderedPlaylists.map(playlist => {
+      const signature = getPlaylistSignature(playlist);
+      const match = getPlaylistMatch(track, playlist);
+      const previewEntries = getPlaylistPreviewEntries(playlist, 4);
+
+      return playlistPickerCard(playlist, signature, match, previewEntries);
+    }).join('')
     : '<div class="empty">Create a playlist first, then come back to stack tracks.</div>';
 
   list.querySelectorAll('[data-playlist]').forEach(button => {
     button.addEventListener('click', () => {
+      if (button.disabled) return;
+
       const added = addTrackToPlaylist(track, Number(button.dataset.playlist));
       if (added) {
         toast('Track added to playlist');
