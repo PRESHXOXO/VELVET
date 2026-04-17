@@ -1,23 +1,18 @@
-import { stations, getStationTracks } from '../core/catalog.js';
+import { stations, getStationTracks, getStationVisual } from '../core/catalog.js';
 import { fetchSongs } from '../core/youtube.js';
 import { playFromQueue } from '../core/player.js';
-import { pageHead, songRow, emptyState, getTrackArtwork } from '../ui/templates.js';
+import { pageHead, songRow, emptyState, mediaSlot } from '../ui/templates.js';
 import { bindSongRowActions, resolveTrack } from '../core/ui.js';
 
 function stationBrowserItem(station, index, isActive = false){
   return `
-    <button
-      class="station-list-item ${isActive ? 'is-active' : ''}"
-      data-action="open-station"
-      data-index="${index}"
-      type="button"
-    >
-      <div class="station-list-copy">
+    <button class="station-browser-item ${isActive ? 'active' : ''}" data-action="open-station" data-index="${index}">
+      <div>
         <span class="panel-kicker">Station</span>
         <strong>${station.name}</strong>
-        <span>${station.description || station.query}</span>
+        <small>${station.description || station.query}</small>
       </div>
-      <span class="station-list-meta">${(station.seedIndexes || []).length || 0}</span>
+      <span class="station-browser-meta">${(station.seedIndexes || []).length || 'Live'}</span>
     </button>
   `;
 }
@@ -26,11 +21,8 @@ let hashListenerBound = false;
 
 export async function renderStationsPage(container){
   const hashMatch = window.location.hash.match(/station-(\d+)/);
-  const activeIndex = hashMatch
-    ? Math.max(0, Math.min(Number(hashMatch[1]), stations.length - 1))
-    : 0;
-
-  const station = stations[activeIndex];
+  const activeIndex = hashMatch ? Number(hashMatch[1]) : 0;
+  const station = stations[activeIndex] || stations[0];
   const localTracks = getStationTracks(activeIndex);
 
   let liveTracks = [];
@@ -48,7 +40,7 @@ export async function renderStationsPage(container){
       !localTracks.some(local => local.videoId === track.videoId)
     )
   ];
-  const focusImage = queue[0] ? getTrackArtwork(queue[0]) : '';
+  const focusImage = station.heroImage || station.image || getStationVisual(activeIndex) || '';
 
   container.innerHTML = `
     <section class="stations-page">
@@ -77,7 +69,16 @@ export async function renderStationsPage(container){
                 <button class="btn btn-secondary" id="shuffleActiveStation" type="button">Shuffle</button>
               </div>
             </div>
-            ${focusImage ? `<div class="station-detail-art"><img src="${focusImage}" alt="${station.name} artwork"></div>` : ''}
+            ${mediaSlot({
+              image: focusImage,
+              alt: `${station.name || 'Station'} hero visual`,
+              label: station.name || 'Station visual',
+              eyebrow: 'Station visual',
+              monogram: station.name || 'V',
+              className: 'station-detail-art',
+              kind: 'station-detail',
+              ratio: 'landscape'
+            })}
           </div>
 
           <div class="station-detail-tracks" id="stationSongList">

@@ -1,12 +1,21 @@
 import { isLiked } from '../core/state.js';
+import { getStationVisual } from '../core/catalog.js';
 
-function getInitials(value = '') {
+export function getInitials(value = '') {
   return String(value)
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
     .map(part => part.charAt(0).toUpperCase())
     .join('') || 'V';
+}
+
+function escapeAttr(value = '') {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 export function icon(name){
@@ -33,8 +42,48 @@ export function heroBanner({ kicker, title, copy, actions }){
   `;
 }
 
+export function mediaSlot({
+  image = '',
+  alt = 'Velvet visual',
+  label = 'Image slot',
+  eyebrow = 'Velvet visual',
+  monogram = 'V',
+  className = '',
+  kind = 'generic',
+  ratio = 'square',
+  forceMeta = false
+} = {}) {
+  const safeImage = image ? escapeAttr(image) : '';
+  const safeAlt = escapeAttr(alt);
+  const safeLabel = label;
+  const safeEyebrow = eyebrow;
+  const showMeta = forceMeta || !safeImage;
+  const filledClass = safeImage ? 'is-filled' : 'is-empty';
+
+  return `
+    <div class="media-slot media-slot--${ratio} media-slot--${kind} ${filledClass} ${className}" data-media-slot="${kind}">
+      ${safeImage ? `
+        <img src="${safeImage}" alt="${safeAlt}">
+      ` : `
+        <div class="media-slot-placeholder" aria-hidden="true">
+          <div class="media-slot-glow"></div>
+          <span class="media-slot-monogram">${getInitials(monogram || safeLabel)}</span>
+          <div class="media-slot-lines"><span></span><span></span><span></span></div>
+        </div>
+      `}
+      ${showMeta ? `
+        <div class="media-slot-meta">
+          <span>${safeEyebrow}</span>
+          <strong>${safeLabel}</strong>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
 export function stationCard(station, index){
   const seedCount = (station.seedIndexes || []).length || 'Live';
+  const stationImage = station.cardImage || station.image || station.heroImage || getStationVisual(index);
 
   return `
     <article class="station-card" style="--station-gradient:${station.gradient}">
@@ -42,9 +91,21 @@ export function stationCard(station, index){
         <span class="panel-kicker">Station View</span>
         <span class="station-card-seed">${seedCount} seeds</span>
       </div>
-      <div class="station-card-copy">
-        <h3>${station.name}</h3>
-        <p>${station.description || station.query}</p>
+      <div class="station-card-shell">
+        <div class="station-card-copy">
+          <h3>${station.name}</h3>
+          <p>${station.description || station.query}</p>
+        </div>
+        ${mediaSlot({
+          image: stationImage,
+          alt: `${station.name || 'Station'} visual`,
+          label: station.name || 'Station visual',
+          eyebrow: 'Station visual',
+          monogram: station.name || 'V',
+          className: 'station-card-media',
+          kind: 'station-card',
+          ratio: 'portrait'
+        })}
       </div>
       <div class="meta-tags">
         <span class="mini-tag">${seedCount} seeds</span>
@@ -134,12 +195,21 @@ export function shelfCard(card){
 }
 
 export function artistCard(profile){
-  const image = profile.image ? `<img src="${profile.image}" alt="${profile.name || 'Artist artwork'}">` : `<span class="artist-card-monogram">${getInitials(profile.name)}</span>`;
+  const portraitImage = profile.portraitImage || profile.image || '';
 
   return `
-    <article class="artist-card" style="--artist-gradient:${profile.gradient || 'linear-gradient(135deg,#17121a,#43253c)'};${profile.image ? `--artist-image:url('${profile.image}')` : ''}">
+    <article class="artist-card" style="--artist-gradient:${profile.gradient || 'linear-gradient(135deg,#17121a,#43253c)'};${portraitImage ? `--artist-image:url('${portraitImage}')` : ''}">
       <div class="artist-card-visual">
-        <div class="artist-card-media">${image}</div>
+        ${mediaSlot({
+          image: portraitImage,
+          alt: `${profile.name || 'Artist'} portrait`,
+          label: profile.name || 'Artist portrait',
+          eyebrow: 'Artist portrait',
+          monogram: profile.name || 'V',
+          className: 'artist-card-media',
+          kind: 'artist-card',
+          ratio: 'portrait'
+        })}
         <span class="panel-kicker">Artist Profile</span>
       </div>
       <div class="artist-card-body">

@@ -1,8 +1,8 @@
 import { refreshLibraryState, state } from '../core/state.js';
 import { playFromQueue } from '../core/player.js';
 import { bindSongRowActions, resolveTrack } from '../core/ui.js';
-import { pageHead, emptyState, icon, songRow, getTrackArtwork } from '../ui/templates.js';
-import { catalogTracks, getArtistProfile, getArtistSlug, getArtistTracks, getStationTracks, stations } from '../core/catalog.js';
+import { pageHead, emptyState, icon, songRow, getTrackArtwork, mediaSlot } from '../ui/templates.js';
+import { catalogTracks, getArtistProfile, getArtistSlug, getArtistTracks, getStationTracks, getStationVisual, stations } from '../core/catalog.js';
 import { getPlaylistPreviewEntries, getPlaylistSignature, getPrimaryPlaylist } from '../core/playlists.js';
 
 const LIBRARY_KEYS = new Set(['vlv_liked', 'vlv_recent', 'vlv_playlists']);
@@ -80,7 +80,7 @@ function homeRibbonTrack(track, index) {
 
 function homeStationCard(entry) {
   const stationLeadTrack = getStationTracks(entry.index)[0];
-  const stationImage = stationLeadTrack ? getTrackArtwork(stationLeadTrack) : '';
+  const stationImage = entry.station.cardImage || entry.station.image || getStationVisual(entry.index) || (stationLeadTrack ? getTrackArtwork(stationLeadTrack) : '');
 
   return `
     <article class="home-station-card" style="--station-gradient:${entry.station.gradient};${stationImage ? `--station-image:url('${stationImage}')` : ''}">
@@ -88,11 +88,23 @@ function homeStationCard(entry) {
         <span class="panel-kicker">Station Lane</span>
         <span class="home-station-meta">${(entry.station.seedIndexes || []).length || 'Live'} seeds</span>
       </div>
-      <div class="home-station-copy">
-        <h3>${entry.station.name}</h3>
-        <p>${entry.station.description || entry.station.query}</p>
+      <div class="home-station-shell">
+        <div class="home-station-copy">
+          <h3>${entry.station.name}</h3>
+          <p>${entry.station.description || entry.station.query}</p>
+          <div class="meta-tags">${(entry.station.tags || []).slice(0, 2).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+        </div>
+        ${mediaSlot({
+          image: stationImage,
+          alt: `${entry.station.name || 'Station'} visual`,
+          label: entry.station.name || 'Station visual',
+          eyebrow: 'Station visual',
+          monogram: entry.station.name || 'V',
+          className: 'home-station-media',
+          kind: 'station-home',
+          ratio: 'portrait'
+        })}
       </div>
-      <div class="meta-tags">${(entry.station.tags || []).slice(0, 2).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
       <div class="inline-actions">
         <button class="btn btn-primary" type="button" data-action="open-station" data-index="${entry.index}">${icon('play')} Open</button>
         <button class="btn btn-secondary" type="button" data-action="shuffle-station" data-index="${entry.index}">${icon('shuffle')} Mix</button>
@@ -117,11 +129,12 @@ function renderHomeView(container) {
   const spotlightTags = (spotlightTrack?.moods || []).slice(0, 3);
   const spotlightIndex = curatedTracks.findIndex(track => track.videoId === spotlightTrack?.videoId);
   const spotlightArt = getTrackArtwork(spotlightTrack);
+  const spotlightVisual = spotlightArtist?.featureImage || spotlightArtist?.heroImage || spotlightArt || '';
   const spotlightRibbon = curatedTracks.filter(track => track.videoId !== spotlightTrack?.videoId).slice(0, 3);
 
   container.innerHTML = `
     <section class="home-stage">
-      <article class="panel home-feature-panel" style="${spotlightArt ? `--spotlight-image:url('${spotlightArt}')` : ''}">
+      <article class="panel home-feature-panel" style="${spotlightVisual ? `--spotlight-image:url('${spotlightVisual}')` : ''}">
         <div class="home-feature-grid">
           <div class="home-feature-copy">
             <div class="home-feature-heading">
@@ -154,9 +167,16 @@ function renderHomeView(container) {
 
           <div class="home-feature-visual">
             <div class="home-feature-art-shell">
-              <div class="home-feature-art">
-                <img src="${spotlightArt}" alt="${spotlightTrack?.title || 'Spotlight artwork'}">
-              </div>
+              ${mediaSlot({
+                image: spotlightVisual,
+                alt: `${spotlightTrack?.title || 'Velvet'} feature visual`,
+                label: spotlightArtist?.name || spotlightTrack?.artist || 'Feature visual',
+                eyebrow: 'Feature visual',
+                monogram: spotlightArtist?.name || spotlightTrack?.artist || 'V',
+                className: 'home-feature-art',
+                kind: 'feature',
+                ratio: 'hero'
+              })}
             </div>
             <div class="home-feature-caption">
               <span>Lead voice</span>

@@ -54,12 +54,18 @@ export function getArtistProfile(slug) {
 
   if (artistProfiles[slug]) {
     const profile = artistProfiles[slug];
+    const portraitImage = profile.portraitImage || profile.image || leadImage;
+    const featureImage = profile.featureImage || profile.heroImage || profile.image || portraitImage || leadImage;
+
     return {
       slug,
       ...profile,
       description: profile.description || profile.bio || profile.tagline || 'Velvet artist profile.',
       tags: profile.tags || [],
-      image: profile.image || leadImage
+      image: profile.image || portraitImage || featureImage || leadImage,
+      portraitImage,
+      featureImage,
+      heroImage: profile.heroImage || featureImage || portraitImage || leadImage
     };
   }
 
@@ -69,7 +75,10 @@ export function getArtistProfile(slug) {
       name: slug,
       description: 'No profile yet.',
       gradient: 'linear-gradient(135deg,#17121a,#43253c)',
-      image: ''
+      image: '',
+      portraitImage: '',
+      featureImage: '',
+      heroImage: ''
     };
   }
 
@@ -79,7 +88,10 @@ export function getArtistProfile(slug) {
     description: `A Velvet profile built from ${tracks.length} seed tracks.`,
     gradient: 'linear-gradient(135deg,#17121a,#43253c)',
     tags: ['Velvet profile'],
-    image: leadImage
+    image: leadImage,
+    portraitImage: leadImage,
+    featureImage: leadImage,
+    heroImage: leadImage
   };
 }
 
@@ -113,6 +125,18 @@ export function getStationTracks(index) {
   const safeLength = Math.max(1, catalogTracks.length);
   const start = index % safeLength;
   return catalogTracks.slice(start, start + 6);
+}
+
+export function getStationVisual(index) {
+  const station = stations[index];
+  if (!station) return '';
+
+  if (station.heroImage || station.cardImage || station.image) {
+    return station.heroImage || station.cardImage || station.image || '';
+  }
+
+  const leadTrack = getStationTracks(index)[0];
+  return leadTrack?.thumb || '';
 }
 
 export function searchCatalog(query) {

@@ -1,16 +1,7 @@
 import { getArtistSlugs, getArtistProfile, getArtistTracks } from '../core/catalog.js';
 import { playFromQueue } from '../core/player.js';
-import { pageHead, artistCard, songRow, emptyState } from '../ui/templates.js';
+import { pageHead, artistCard, songRow, emptyState, mediaSlot } from '../ui/templates.js';
 import { bindSongRowActions, resolveTrack } from '../core/ui.js';
-
-function getInitials(value = '') {
-  return String(value)
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(part => part.charAt(0).toUpperCase())
-    .join('') || 'V';
-}
 
 export function renderArtistsPage(container){
   const hashMatch = window.location.hash.match(/artist-(.+)$/);
@@ -19,7 +10,7 @@ export function renderArtistsPage(container){
   const activeProfile = getArtistProfile(activeSlug);
   const tracks = getArtistTracks(activeSlug);
   const letters = [...new Set(profiles.map(profile => profile.name.charAt(0).toUpperCase()).filter(Boolean))].sort();
-  const activeImage = activeProfile?.image || '';
+  const activeImage = activeProfile?.portraitImage || activeProfile?.image || '';
 
   container.innerHTML = `
     <section class="artists-page">
@@ -32,7 +23,16 @@ export function renderArtistsPage(container){
         <div class="artist-grid">${profiles.map(artistCard).join('')}</div>
         <aside class="panel detail-panel artist-detail-panel" style="--artist-focus-gradient:${activeProfile?.gradient || 'linear-gradient(135deg,#17121a,#43253c)'};${activeImage ? `--artist-focus-image:url('${activeImage}')` : ''}">
           <div class="artist-detail-hero">
-            <div class="artist-detail-media">${activeImage ? `<img src="${activeImage}" alt="${activeProfile.name || 'Artist artwork'}">` : `<span>${getInitials(activeProfile?.name)}</span>`}</div>
+            ${mediaSlot({
+              image: activeImage,
+              alt: `${activeProfile.name || 'Artist'} portrait`,
+              label: activeProfile.name || 'Artist portrait',
+              eyebrow: 'Portrait slot',
+              monogram: activeProfile?.name || 'V',
+              className: 'artist-detail-media',
+              kind: 'artist-detail',
+              ratio: 'portrait'
+            })}
             <div class="artist-detail-copy">
               <span class="panel-kicker">Artist Focus</span>
               <div class="section-title artist-detail-title">${activeProfile.name}</div>
