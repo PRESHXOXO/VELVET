@@ -1,5 +1,14 @@
 import { isLiked } from '../core/state.js';
 
+function getInitials(value = '') {
+  return String(value)
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(part => part.charAt(0).toUpperCase())
+    .join('') || 'V';
+}
+
 export function icon(name){
   const icons = {
     play:'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"></path></svg>',
@@ -25,13 +34,20 @@ export function heroBanner({ kicker, title, copy, actions }){
 }
 
 export function stationCard(station, index){
+  const seedCount = (station.seedIndexes || []).length || 'Live';
+
   return `
     <article class="station-card" style="--station-gradient:${station.gradient}">
-      <span class="panel-kicker">Station View</span>
-      <h3>${station.name}</h3>
-      <p>${station.description || station.query}</p>
+      <div class="station-card-top">
+        <span class="panel-kicker">Station View</span>
+        <span class="station-card-seed">${seedCount} seeds</span>
+      </div>
+      <div class="station-card-copy">
+        <h3>${station.name}</h3>
+        <p>${station.description || station.query}</p>
+      </div>
       <div class="meta-tags">
-        <span class="mini-tag">${(station.seedIndexes || []).length || 'Live'} seeds</span>
+        <span class="mini-tag">${seedCount} seeds</span>
         <span class="mini-tag">YouTube pull</span>
       </div>
       <div class="actions">
@@ -118,14 +134,21 @@ export function shelfCard(card){
 }
 
 export function artistCard(profile){
+  const image = profile.image ? `<img src="${profile.image}" alt="${profile.name || 'Artist artwork'}">` : `<span class="artist-card-monogram">${getInitials(profile.name)}</span>`;
+
   return `
-    <article class="artist-card" style="background:${profile.gradient || 'linear-gradient(135deg,#17121a,#43253c)'}">
-      <span class="panel-kicker">Artist Profile</span>
-      <h3>${profile.name}</h3>
-      <p>${profile.description || 'Velvet artist profile'}</p>
-      <div class="meta-tags">${(profile.tags || []).slice(0,3).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
-      <div class="actions">
-        <button class="btn btn-primary" data-action="open-artist" data-slug="${profile.slug}">${icon('play')} Open Artist</button>
+    <article class="artist-card" style="--artist-gradient:${profile.gradient || 'linear-gradient(135deg,#17121a,#43253c)'};${profile.image ? `--artist-image:url('${profile.image}')` : ''}">
+      <div class="artist-card-visual">
+        <div class="artist-card-media">${image}</div>
+        <span class="panel-kicker">Artist Profile</span>
+      </div>
+      <div class="artist-card-body">
+        <h3>${profile.name}</h3>
+        <p>${profile.description || 'Velvet artist profile'}</p>
+        <div class="meta-tags">${(profile.tags || []).slice(0,3).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+        <div class="actions">
+          <button class="btn btn-primary" data-action="open-artist" data-slug="${profile.slug}">${icon('play')} Open Artist</button>
+        </div>
       </div>
     </article>
   `;

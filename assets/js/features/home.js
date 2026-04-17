@@ -66,10 +66,28 @@ function homeMiniRow(track, queueIndex, action, extras = '') {
   `;
 }
 
-function homeStationCard(entry) {
+function homeRibbonTrack(track, index) {
   return `
-    <article class="home-station-card" style="--station-gradient:${entry.station.gradient}">
-      <span class="panel-kicker">Station Lane</span>
+    <button class="home-feature-ribbon-track" type="button" data-action="play-home-curated" data-index="${index}" data-video="${track.videoId}">
+      <img src="${getTrackArtwork(track)}" alt="${track.title || 'Track artwork'}">
+      <span class="home-feature-ribbon-copy">
+        <strong>${track.title || 'Unknown track'}</strong>
+        <small>${track.artist || 'Unknown artist'}</small>
+      </span>
+    </button>
+  `;
+}
+
+function homeStationCard(entry) {
+  const stationLeadTrack = getStationTracks(entry.index)[0];
+  const stationImage = stationLeadTrack ? getTrackArtwork(stationLeadTrack) : '';
+
+  return `
+    <article class="home-station-card" style="--station-gradient:${entry.station.gradient};${stationImage ? `--station-image:url('${stationImage}')` : ''}">
+      <div class="home-station-top">
+        <span class="panel-kicker">Station Lane</span>
+        <span class="home-station-meta">${(entry.station.seedIndexes || []).length || 'Live'} seeds</span>
+      </div>
       <div class="home-station-copy">
         <h3>${entry.station.name}</h3>
         <p>${entry.station.description || entry.station.query}</p>
@@ -98,32 +116,51 @@ function renderHomeView(container) {
   const primaryPlaylistPreview = primaryPlaylist ? getPlaylistPreviewEntries(primaryPlaylist, 3) : [];
   const spotlightTags = (spotlightTrack?.moods || []).slice(0, 3);
   const spotlightIndex = curatedTracks.findIndex(track => track.videoId === spotlightTrack?.videoId);
+  const spotlightArt = getTrackArtwork(spotlightTrack);
+  const spotlightRibbon = curatedTracks.filter(track => track.videoId !== spotlightTrack?.videoId).slice(0, 3);
 
   container.innerHTML = `
     <section class="home-stage">
-      <article class="panel home-feature-panel">
+      <article class="panel home-feature-panel" style="${spotlightArt ? `--spotlight-image:url('${spotlightArt}')` : ''}">
         <div class="home-feature-grid">
           <div class="home-feature-copy">
-            <span class="panel-kicker">Tonight's Spotlight</span>
-            <div class="home-feature-title">${spotlightTrack?.title || 'Velvet'}</div>
-            <div class="home-feature-meta">
-              <span>${spotlightTrack?.artist || 'Private listening club'}</span>
-              ${spotlightTrack?.year ? `<span>${spotlightTrack.year}</span>` : ''}
+            <div class="home-feature-heading">
+              <span class="panel-kicker">Tonight's Spotlight</span>
+              <div class="home-feature-meta">
+                <span>${spotlightTrack?.artist || 'Private listening club'}</span>
+                ${spotlightTrack?.year ? `<span>${spotlightTrack.year}</span>` : ''}
+                <span>Lead record</span>
+              </div>
+              <div class="home-feature-title">${spotlightTrack?.title || 'Velvet'}</div>
+              <p class="home-feature-blurb">${spotlightArtist?.description || 'Velvet now opens with a stronger editorial center: one lead record, one voice, and a cleaner path into the rest of the room.'}</p>
             </div>
-            <p class="home-feature-blurb">${spotlightArtist?.description || 'Velvet now opens with a stronger editorial center: one lead record, one voice, and a cleaner path into the rest of the room.'}</p>
+
             <div class="meta-tags">
               ${(spotlightTags.length ? spotlightTags : ['after-hours', 'editorial', 'velvet']).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}
             </div>
+
             <div class="inline-actions">
               <button class="btn btn-primary" type="button" data-action="play-spotlight">${icon('play')} Start here</button>
               ${spotlightArtist ? `<button class="btn btn-secondary" type="button" data-action="open-artist" data-slug="${spotlightArtist.slug}">Open artist</button>` : ''}
               ${spotlightStations[0] ? `<button class="btn btn-secondary" type="button" data-action="open-station" data-index="${spotlightStations[0].index}">Open station</button>` : ''}
             </div>
+
+            ${spotlightRibbon.length ? `
+              <div class="home-feature-ribbon">
+                ${spotlightRibbon.map((track, index) => homeRibbonTrack(track, curatedTracks.findIndex(item => item.videoId === track.videoId))).join('')}
+              </div>
+            ` : ''}
           </div>
 
           <div class="home-feature-visual">
-            <div class="home-feature-art">
-              <img src="${getTrackArtwork(spotlightTrack)}" alt="${spotlightTrack?.title || 'Spotlight artwork'}">
+            <div class="home-feature-art-shell">
+              <div class="home-feature-art">
+                <img src="${spotlightArt}" alt="${spotlightTrack?.title || 'Spotlight artwork'}">
+              </div>
+            </div>
+            <div class="home-feature-caption">
+              <span>Lead voice</span>
+              <strong>${spotlightArtist?.name || spotlightTrack?.artist || 'Velvet'}</strong>
             </div>
             <div class="home-feature-stat-row">
               <div class="home-feature-stat">
@@ -205,6 +242,12 @@ function renderHomeView(container) {
       }
     },
     'play-track': (_event, data) => {
+      const index = Number(data.index);
+      if (curatedTracks[index]) {
+        playFromQueue(curatedTracks, index);
+      }
+    },
+    'play-home-curated': (_event, data) => {
       const index = Number(data.index);
       if (curatedTracks[index]) {
         playFromQueue(curatedTracks, index);

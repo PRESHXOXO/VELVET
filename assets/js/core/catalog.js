@@ -1,4 +1,4 @@
-﻿import { stations, seedSongs, artistProfiles } from '../data/catalog.js';
+import { stations, seedSongs, artistProfiles } from '../data/catalog.js';
 
 export function normalizeSearch(value = '') {
   return value.toLowerCase().trim();
@@ -48,24 +48,28 @@ export function getArtistTracks(slug) {
 }
 
 export function getArtistProfile(slug) {
+  const tracks = getArtistTracks(slug);
+  const leadTrack = tracks[0] || null;
+  const leadImage = leadTrack?.thumb || '';
+
   if (artistProfiles[slug]) {
     const profile = artistProfiles[slug];
     return {
       slug,
       ...profile,
       description: profile.description || profile.bio || profile.tagline || 'Velvet artist profile.',
-      tags: profile.tags || []
+      tags: profile.tags || [],
+      image: profile.image || leadImage
     };
   }
-
-  const tracks = getArtistTracks(slug);
 
   if (!tracks.length) {
     return {
       slug,
       name: slug,
       description: 'No profile yet.',
-      gradient: 'linear-gradient(135deg,#17121a,#43253c)'
+      gradient: 'linear-gradient(135deg,#17121a,#43253c)',
+      image: ''
     };
   }
 
@@ -74,7 +78,8 @@ export function getArtistProfile(slug) {
     name: tracks[0].artist,
     description: `A Velvet profile built from ${tracks.length} seed tracks.`,
     gradient: 'linear-gradient(135deg,#17121a,#43253c)',
-    tags: ['Velvet profile']
+    tags: ['Velvet profile'],
+    image: leadImage
   };
 }
 
