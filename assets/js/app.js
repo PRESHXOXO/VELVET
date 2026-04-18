@@ -3,6 +3,83 @@ import { findTrackByVideoId } from './core/catalog.js';
 import { getLocalSearchSnapshot, getSearchPreview, getSearchResults, normalizeQuery } from './core/search.js';
 import { initGlobalUi } from './core/ui.js';
 import { isLiked, toggleLike } from './core/state.js';
+import { mountHomePage } from './features/home.js';
+import { renderArtistsPage } from './features/artists.js';
+import { mountLibraryPage } from './features/library.js';
+import { mountSearchPage } from './features/search.js';
+import { renderStationsPage } from './features/stations.js';
+
+const ROUTES = {
+  home: {
+    path: 'index.html',
+    bodyClass: 'page-home',
+    title: 'Velvet | Home',
+    description: 'Velvet home view with a perspective-driven listening room for after-hours R&B and soul.',
+    brandNote: 'After-hours R&B and soul arranged in layered lanes, guided depth, and a quieter home view.',
+    sidebarKicker: 'Perspective Mode',
+    sidebarCopy: 'Front plane, side lanes, and lower rails now shape the home room before the rest of the catalog steps in.',
+    overline: 'Perspective Listening Room',
+    searchPlaceholder: 'Search songs, artists, and mood lanes',
+    render: mountHomePage
+  },
+  stations: {
+    path: 'stations.html',
+    bodyClass: 'page-home page-stations',
+    title: 'Velvet | Stations',
+    description: 'Velvet stations view with perspective-driven mood lanes, side corridors, and a front-focused station mix.',
+    brandNote: 'After-hours R&B and soul arranged in layered lanes, guided depth, and station-led movement.',
+    sidebarKicker: 'Mood Lanes',
+    sidebarCopy: 'Station browsing now reads like side corridors, with one active lane stepping into focus.',
+    overline: 'Perspective Lane Browser',
+    searchPlaceholder: 'Search songs, artists, and mood lanes',
+    render: renderStationsPage
+  },
+  search: {
+    path: 'search.html',
+    bodyClass: 'page-home page-search',
+    title: 'Velvet | Search',
+    description: 'Velvet search view with perspective-driven radar, layered local matches, and live YouTube pulls.',
+    brandNote: 'After-hours R&B and soul arranged in layered lanes, guided depth, and search-first motion.',
+    sidebarKicker: 'Search Lanes',
+    sidebarCopy: 'Local matches lead, live pulls trail behind, and the catalog stays layered instead of flat.',
+    overline: 'Perspective Search Radar',
+    searchPlaceholder: 'Search songs, artists, and mood lanes',
+    render: mountSearchPage
+  },
+  artists: {
+    path: 'artists.html',
+    bodyClass: 'page-home page-artists',
+    title: 'Velvet | Artists',
+    description: 'Velvet artist view mapped as a perspective-driven index of voices, essentials, and front-plane profiles.',
+    brandNote: 'After-hours R&B and soul arranged in layered lanes, guided depth, and artist-first focus.',
+    sidebarKicker: 'Artist Plane',
+    sidebarCopy: 'Profiles step forward here, with one voice in focus and the rest held in the side field.',
+    overline: 'Perspective Artist Index',
+    searchPlaceholder: 'Search artists, tracks, and mood lanes',
+    render: renderArtistsPage
+  },
+  library: {
+    path: 'library.html',
+    bodyClass: 'page-home page-library',
+    title: 'Velvet | Library',
+    description: 'Velvet library view with perspective-driven stacks, saved tracks, and return lanes kept in one memory room.',
+    brandNote: 'After-hours R&B and soul arranged in layered lanes, guided depth, and a memory-first library.',
+    sidebarKicker: 'Memory Stacks',
+    sidebarCopy: 'Saved tracks, playlists, and return paths stay stacked here as one evolving field.',
+    overline: 'Perspective Memory Room',
+    searchPlaceholder: 'Search songs, artists, and mood lanes',
+    render: mountLibraryPage
+  }
+};
+
+const routeRuntime = {
+  initialized: false,
+  activePage: null,
+  pageRoot: null,
+  routeRoots: new Map(),
+  closePreview: () => {},
+  searchInput: null
+};
 
 function escapeHtml(value = '') {
   return String(value)
@@ -11,6 +88,33 @@ function escapeHtml(value = '') {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function getRouteFromLocation(urlLike = window.location) {
+  const pathname = urlLike instanceof URL
+    ? urlLike.pathname
+    : (urlLike?.pathname || new URL(String(urlLike), window.location.href).pathname);
+  const fileName = pathname.split('/').pop() || 'index.html';
+
+  switch (fileName) {
+    case '':
+    case 'index.html':
+      return 'home';
+    case 'stations.html':
+      return 'stations';
+    case 'search.html':
+      return 'search';
+    case 'artists.html':
+      return 'artists';
+    case 'library.html':
+      return 'library';
+    default:
+      return null;
+  }
+}
+
+function isPlainLeftClick(event) {
+  return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
 }
 
 function syncLikeButtons() {
@@ -117,19 +221,138 @@ function buildSearchPreviewMarkup(results, { loading = false } = {}) {
   `;
 }
 
-function initTopbarSearch(activePage) {
+function updateShellChrome(page) {
+  const route = ROUTES[page];
+  if (!route) return;
+
+  document.body.className = route.bodyClass;
+  document.title = route.title;
+
+  const description = document.querySelector('meta[name="description"]');
+  if (description) {
+    description.setAttribute('content', route.description);
+  }
+
+  const brandNote = document.querySelector('.brand-note');
+  if (brandNote) {
+    brandNote.textContent = route.brandNote;
+  }
+
+  const sidebarKicker = document.querySelector('.sidebar-foot .panel-kicker');
+  if (sidebarKicker) {
+    sidebarKicker.textContent = route.sidebarKicker;
+  }
+
+  const sidebarCopy = document.querySelector('.sidebar-foot p');
+  if (sidebarCopy) {
+    sidebarCopy.textContent = route.sidebarCopy;
+  }
+
+  const topbarOverline = document.querySelector('.topbar-overline');
+  if (topbarOverline) {
+    topbarOverline.textContent = route.overline;
+  }
+
+  if (routeRuntime.searchInput) {
+    routeRuntime.searchInput.placeholder = route.searchPlaceholder;
+
+    if (document.activeElement !== routeRuntime.searchInput) {
+      const query = new URLSearchParams(window.location.search).get('q') || '';
+      routeRuntime.searchInput.value = query;
+    }
+  }
+}
+
+function updateActiveNav(page) {
+  document.querySelectorAll('[data-page-link]').forEach(link => {
+    link.classList.toggle('active', link.dataset.pageLink === page);
+  });
+
+  document.querySelectorAll('[data-nav-link]').forEach(link => {
+    link.classList.toggle('active', link.dataset.navLink === page);
+  });
+}
+
+function ensureRouteRoot(page) {
+  if (routeRuntime.routeRoots.has(page)) {
+    return routeRuntime.routeRoots.get(page);
+  }
+
+  const root = document.createElement('div');
+  root.className = 'page-stack route-root';
+  root.dataset.routeRoot = page;
+  root.hidden = true;
+  routeRuntime.pageRoot.append(root);
+  routeRuntime.routeRoots.set(page, root);
+  return root;
+}
+
+function showRouteRoot(page) {
+  routeRuntime.routeRoots.forEach((root, key) => {
+    root.hidden = key !== page;
+  });
+}
+
+async function renderRoute(page, { scroll = true } = {}) {
+  const route = ROUTES[page];
+  if (!route) return;
+
+  routeRuntime.activePage = page;
+  updateShellChrome(page);
+  updateActiveNav(page);
+
+  const root = ensureRouteRoot(page);
+  showRouteRoot(page);
+
+  await route.render(root);
+
+  syncLikeButtons();
+  refreshPlayer();
+
+  if (scroll) {
+    window.scrollTo(0, 0);
+  }
+}
+
+export async function navigateTo(href, { replace = false, scroll = true } = {}) {
+  const url = new URL(String(href), window.location.href);
+  const page = getRouteFromLocation(url);
+
+  if (url.origin !== window.location.origin || !page) {
+    window.location.href = url.href;
+    return false;
+  }
+
+  const current = window.location.href;
+  if (current === url.href) {
+    await renderRoute(page, { scroll: false });
+    return true;
+  }
+
+  if (replace) {
+    window.history.replaceState({}, '', url);
+  } else {
+    window.history.pushState({}, '', url);
+  }
+
+  routeRuntime.closePreview();
+  await renderRoute(page, { scroll });
+  return true;
+}
+
+function initTopbarSearch() {
   const form = document.querySelector('.topbar-search');
   const input = form?.querySelector('input[name="q"]');
   if (!form || !input) return;
 
-  const currentUrlQuery = new URLSearchParams(window.location.search).get('q') || '';
-  if (!normalizeQuery(input.value) && currentUrlQuery) {
-    input.value = currentUrlQuery;
-  }
+  routeRuntime.searchInput = input;
 
-  const panel = document.createElement('div');
-  panel.className = 'search-preview';
-  form.append(panel);
+  const existingPanel = form.querySelector('.search-preview');
+  const panel = existingPanel || document.createElement('div');
+  if (!existingPanel) {
+    panel.className = 'search-preview';
+    form.append(panel);
+  }
 
   let debounceTimer = null;
   let requestToken = 0;
@@ -140,6 +363,8 @@ function initTopbarSearch(activePage) {
     panel.classList.remove('is-open');
     panel.innerHTML = '';
   }
+
+  routeRuntime.closePreview = closePreview;
 
   function showPreview(results, options = {}) {
     if (!results.query) {
@@ -171,21 +396,37 @@ function initTopbarSearch(activePage) {
     showPreview(previewResults);
   }
 
-  function schedulePreview() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => updatePreview(input.value), 120);
+  function submitSearch(query) {
+    const normalized = normalizeQuery(query);
+    if (!normalized) {
+      closePreview();
+      return;
+    }
+
+    closePreview();
+    navigateTo(`search.html?q=${encodeURIComponent(normalized)}`);
   }
 
-  input.addEventListener('input', schedulePreview);
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => updatePreview(input.value), 120);
+  });
+
   input.addEventListener('focus', () => {
     if (normalizeQuery(input.value)) {
       updatePreview(input.value);
     }
   });
+
   input.addEventListener('keydown', event => {
     if (event.key === 'Escape') {
       closePreview();
     }
+  });
+
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    submitSearch(input.value);
   });
 
   panel.addEventListener('click', event => {
@@ -203,16 +444,7 @@ function initTopbarSearch(activePage) {
     const submitTrigger = event.target.closest('[data-search-submit]');
     if (!submitTrigger) return;
 
-    const query = previewResults.query || normalizeQuery(input.value);
-    if (!query) return;
-
-    if (activePage === 'search') {
-      window.dispatchEvent(new CustomEvent('velvet:search-query', { detail: { query } }));
-    } else {
-      window.location.href = `search.html?q=${encodeURIComponent(query)}`;
-    }
-
-    closePreview();
+    submitSearch(previewResults.query || input.value);
   });
 
   document.addEventListener('click', event => {
@@ -220,30 +452,44 @@ function initTopbarSearch(activePage) {
       closePreview();
     }
   });
-
-  if (activePage !== 'search') {
-    form.addEventListener('submit', event => {
-      const query = normalizeQuery(input.value);
-      if (!query) {
-        event.preventDefault();
-      }
-      closePreview();
-    });
-  }
 }
 
-export function initSharedApp(activePage){
-  document.querySelectorAll('[data-page-link]').forEach(link => {
-    link.classList.toggle('active', link.dataset.pageLink === activePage);
+function initInternalRouting() {
+  document.addEventListener('click', event => {
+    if (!isPlainLeftClick(event)) return;
+
+    const anchor = event.target.closest('a[href]');
+    if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) return;
+
+    const href = anchor.getAttribute('href') || '';
+    if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+
+    const url = new URL(anchor.href, window.location.href);
+    const page = getRouteFromLocation(url);
+    if (url.origin !== window.location.origin || !page) return;
+
+    event.preventDefault();
+    navigateTo(url.href);
   });
 
-  document.querySelectorAll('[data-nav-link]').forEach(link => {
-    link.classList.toggle('active', link.dataset.navLink === activePage);
+  window.addEventListener('popstate', () => {
+    const page = getRouteFromLocation(window.location) || 'home';
+    routeRuntime.closePreview();
+    renderRoute(page, { scroll: false });
   });
 
+  window.addEventListener('velvet:navigate', event => {
+    const href = event.detail?.href;
+    if (!href) return;
+    navigateTo(href);
+  });
+}
+
+function initSharedRuntime() {
   initPlayer();
   initGlobalUi();
-  initTopbarSearch(activePage);
+  initTopbarSearch();
+  initInternalRouting();
   syncLikeButtons();
 
   window.addEventListener('velvet:toggle-like', event => {
@@ -259,3 +505,18 @@ export function initSharedApp(activePage){
   });
 }
 
+export async function bootApp(initialPage = 'home') {
+  if (!routeRuntime.initialized) {
+    routeRuntime.pageRoot = document.getElementById('pageRoot');
+    if (!routeRuntime.pageRoot) return;
+
+    routeRuntime.pageRoot.innerHTML = '';
+    initSharedRuntime();
+    routeRuntime.initialized = true;
+  }
+
+  const page = getRouteFromLocation(window.location) || initialPage;
+  await renderRoute(page, { scroll: false });
+}
+
+export const initSharedApp = bootApp;

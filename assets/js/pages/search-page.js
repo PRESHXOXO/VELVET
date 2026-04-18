@@ -1,5 +1,3 @@
-﻿import { initSharedApp } from '../app.js';
-import { mountSearchPage } from '../features/search.js';
+import { bootApp } from '../app.js';
 
-initSharedApp('search');
-mountSearchPage(document.getElementById('pageRoot'));
+bootApp('search');

@@ -122,6 +122,8 @@ export function renderArtistsPage(container){
       const track = tracks.find(item => item.videoId === data.video) || resolveTrack(data.video);
       window.dispatchEvent(new CustomEvent('velvet:playlist-pick', { detail: { track } }));
     },
-    'open-artist': (_event, data) => { window.location.href = `artists.html#artist-${data.slug}`; }
+    'open-artist': (_event, data) => {
+      window.dispatchEvent(new CustomEvent('velvet:navigate', { detail: { href: `artists.html#artist-${data.slug}` } }));
+    }
   });
 }

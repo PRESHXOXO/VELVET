@@ -17,18 +17,6 @@ function getQuery(){
   return normalizeQuery(params.get('q') || '');
 }
 
-function setQuery(query) {
-  const url = new URL(window.location.href);
-
-  if (query) {
-    url.searchParams.set('q', query);
-  } else {
-    url.searchParams.delete('q');
-  }
-
-  window.history.replaceState({}, '', url);
-}
-
 function searchLaneCard({ label, value, copy }) {
   return `
     <article class="search-lane-card">
@@ -132,15 +120,11 @@ function renderSearchState(container, results, { loading = false } = {}) {
 }
 
 export function mountSearchPage(container){
-  const form = document.querySelector('.topbar-search');
-  const input = form?.querySelector('input[name="q"]');
-  let debounceTimer = null;
-  let requestToken = 0;
-  let currentResults = getLocalSearchSnapshot(getQuery());
+  if (!container) return;
 
-  if (input) {
-    input.value = currentResults.query;
-  }
+  const requestToken = (container.__velvetSearchRequestToken || 0) + 1;
+  container.__velvetSearchRequestToken = requestToken;
+  let currentResults = getLocalSearchSnapshot(getQuery());
 
   const render = (options = {}) => {
     renderSearchState(container, currentResults, options);
@@ -163,54 +147,31 @@ export function mountSearchPage(container){
         if (!track) return;
         window.dispatchEvent(new CustomEvent('velvet:playlist-pick', { detail: { track } }));
       },
-      'open-station': (_event, data) => { window.location.href = `stations.html#station-${data.index}`; },
-      'open-artist': (_event, data) => { window.location.href = `artists.html#artist-${data.slug}`; }
+      'open-station': (_event, data) => {
+        window.dispatchEvent(new CustomEvent('velvet:navigate', { detail: { href: `stations.html#station-${data.index}` } }));
+      },
+      'open-artist': (_event, data) => {
+        window.dispatchEvent(new CustomEvent('velvet:navigate', { detail: { href: `artists.html#artist-${data.slug}` } }));
+      }
     });
   };
 
-  async function updateQuery(rawQuery, { syncUrl = true } = {}) {
+  async function updateQuery(rawQuery) {
     const query = normalizeQuery(rawQuery);
-    const token = ++requestToken;
-
-    if (input && document.activeElement !== input && input.value !== query) {
-      input.value = query;
-    }
 
     currentResults = getLocalSearchSnapshot(query);
     render({ loading: Boolean(query) });
-
-    if (syncUrl) {
-      setQuery(query);
-    }
 
     if (!query) {
       return;
     }
 
     const resolved = await getSearchResults(query, { liveLimit: 12 });
-    if (token !== requestToken) return;
+    if (container.__velvetSearchRequestToken !== requestToken) return;
 
     currentResults = resolved;
     render();
   }
 
-  form?.addEventListener('submit', event => {
-    event.preventDefault();
-    updateQuery(input?.value || '');
-  });
-
-  input?.addEventListener('input', () => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => updateQuery(input.value), 180);
-  });
-
-  window.addEventListener('velvet:search-query', event => {
-    updateQuery(event.detail?.query || '');
-  });
-
-  window.addEventListener('popstate', () => {
-    updateQuery(getQuery(), { syncUrl: false });
-  });
-
-  updateQuery(currentResults.query, { syncUrl: false });
+  updateQuery(currentResults.query);
 }

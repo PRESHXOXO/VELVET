@@ -1,5 +1,3 @@
-import { initSharedApp } from '../app.js';
-import { renderArtistsPage } from '../features/artists.js';
+import { bootApp } from '../app.js';
 
-initSharedApp('artists');
-renderArtistsPage(document.getElementById('pageRoot'));
+bootApp('artists');

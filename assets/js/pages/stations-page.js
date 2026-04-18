@@ -1,5 +1,3 @@
-import { initSharedApp } from '../app.js';
-import { renderStationsPage } from '../features/stations.js';
+import { bootApp } from '../app.js';
 
-initSharedApp('stations');
-renderStationsPage(document.getElementById('pageRoot'));
+bootApp('stations');

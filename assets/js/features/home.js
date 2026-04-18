@@ -347,13 +347,13 @@ function renderHomeView(container) {
       window.dispatchEvent(new CustomEvent('velvet:playlist-pick', { detail: { track } }));
     },
     'open-station': (_event, data) => {
-      window.location.href = `stations.html#station-${data.index}`;
+      window.dispatchEvent(new CustomEvent('velvet:navigate', { detail: { href: `stations.html#station-${data.index}` } }));
     },
     'shuffle-station': (_event, data) => {
-      window.location.href = `stations.html#station-${data.index}`;
+      window.dispatchEvent(new CustomEvent('velvet:navigate', { detail: { href: `stations.html#station-${data.index}` } }));
     },
     'open-artist': (_event, data) => {
-      window.location.href = `artists.html#artist-${data.slug}`;
+      window.dispatchEvent(new CustomEvent('velvet:navigate', { detail: { href: `artists.html#artist-${data.slug}` } }));
     },
     'play-home-return': (_event, data) => {
       const index = Number(data.index);

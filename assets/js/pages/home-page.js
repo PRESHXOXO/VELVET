@@ -1,5 +1,3 @@
-﻿import { initSharedApp } from '../app.js';
-import { mountHomePage } from '../features/home.js';
+import { bootApp } from '../app.js';
 
-initSharedApp('home');
-mountHomePage(document.getElementById('pageRoot'));
+bootApp('home');

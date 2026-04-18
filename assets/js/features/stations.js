@@ -1,11 +1,17 @@
 import { stations, getStationTracks, getStationVisual } from '../core/catalog.js';
 import { fetchSongs } from '../core/youtube.js';
-import { playFromQueue } from '../core/player.js';
+import { playFromQueue, togglePlay } from '../core/player.js';
+import { state } from '../core/state.js';
 import { pageHead, songRow, emptyState, mediaSlot } from '../ui/templates.js';
 import { bindSongRowActions, resolveTrack } from '../core/ui.js';
 
 function formatStationOrdinal(index) {
   return String(index + 1).padStart(2, '0');
+}
+
+function isStationsRoute() {
+  const fileName = window.location.pathname.split('/').pop() || 'index.html';
+  return fileName === 'stations.html';
 }
 
 function getNearbyStations(activeIndex) {
@@ -16,7 +22,7 @@ function getNearbyStations(activeIndex) {
   });
 }
 
-function stationBrowserItem(station, index, isActive = false){
+function stationBrowserItem(station, index, isActive = false) {
   const seedCount = (station.seedIndexes || []).length;
   const sourceLabel = seedCount ? `${seedCount} seeded` : 'Live-led';
   const tags = (station.tags || []).slice(0, 2);
@@ -66,19 +72,36 @@ function stationSourceItem(label, value) {
   `;
 }
 
+function getActiveQueueTrack(queue = []) {
+  const activeIndex = queue.findIndex(track => track.videoId === state.currentTrack?.videoId);
+  if (activeIndex >= 0) {
+    return { track: queue[activeIndex], index: activeIndex, isCurrent: true };
+  }
+
+  return { track: queue[0] || null, index: 0, isCurrent: false };
+}
+
 let hashListenerBound = false;
 
-export async function renderStationsPage(container){
+export async function renderStationsPage(container) {
+  if (!container) return;
+
   const hashMatch = window.location.hash.match(/station-(\d+)/);
   const activeIndex = hashMatch ? Number(hashMatch[1]) : 0;
   const station = stations[activeIndex] || stations[0];
   const localTracks = getStationTracks(activeIndex);
+  const liveCache = container.__velvetStationLiveCache || new Map();
+  container.__velvetStationLiveCache = liveCache;
 
-  let liveTracks = [];
-  try{
-    liveTracks = await fetchSongs(station.query, 8);
-  }catch(_err){
-    liveTracks = [];
+  let liveTracks = liveCache.get(activeIndex);
+  if (!liveTracks) {
+    try {
+      liveTracks = await fetchSongs(station.query, 8);
+    } catch (_err) {
+      liveTracks = [];
+    }
+
+    liveCache.set(activeIndex, liveTracks);
   }
 
   const queue = [
@@ -90,7 +113,6 @@ export async function renderStationsPage(container){
     )
   ];
 
-  const focusImage = station.heroImage || station.image || getStationVisual(activeIndex) || '';
   const focusTags = (station.tags || []).slice(0, 4);
   const seedCount = (station.seedIndexes || []).length;
   const seedLabel = seedCount ? `${seedCount} seeded anchors` : 'Open live route';
@@ -98,9 +120,9 @@ export async function renderStationsPage(container){
   const nearbyStations = getNearbyStations(activeIndex);
   const heroStats = [
     {
-      label: 'Active deck',
+      label: 'Selected route',
       value: station.name,
-      copy: 'the station currently pulled into the chamber'
+      copy: 'the station currently steering the chamber player'
     },
     {
       label: 'Route mode',
@@ -114,19 +136,35 @@ export async function renderStationsPage(container){
     }
   ];
 
+  const chamberState = getActiveQueueTrack(queue);
+  const chamberTrack = chamberState.track;
+  const chamberArtwork =
+    chamberTrack?.thumb ||
+    station.heroImage ||
+    station.image ||
+    getStationVisual(activeIndex) ||
+    '';
+  const playerPrimaryLabel = chamberState.isCurrent
+    ? (state.isPlaying ? 'Pause Chamber' : 'Resume Chamber')
+    : 'Play Chamber';
+  const playerLeadLabel = chamberState.isCurrent ? 'Current queue track' : 'Highlighted queue track';
+  const playerLeadCopy = chamberTrack
+    ? `${chamberTrack.artist || 'Unknown artist'}`
+    : 'Press play to load this station into the persistent player.';
+
   container.innerHTML = `
     <section class="stations-page">
       ${pageHead({
         kicker: 'Station Atlas',
         title: 'Signal Deck',
-        copy: 'A deeper map of routes, side rooms, and active pressure instead of a flat picker.'
+        copy: 'Pick a station below and the chamber becomes its live player. The shared player stays running while you move through the rest of Velvet.'
       })}
 
       <article class="panel stations-hero-panel">
         <div class="stations-hero-copy">
-          <span class="panel-kicker">Current Chamber</span>
-          <div class="section-title">${station.name}</div>
-          <p class="section-copy">${station.description || station.query}</p>
+          <span class="panel-kicker">Shared Chamber</span>
+          <div class="section-title">Atlas With Persistent Playback</div>
+          <p class="section-copy">The chamber now behaves like a true route player instead of a second station card. Choose a station below, control it here, and keep listening while you move across Velvet.</p>
         </div>
         <div class="stations-hero-stats">
           ${heroStats.map(stat => stationHeroStat(stat.label, stat.value, stat.copy)).join('')}
@@ -137,44 +175,45 @@ export async function renderStationsPage(container){
       </article>
 
       <div class="stations-layout">
-        <aside class="station-detail panel detail-panel station-detail-panel" style="--station-focus-gradient:${station.gradient || 'linear-gradient(135deg,#17121a,#43253c)'};${focusImage ? `--station-focus-image:url('${focusImage}')` : ''}">
-          <div class="station-detail-overview">
-            <div class="station-detail-copy-wrap">
-              <span class="panel-kicker">Active Chamber</span>
-              <div class="section-title station-detail-title">${station.name}</div>
-              <p class="section-copy station-detail-copy">${station.description || station.query}</p>
+        <aside class="station-player panel detail-panel station-player-panel" style="--station-focus-gradient:${station.gradient || 'linear-gradient(135deg,#17121a,#43253c)'}">
+          <div class="station-player-head">
+            <div class="station-player-copy-wrap">
+              <span class="panel-kicker">Active Chamber Player</span>
+              <div class="section-title station-player-title">${station.name}</div>
+              <p class="section-copy station-player-copy">${station.description || station.query}</p>
               <div class="meta-tags">${focusTags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
-              <div class="inline-actions station-detail-actions">
-                <button class="btn btn-primary" id="playActiveStation" type="button">Play Chamber</button>
-                <button class="btn btn-secondary" id="shuffleActiveStation" type="button">Shuffle Route</button>
-              </div>
+            </div>
+            <div class="station-player-route-note">
+              <span>Route signal</span>
+              <strong>${station.query}</strong>
+              <small>${seedLabel}</small>
+            </div>
+          </div>
+
+          <div class="station-player-shell">
+            <div class="station-player-art-shell">
+              ${mediaSlot({
+                image: chamberArtwork,
+                alt: `${chamberTrack?.title || station.name || 'Station'} artwork`,
+                label: chamberTrack?.title || station.name || 'Station artwork',
+                eyebrow: playerLeadLabel,
+                monogram: chamberTrack?.title || station.name || 'V',
+                className: 'station-player-art',
+                kind: 'station-player',
+                ratio: 'landscape'
+              })}
             </div>
 
-            <div class="station-detail-scene">
-              <div class="station-detail-plane station-detail-plane--rear"></div>
-              <div class="station-detail-plane station-detail-plane--mid"></div>
-              <div class="station-detail-art-shell">
-                ${mediaSlot({
-                  image: focusImage,
-                  alt: `${station.name || 'Station'} hero visual`,
-                  label: station.name || 'Station visual',
-                  eyebrow: 'Active route visual',
-                  monogram: station.name || 'V',
-                  className: 'station-detail-art',
-                  kind: 'station-detail',
-                  ratio: 'landscape'
-                })}
+            <div class="station-player-now">
+              <span class="panel-kicker">${playerLeadLabel}</span>
+              <div class="section-title station-player-track-title">${chamberTrack?.title || 'Station ready'}</div>
+              <p class="section-copy station-player-track-copy">${playerLeadCopy}</p>
+              <div class="station-player-action-row">
+                <button class="btn btn-primary" id="playActiveStation" type="button">${playerPrimaryLabel}</button>
+                <button class="btn btn-secondary" id="stepActiveStation" type="button">Next In Queue</button>
+                <button class="btn btn-secondary" id="shuffleActiveStation" type="button">Shuffle Route</button>
               </div>
-              <div class="station-detail-note station-detail-note--upper">
-                <span>Signal</span>
-                <strong>${station.query}</strong>
-                <small>The search phrase feeding this route.</small>
-              </div>
-              <div class="station-detail-note station-detail-note--lower">
-                <span>Next Side Deck</span>
-                <strong>${nearbyStations[1]?.station.name || 'Open route'}</strong>
-                <small>${nearbyStations[1]?.station.description || 'Another chamber waiting nearby.'}</small>
-              </div>
+              <div class="station-player-subline">The footer player keeps this route alive even when you jump to another page.</div>
             </div>
           </div>
 
@@ -184,8 +223,8 @@ export async function renderStationsPage(container){
               <strong>${seedCount || 'Open'}</strong>
             </div>
             <div class="station-detail-metric">
-              <span>Local</span>
-              <strong>${localTracks.length}</strong>
+              <span>Loaded</span>
+              <strong>${chamberState.isCurrent ? `${chamberState.index + 1}` : 'Ready'}</strong>
             </div>
             <div class="station-detail-metric">
               <span>Live</span>
@@ -199,13 +238,14 @@ export async function renderStationsPage(container){
               <div class="station-source-grid">
                 ${stationSourceItem('Search signal', station.query)}
                 ${stationSourceItem('Anchor mode', seedLabel)}
+                ${stationSourceItem('Shared player', 'Persists across pages')}
                 ${stationSourceItem('Mood markers', focusTags.length ? focusTags.join(' / ') : 'Open route')}
               </div>
             </article>
 
             <div class="station-detail-tracks" id="stationSongList">
               <div class="station-track-head">
-                <span class="panel-kicker">Queue Stack</span>
+                <span class="panel-kicker">Station Queue</span>
                 <div class="section-title">On Deck</div>
               </div>
               ${queue.length
@@ -221,7 +261,7 @@ export async function renderStationsPage(container){
               <span class="panel-kicker">Atlas</span>
               <div>
                 <div class="section-title">All Routes</div>
-                <p class="section-copy">A wider field of stations so the map reads horizontally before you drop into any one chamber.</p>
+                <p class="section-copy">Five across on desktop, with the selected station feeding the chamber player above instead of splitting the page into two competing showcases.</p>
               </div>
             </div>
             <div class="stations-list">
@@ -233,23 +273,54 @@ export async function renderStationsPage(container){
     </section>
   `;
 
-  document.getElementById('playActiveStation')?.addEventListener('click', () => {
-    if (!queue.length) return;
-    playFromQueue(queue, 0);
-  });
+  const rerenderStation = () => {
+    if (isStationsRoute()) {
+      renderStationsPage(container);
+    }
+  };
 
-  document.getElementById('shuffleActiveStation')?.addEventListener('click', () => {
+  const playSelectedStation = async () => {
     if (!queue.length) return;
+
+    if (chamberState.isCurrent) {
+      await togglePlay();
+    } else {
+      await playFromQueue(queue, chamberState.index);
+    }
+
+    rerenderStation();
+  };
+
+  const stepStationQueue = async () => {
+    if (!queue.length) return;
+
+    const nextIndex = chamberState.isCurrent
+      ? (chamberState.index + 1) % queue.length
+      : 0;
+
+    await playFromQueue(queue, nextIndex);
+    rerenderStation();
+  };
+
+  const shuffleStationQueue = async () => {
+    if (!queue.length) return;
+
     const shuffled = queue.slice().sort(() => Math.random() - 0.5);
-    playFromQueue(shuffled, 0);
-  });
+    await playFromQueue(shuffled, 0);
+    rerenderStation();
+  };
+
+  document.getElementById('playActiveStation')?.addEventListener('click', playSelectedStation);
+  document.getElementById('stepActiveStation')?.addEventListener('click', stepStationQueue);
+  document.getElementById('shuffleActiveStation')?.addEventListener('click', shuffleStationQueue);
 
   bindSongRowActions(container, {
-    'play-track': (event, data) => {
+    'play-track': async (event, data) => {
       event.preventDefault();
       const index = Number(data.index);
       if (Number.isNaN(index)) return;
-      playFromQueue(queue, index);
+      await playFromQueue(queue, index);
+      rerenderStation();
     },
 
     'toggle-like': (event, data) => {
@@ -290,7 +361,9 @@ export async function renderStationsPage(container){
 
   if (!hashListenerBound) {
     window.addEventListener('hashchange', () => {
-      renderStationsPage(container);
+      if (isStationsRoute()) {
+        renderStationsPage(container);
+      }
     });
     hashListenerBound = true;
   }
