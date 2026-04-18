@@ -4,28 +4,65 @@ import { playFromQueue } from '../core/player.js';
 import { pageHead, songRow, emptyState, mediaSlot } from '../ui/templates.js';
 import { bindSongRowActions, resolveTrack } from '../core/ui.js';
 
+function formatStationOrdinal(index) {
+  return String(index + 1).padStart(2, '0');
+}
+
+function getNearbyStations(activeIndex) {
+  const offsets = [-1, 1, 2];
+  return offsets.map(offset => {
+    const index = (activeIndex + offset + stations.length) % stations.length;
+    return { station: stations[index], index };
+  });
+}
+
 function stationBrowserItem(station, index, isActive = false){
-  const seedCount = (station.seedIndexes || []).length || 'Live';
+  const seedCount = (station.seedIndexes || []).length;
+  const sourceLabel = seedCount ? `${seedCount} seeded` : 'Live-led';
+  const tags = (station.tags || []).slice(0, 2);
 
   return `
-    <button class="station-list-item ${isActive ? 'is-active' : ''}" data-action="open-station" data-index="${index}">
+    <button class="station-list-item ${isActive ? 'is-active' : ''}" data-action="open-station" data-index="${index}" style="--station-gradient:${station.gradient || 'linear-gradient(135deg,#2a0910,#8b1730)'}">
+      <span class="station-list-ordinal">${formatStationOrdinal(index)}</span>
       <div class="station-list-copy">
-        <span class="panel-kicker">Lane</span>
         <strong>${station.name}</strong>
         <span>${station.description || station.query}</span>
+        <div class="station-list-tags">${tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
       </div>
-      <span class="station-list-meta">${seedCount}</span>
+      <div class="station-list-side">
+        <span class="station-list-meta">${seedCount || 'YT'}</span>
+        <small>${sourceLabel}</small>
+      </div>
     </button>
   `;
 }
 
-function stationBrowserStat(label, value, copy) {
+function stationHeroStat(label, value, copy) {
   return `
     <article class="stations-browser-stat">
       <span>${label}</span>
       <strong>${value}</strong>
       <small>${copy}</small>
     </article>
+  `;
+}
+
+function stationNeighborCard(entry, slot) {
+  return `
+    <button class="station-neighbor-card" type="button" data-action="open-station" data-index="${entry.index}" data-slot="${slot}" style="--station-gradient:${entry.station.gradient || 'linear-gradient(135deg,#2a0910,#8b1730)'}">
+      <span>Side Deck ${formatStationOrdinal(entry.index)}</span>
+      <strong>${entry.station.name}</strong>
+      <small>${entry.station.description || entry.station.query}</small>
+    </button>
+  `;
+}
+
+function stationSourceItem(label, value) {
+  return `
+    <div class="station-source-item">
+      <span>${label}</span>
+      <strong>${value}</strong>
+    </div>
   `;
 }
 
@@ -52,78 +89,114 @@ export async function renderStationsPage(container){
       !localTracks.some(local => local.videoId === track.videoId)
     )
   ];
+
   const focusImage = station.heroImage || station.image || getStationVisual(activeIndex) || '';
   const focusTags = (station.tags || []).slice(0, 4);
-  const seedCount = (station.seedIndexes || []).length || 'Live';
-  const browserStats = [
+  const seedCount = (station.seedIndexes || []).length;
+  const seedLabel = seedCount ? `${seedCount} seeded anchors` : 'Open live route';
+  const routeMode = seedCount ? (liveTracks.length ? 'Seeded + live' : 'Seeded') : 'Exploratory';
+  const nearbyStations = getNearbyStations(activeIndex);
+  const heroStats = [
     {
-      label: 'Active lane',
+      label: 'Active deck',
       value: station.name,
-      copy: 'current front-facing station'
+      copy: 'the station currently pulled into the chamber'
     },
     {
-      label: 'Seeds',
-      value: seedCount,
-      copy: 'catalog anchors feeding the mix'
+      label: 'Route mode',
+      value: routeMode,
+      copy: 'how fixed or open this station is right now'
     },
     {
       label: 'Queue depth',
-      value: queue.length,
-      copy: 'tracks ready across local and live layers'
+      value: `${queue.length}`,
+      copy: 'tracks stacked across local and live layers'
     }
   ];
 
   container.innerHTML = `
     <section class="stations-page">
       ${pageHead({
-        kicker: 'Perspective Lanes',
-        title: 'Station Field',
-        copy: 'Browse through side corridors on the left, then let one lane step forward with its own focused mix.'
+        kicker: 'Station Atlas',
+        title: 'Signal Deck',
+        copy: 'A deeper map of routes, side rooms, and active pressure instead of a flat picker.'
       })}
+
+      <article class="panel stations-hero-panel">
+        <div class="stations-hero-copy">
+          <span class="panel-kicker">Current Chamber</span>
+          <div class="section-title">${station.name}</div>
+          <p class="section-copy">${station.description || station.query}</p>
+        </div>
+        <div class="stations-hero-stats">
+          ${heroStats.map(stat => stationHeroStat(stat.label, stat.value, stat.copy)).join('')}
+        </div>
+        <div class="stations-neighbor-strip">
+          ${nearbyStations.map(stationNeighborCard).join('')}
+        </div>
+      </article>
 
       <div class="stations-layout">
         <div class="stations-browser">
           <article class="panel stations-browser-panel">
-            <span class="panel-kicker">Lane Browser</span>
-            <div class="section-title">Shift the room sideways.</div>
-            <p class="section-copy">Each station keeps a different emotional corridor open. Pick a lane, then let it take the foreground.</p>
-            <div class="stations-browser-stats">
-              ${browserStats.map(stationBrowserStat).join('')}
+            <div class="stations-browser-head">
+              <span class="panel-kicker">Atlas</span>
+              <div>
+                <div class="section-title">All Routes</div>
+                <p class="section-copy">The full station map, staged like decks instead of flat cards.</p>
+              </div>
+            </div>
+            <div class="stations-list">
+              ${stations.map((item, index) => stationBrowserItem(item, index, index === activeIndex)).join('')}
             </div>
           </article>
-          <div class="stations-list">
-            ${stations.map((item, index) => stationBrowserItem(item, index, index === activeIndex)).join('')}
-          </div>
         </div>
 
         <aside class="station-detail panel detail-panel station-detail-panel" style="--station-focus-gradient:${station.gradient || 'linear-gradient(135deg,#17121a,#43253c)'};${focusImage ? `--station-focus-image:url('${focusImage}')` : ''}">
-          <div class="station-detail-hero">
+          <div class="station-detail-overview">
             <div class="station-detail-copy-wrap">
-              <span class="panel-kicker">Front Lane</span>
+              <span class="panel-kicker">Active Chamber</span>
               <div class="section-title station-detail-title">${station.name}</div>
               <p class="section-copy station-detail-copy">${station.description || station.query}</p>
               <div class="meta-tags">${focusTags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
               <div class="inline-actions station-detail-actions">
-                <button class="btn btn-primary" id="playActiveStation" type="button">Play Front Lane</button>
-                <button class="btn btn-secondary" id="shuffleActiveStation" type="button">Shuffle Lane</button>
+                <button class="btn btn-primary" id="playActiveStation" type="button">Play Chamber</button>
+                <button class="btn btn-secondary" id="shuffleActiveStation" type="button">Shuffle Route</button>
               </div>
             </div>
-            ${mediaSlot({
-              image: focusImage,
-              alt: `${station.name || 'Station'} hero visual`,
-              label: station.name || 'Station visual',
-              eyebrow: 'Front-lane visual',
-              monogram: station.name || 'V',
-              className: 'station-detail-art',
-              kind: 'station-detail',
-              ratio: 'landscape'
-            })}
+
+            <div class="station-detail-scene">
+              <div class="station-detail-plane station-detail-plane--rear"></div>
+              <div class="station-detail-plane station-detail-plane--mid"></div>
+              <div class="station-detail-art-shell">
+                ${mediaSlot({
+                  image: focusImage,
+                  alt: `${station.name || 'Station'} hero visual`,
+                  label: station.name || 'Station visual',
+                  eyebrow: 'Active route visual',
+                  monogram: station.name || 'V',
+                  className: 'station-detail-art',
+                  kind: 'station-detail',
+                  ratio: 'landscape'
+                })}
+              </div>
+              <div class="station-detail-note station-detail-note--upper">
+                <span>Signal</span>
+                <strong>${station.query}</strong>
+                <small>The search phrase feeding this route.</small>
+              </div>
+              <div class="station-detail-note station-detail-note--lower">
+                <span>Next Side Deck</span>
+                <strong>${nearbyStations[1]?.station.name || 'Open route'}</strong>
+                <small>${nearbyStations[1]?.station.description || 'Another chamber waiting nearby.'}</small>
+              </div>
+            </div>
           </div>
 
           <div class="station-detail-metrics">
             <div class="station-detail-metric">
-              <span>Seeds</span>
-              <strong>${seedCount}</strong>
+              <span>Anchors</span>
+              <strong>${seedCount || 'Open'}</strong>
             </div>
             <div class="station-detail-metric">
               <span>Local</span>
@@ -135,10 +208,25 @@ export async function renderStationsPage(container){
             </div>
           </div>
 
-          <div class="station-detail-tracks" id="stationSongList">
-            ${queue.length
-              ? `<div class="song-list station-song-list">${queue.map((track, index) => songRow(track, index)).join('')}</div>`
-              : emptyState('This lane does not have a mix yet.')}
+          <div class="station-detail-support">
+            <article class="station-source-card">
+              <span class="panel-kicker">Route Profile</span>
+              <div class="station-source-grid">
+                ${stationSourceItem('Search signal', station.query)}
+                ${stationSourceItem('Anchor mode', seedLabel)}
+                ${stationSourceItem('Mood markers', focusTags.length ? focusTags.join(' / ') : 'Open route')}
+              </div>
+            </article>
+
+            <div class="station-detail-tracks" id="stationSongList">
+              <div class="station-track-head">
+                <span class="panel-kicker">Queue Stack</span>
+                <div class="section-title">On Deck</div>
+              </div>
+              ${queue.length
+                ? `<div class="song-list station-song-list">${queue.map((track, index) => songRow(track, index)).join('')}</div>`
+                : emptyState('This station does not have a mix yet.')}
+            </div>
           </div>
         </aside>
       </div>
