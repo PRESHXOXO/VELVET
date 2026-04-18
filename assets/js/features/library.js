@@ -18,27 +18,47 @@ function getPlaylistsTrackCount() {
 }
 
 function getLastSavedLabel() {
-  if (state.liked[0]?.artist) return `Latest like: ${state.liked[0].artist}`;
-  if (state.recent[0]?.artist) return `Latest spin: ${state.recent[0].artist}`;
-  return 'Start saving songs to give the room memory.';
+  if (state.liked[0]?.artist) return `Front memory: ${state.liked[0].artist}`;
+  if (state.recent[0]?.artist) return `Return lane: ${state.recent[0].artist}`;
+  return 'Save a few tracks and the memory field will start layering itself.';
 }
 
 function getOverviewCards() {
   return [
     {
-      kicker: 'Stamped in red',
-      value: formatCount(state.liked.length, 'song'),
-      copy: state.liked[0]?.title ? `Holding onto ${state.liked[0].title}.` : 'No liked songs yet.'
+      kicker: 'Front memory',
+      value: formatCount(state.liked.length, 'saved track'),
+      copy: state.liked[0]?.title ? `${state.liked[0].title} is holding the near edge.` : 'No saved tracks yet.'
     },
     {
-      kicker: 'Room stacks',
+      kicker: 'Stack depth',
       value: formatCount(state.playlists.length, 'playlist'),
-      copy: state.playlists.length ? `${formatCount(getPlaylistsTrackCount(), 'track')} spread across your stacks.` : 'Create your first playlist.'
+      copy: state.playlists.length ? `${formatCount(getPlaylistsTrackCount(), 'track')} distributed through your stacks.` : 'Build your first stack to give the room shape.'
     },
     {
-      kicker: 'Still in motion',
-      value: formatCount(state.recent.length, 'recent play', 'recent plays'),
-      copy: state.recent[0]?.title ? `${state.recent[0].title} is still warm.` : 'Your return path will collect here.'
+      kicker: 'Return lane',
+      value: formatCount(state.recent.length, 'warm return'),
+      copy: state.recent[0]?.title ? `${state.recent[0].title} is still hanging in the room.` : 'Your replay path will surface here.'
+    }
+  ];
+}
+
+function getMemoryStrip(primaryPlaylist, primarySignature) {
+  return [
+    {
+      label: 'Saved plane',
+      value: formatCount(state.liked.length, 'track'),
+      copy: 'ready to re-enter the room'
+    },
+    {
+      label: 'Lead stack',
+      value: primaryPlaylist?.name || 'None yet',
+      copy: primarySignature?.topMood || 'waiting for a signature mood'
+    },
+    {
+      label: 'Nearest return',
+      value: state.recent[0]?.title || 'Nothing replayed yet',
+      copy: state.recent[0]?.artist || 'start a session to warm the return lane'
     }
   ];
 }
@@ -119,37 +139,47 @@ function overviewMarkup() {
   const cards = getOverviewCards();
   const primaryPlaylist = getPrimaryPlaylist(state.playlists);
   const primarySignature = primaryPlaylist ? getPlaylistSignature(primaryPlaylist) : null;
+  const memoryStrip = getMemoryStrip(primaryPlaylist, primarySignature);
 
   return `
     <section class="library-stage">
       <article class="panel library-hero-panel">
         <div class="library-hero-copy">
-          <span class="panel-kicker">Your Library</span>
-          <div class="section-title" style="margin-top:12px">A room with memory.</div>
-          <p class="section-copy">Your liked songs, recent spins, and playlists now move together like one living collection instead of separate dead shelves.</p>
+          <span class="panel-kicker">Memory Plane</span>
+          <div class="section-title" style="margin-top:12px">Stacks with depth.</div>
+          <p class="section-copy">Saved tracks, playlists, and return lanes stay in one continuous field so the library feels like a living room, not separate shelves.</p>
         </div>
         <div class="library-hero-actions inline-actions">
-          <button class="btn btn-primary" type="button" data-open-create-playlist>Create playlist</button>
-          <button class="btn btn-secondary" type="button" data-action="play-liked-collection">Play liked songs</button>
-          <a class="btn btn-secondary" href="search.html">Find more music</a>
+          <button class="btn btn-primary" type="button" data-open-create-playlist>Build new stack</button>
+          <button class="btn btn-secondary" type="button" data-action="play-liked-collection">Play saved plane</button>
+          <a class="btn btn-secondary" href="search.html">Open search lanes</a>
         </div>
         <div class="library-filter-bar">
           ${libraryFilterButton('all', 'All')}
-          ${libraryFilterButton('playlists', 'Playlists')}
-          ${libraryFilterButton('liked', 'Liked')}
-          ${libraryFilterButton('recent', 'Recent')}
+          ${libraryFilterButton('playlists', 'Stacks')}
+          ${libraryFilterButton('liked', 'Saved')}
+          ${libraryFilterButton('recent', 'Returns')}
+        </div>
+        <div class="library-memory-strip">
+          ${memoryStrip.map(card => `
+            <article class="library-memory-card">
+              <span>${card.label}</span>
+              <strong>${card.value}</strong>
+              <small>${card.copy}</small>
+            </article>
+          `).join('')}
         </div>
       </article>
 
       <aside class="library-side-panel">
         <div class="panel library-insight-panel">
-          <span class="panel-kicker">Tonight</span>
-          <div class="library-insight-value">${formatCount(getPlaylistsTrackCount(), 'saved track')}</div>
+          <span class="panel-kicker">Depth check</span>
+          <div class="library-insight-value">${formatCount(getPlaylistsTrackCount(), 'stored track')}</div>
           <p class="section-copy">${getLastSavedLabel()}</p>
         </div>
         <div class="panel library-insight-panel">
           <span class="panel-kicker">Lead stack</span>
-          <div class="library-insight-value">${primaryPlaylist?.name || 'No playlist yet'}</div>
+          <div class="library-insight-value">${primaryPlaylist?.name || 'No stack yet'}</div>
           <p class="section-copy">${primarySignature?.summary || 'Build a stack and it will surface here automatically.'}</p>
         </div>
       </aside>
@@ -170,7 +200,11 @@ function overviewMarkup() {
 function playlistsSection() {
   return `
     <section>
-      ${pageHead({ kicker:'Playlists', title:'Room stacks', copy:'Playlists now read from the actual tracks inside them, so the visuals, mood, and metadata stay aligned.' })}
+      ${pageHead({
+        kicker: 'Layered stacks',
+        title: 'Playlist Field',
+        copy: 'Each playlist reads like its own shelf in the room, with artwork, tags, and preview tracks pulling from the actual songs inside.'
+      })}
       <div class="library-playlist-grid">
         ${state.playlists.length ? state.playlists.map(renderLibraryPlaylistCard).join('') : emptyState('No playlists yet. Create one and start stacking songs from search, stations, or artists.')}
       </div>
@@ -200,23 +234,23 @@ function renderLibraryView(container) {
 
   if (activeLibraryView === 'all' || activeLibraryView === 'liked') {
     sections.push(songSection({
-      kicker: 'Saved',
-      title: 'Liked Songs',
-      copy: 'The tracks you marked for return, ready to play or route into playlists.',
+      kicker: 'Saved plane',
+      title: 'Front Saved',
+      copy: 'The songs you marked for return, held nearest so they can slide back into the room quickly.',
       tracks: state.liked.slice(0, 18),
       source: 'liked',
-      emptyCopy: 'No liked songs yet. Tap the heart on any track row or in the player to start building this list.'
+      emptyCopy: 'No saved tracks yet. Tap the heart on any row or in the player to build the front plane.'
     }));
   }
 
   if (activeLibraryView === 'all' || activeLibraryView === 'recent') {
     sections.push(songSection({
-      kicker: 'Recently Played',
-      title: 'Return Path',
-      copy: 'The latest songs that shaped the room, kept ready for another pass.',
+      kicker: 'Return lane',
+      title: 'Warm Returns',
+      copy: 'The latest tracks that shaped the room, kept within reach for another pass.',
       tracks: state.recent.slice(0, 18),
       source: 'recent',
-      emptyCopy: 'No recent tracks yet. Start playing and Velvet will keep your return path warm.'
+      emptyCopy: 'No recent tracks yet. Start playing and Velvet will keep the return lane warm.'
     }));
   }
 
