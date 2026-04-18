@@ -137,21 +137,6 @@ export async function renderStationsPage(container){
       </article>
 
       <div class="stations-layout">
-        <div class="stations-browser">
-          <article class="panel stations-browser-panel">
-            <div class="stations-browser-head">
-              <span class="panel-kicker">Atlas</span>
-              <div>
-                <div class="section-title">All Routes</div>
-                <p class="section-copy">The full station map, staged like decks instead of flat cards.</p>
-              </div>
-            </div>
-            <div class="stations-list">
-              ${stations.map((item, index) => stationBrowserItem(item, index, index === activeIndex)).join('')}
-            </div>
-          </article>
-        </div>
-
         <aside class="station-detail panel detail-panel station-detail-panel" style="--station-focus-gradient:${station.gradient || 'linear-gradient(135deg,#17121a,#43253c)'};${focusImage ? `--station-focus-image:url('${focusImage}')` : ''}">
           <div class="station-detail-overview">
             <div class="station-detail-copy-wrap">
@@ -229,6 +214,21 @@ export async function renderStationsPage(container){
             </div>
           </div>
         </aside>
+
+        <div class="stations-browser">
+          <article class="panel stations-browser-panel">
+            <div class="stations-browser-head">
+              <span class="panel-kicker">Atlas</span>
+              <div>
+                <div class="section-title">All Routes</div>
+                <p class="section-copy">A wider field of stations so the map reads horizontally before you drop into any one chamber.</p>
+              </div>
+            </div>
+            <div class="stations-list">
+              ${stations.map((item, index) => stationBrowserItem(item, index, index === activeIndex)).join('')}
+            </div>
+          </article>
+        </div>
       </div>
     </section>
   `;
