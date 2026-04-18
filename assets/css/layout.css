@@ -340,14 +340,14 @@
 }
 .page-home .sidebar,
 .page-home .main-shell{
-  border-color:rgba(227,244,239,.09);
+  border-color:rgba(244,226,230,.09);
   border-radius:24px 24px 0 0;
   box-shadow:0 24px 50px rgba(0,0,0,.24);
 }
 .page-home .sidebar{
   background:
-    linear-gradient(180deg,rgba(8,18,19,.96),rgba(4,10,12,.94)),
-    linear-gradient(130deg,rgba(0,189,125,.08),transparent 34%);
+    linear-gradient(180deg,rgba(22,8,10,.96),rgba(12,5,7,.94)),
+    linear-gradient(130deg,rgba(112,22,37,.08),transparent 34%);
 }
 .page-home .sidebar::after,
 .page-home .main-shell::after{
@@ -363,7 +363,7 @@
 }
 .page-home .brand{
   padding:26px 22px 18px;
-  border-bottom-color:rgba(227,244,239,.08);
+  border-bottom-color:rgba(244,226,230,.08);
 }
 .page-home .brand-mark{
   font-family:"Oswald",sans-serif;
@@ -382,41 +382,41 @@
 .page-home .sidebar-nav{padding:16px 12px}
 .page-home .nav-item{
   padding:9px 11px;
-  border-color:rgba(227,244,239,0);
-  color:rgba(227,244,239,.72);
+  border-color:rgba(244,226,230,0);
+  color:rgba(236,216,220,.72);
 }
 .page-home .nav-item:hover{
   transform:translateX(4px);
   background:rgba(255,255,255,.03);
-  border-color:rgba(227,244,239,.08);
+  border-color:rgba(244,226,230,.08);
 }
 .page-home .nav-item.active{
-  background:linear-gradient(135deg,rgba(0,189,125,.18),rgba(255,255,255,.03));
-  border-color:rgba(227,244,239,.14);
+  background:linear-gradient(135deg,rgba(112,22,37,.24),rgba(255,255,255,.03));
+  border-color:rgba(244,226,230,.14);
   box-shadow:0 14px 28px rgba(0,0,0,.18);
 }
 .page-home .nav-icon{
   background:rgba(255,255,255,.026);
-  border-color:rgba(227,244,239,.08);
+  border-color:rgba(244,226,230,.08);
 }
 .page-home .sidebar-foot{
-  border-top-color:rgba(227,244,239,.08);
+  border-top-color:rgba(244,226,230,.08);
   background:linear-gradient(180deg,rgba(255,255,255,.015),rgba(255,255,255,.01));
 }
 .page-home .main-shell{
   background:
-    radial-gradient(circle at top right,rgba(0,189,125,.16),transparent 22%),
-    radial-gradient(circle at 16% 0%,rgba(62,227,177,.06),transparent 18%),
-    linear-gradient(180deg,rgba(6,16,18,.98),rgba(4,10,12,.94));
+    radial-gradient(circle at top right,rgba(112,22,37,.18),transparent 22%),
+    radial-gradient(circle at 16% 0%,rgba(184,141,104,.08),transparent 18%),
+    linear-gradient(180deg,rgba(20,8,10,.98),rgba(10,4,6,.94));
 }
 .page-home .topbar{
   padding:18px 26px 12px;
-  background:linear-gradient(180deg,rgba(6,16,18,.98) 72%,rgba(6,16,18,0));
+  background:linear-gradient(180deg,rgba(20,8,10,.98) 72%,rgba(20,8,10,0));
 }
 .page-home .topbar::after{
   left:26px;
   right:26px;
-  background:linear-gradient(90deg,transparent,rgba(227,244,239,.12),transparent);
+  background:linear-gradient(90deg,transparent,rgba(244,226,230,.12),transparent);
 }
 .page-home .topbar-brand{gap:6px}
 .page-home .topbar-signature{
@@ -426,32 +426,32 @@
   text-transform:uppercase;
 }
 .page-home .topbar-search{
-  border-color:rgba(227,244,239,.1);
+  border-color:rgba(244,226,230,.1);
   background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.016));
   box-shadow:0 16px 32px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.04);
 }
-.page-home .topbar-search svg{stroke:rgba(211,229,223,.62)}
+.page-home .topbar-search svg{stroke:rgba(214,193,197,.62)}
 .page-home .topbar-links{
-  border-color:rgba(227,244,239,.08);
+  border-color:rgba(244,226,230,.08);
   background:rgba(255,255,255,.02);
 }
 .page-home .top-link{
-  color:rgba(227,244,239,.72);
+  color:rgba(236,216,220,.72);
 }
 .page-home .top-link:hover,
 .page-home .top-link.active{
-  background:linear-gradient(135deg,rgba(0,189,125,.14),rgba(255,255,255,.03));
-  border-color:rgba(227,244,239,.12);
+  background:linear-gradient(135deg,rgba(112,22,37,.18),rgba(255,255,255,.03));
+  border-color:rgba(244,226,230,.12);
 }
 .page-home .content{padding-bottom:154px}
 .page-home .player-bar{
-  border-color:rgba(227,244,239,.1);
-  background:linear-gradient(180deg,rgba(6,16,18,.96),rgba(4,10,12,.92));
+  border-color:rgba(244,226,230,.1);
+  background:linear-gradient(180deg,rgba(20,8,10,.96),rgba(10,4,6,.92));
 }
 .page-home .player-bar::before{
-  background:linear-gradient(90deg,rgba(0,189,125,.18),transparent 28%,transparent 72%,rgba(62,227,177,.08));
+  background:linear-gradient(90deg,rgba(112,22,37,.22),transparent 28%,transparent 72%,rgba(184,141,104,.1));
 }
 .page-home .vol-wrap{
-  border-color:rgba(227,244,239,.1);
+  border-color:rgba(244,226,230,.1);
   background:linear-gradient(180deg,rgba(255,255,255,.032),rgba(255,255,255,.014));
 }

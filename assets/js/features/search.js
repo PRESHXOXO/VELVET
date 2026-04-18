@@ -172,7 +172,7 @@ export function mountSearchPage(container){
     const query = normalizeQuery(rawQuery);
     const token = ++requestToken;
 
-    if (input && input.value !== query) {
+    if (input && document.activeElement !== input && input.value !== query) {
       input.value = query;
     }
 
