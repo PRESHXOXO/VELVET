@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap");
 
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100%}
@@ -36,4 +36,47 @@ h1,h2,h3,h4,.display{
 input:focus-visible,button:focus-visible,a:focus-visible{
   outline:none;
   box-shadow:0 0 0 1px rgba(255,255,255,.16),0 0 0 4px rgba(112,22,37,.18);
+}
+.page-home{
+  --bg:#020708;
+  --bg-soft:#071012;
+  --panel:rgba(8,18,19,.88);
+  --panel-strong:rgba(6,14,16,.96);
+  --card:rgba(10,22,23,.92);
+  --card-soft:rgba(255,255,255,.026);
+  --line:rgba(227,244,239,.09);
+  --line-strong:rgba(227,244,239,.18);
+  --text:#eef8f5;
+  --muted:rgba(211,229,223,.68);
+  --accent:#00bd7d;
+  --accent-2:#3ee3b1;
+  --warm:#9bd9c5;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(0,189,125,.18),transparent 26%),
+    radial-gradient(circle at 88% 4%,rgba(62,227,177,.08),transparent 18%),
+    radial-gradient(circle at 50% 100%,rgba(0,189,125,.12),transparent 34%),
+    linear-gradient(180deg,#020708 0%,#071012 46%,#020708 100%);
+  font-family:"Poppins",sans-serif;
+}
+.page-home::before{
+  background:
+    radial-gradient(circle at center,transparent 58%,rgba(0,0,0,.34) 100%),
+    linear-gradient(180deg,rgba(255,255,255,.018),transparent 18%,transparent 82%,rgba(255,255,255,.01));
+  opacity:.22;
+}
+.page-home h1,
+.page-home h2,
+.page-home h3,
+.page-home h4,
+.page-home .display{
+  font-family:"Oswald",sans-serif;
+  font-weight:500;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.page-home ::selection{background:rgba(0,189,125,.34);color:#fff}
+.page-home input:focus-visible,
+.page-home button:focus-visible,
+.page-home a:focus-visible{
+  box-shadow:0 0 0 1px rgba(227,244,239,.22),0 0 0 4px rgba(0,189,125,.18);
 }

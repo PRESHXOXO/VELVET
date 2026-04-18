@@ -78,6 +78,30 @@ function homeRibbonTrack(track, index) {
   `;
 }
 
+function homeDepthCard({ label, value, copy }) {
+  return `
+    <article class="home-depth-card">
+      <span>${label}</span>
+      <strong>${value}</strong>
+      <small>${copy}</small>
+    </article>
+  `;
+}
+
+function homeAxisRow(entry, slot) {
+  const stationTag = (entry.station.tags || []).find(Boolean) || 'Open lane';
+
+  return `
+    <button class="home-axis-row" type="button" data-action="open-station" data-index="${entry.index}">
+      <span class="home-axis-row-copy">
+        <small>Lane ${String(slot + 1).padStart(2, '0')}</small>
+        <strong>${entry.station.name}</strong>
+      </span>
+      <span class="home-axis-row-meta">${stationTag}</span>
+    </button>
+  `;
+}
+
 function homeStationCard(entry) {
   const stationLeadTrack = getStationTracks(entry.index)[0];
   const stationImage = entry.station.cardImage || entry.station.image || getStationVisual(entry.index) || (stationLeadTrack ? getTrackArtwork(stationLeadTrack) : '');
@@ -131,6 +155,24 @@ function renderHomeView(container) {
   const spotlightArt = getTrackArtwork(spotlightTrack);
   const spotlightVisual = spotlightArtist?.featureImage || spotlightArtist?.heroImage || spotlightArt || '';
   const spotlightRibbon = curatedTracks.filter(track => track.videoId !== spotlightTrack?.videoId).slice(0, 3);
+  const leadStation = spotlightStations[0] || null;
+  const depthCards = [
+    {
+      label: 'Front Plane',
+      value: spotlightArtist?.name || spotlightTrack?.artist || 'Velvet',
+      copy: 'Lead voice carrying the room.'
+    },
+    {
+      label: 'Axis Lane',
+      value: leadStation?.station.name || 'Open lane',
+      copy: leadStation?.station.description || leadStation?.station.query || 'A guiding mood lane for the night.'
+    },
+    {
+      label: 'Room Stack',
+      value: primaryPlaylist?.name || 'Build a stack',
+      copy: primaryPlaylistSignature?.caption || 'Your most coherent personal layer surfaces here.'
+    }
+  ];
 
   container.innerHTML = `
     <section class="home-stage">
@@ -152,6 +194,10 @@ function renderHomeView(container) {
               ${(spotlightTags.length ? spotlightTags : ['after-hours', 'editorial', 'velvet']).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}
             </div>
 
+            <div class="home-feature-depth-grid">
+              ${depthCards.map(homeDepthCard).join('')}
+            </div>
+
             <div class="inline-actions">
               <button class="btn btn-primary" type="button" data-action="play-spotlight">${icon('play')} Start here</button>
               ${spotlightArtist ? `<button class="btn btn-secondary" type="button" data-action="open-artist" data-slug="${spotlightArtist.slug}">Open artist</button>` : ''}
@@ -159,40 +205,56 @@ function renderHomeView(container) {
             </div>
 
             ${spotlightRibbon.length ? `
-              <div class="home-feature-ribbon">
-                ${spotlightRibbon.map(track => homeRibbonTrack(track, curatedTracks.findIndex(item => item.videoId === track.videoId))).join('')}
+              <div class="home-feature-ribbon-shell">
+                <div class="home-feature-ribbon-head">
+                  <span class="panel-kicker">Side Planes</span>
+                  <p>Three nearby tracks that keep the scene coherent without flattening the mood.</p>
+                </div>
+                <div class="home-feature-ribbon">
+                  ${spotlightRibbon.map(track => homeRibbonTrack(track, curatedTracks.findIndex(item => item.videoId === track.videoId))).join('')}
+                </div>
               </div>
             ` : ''}
           </div>
 
           <div class="home-feature-visual">
-            <div class="home-feature-art-shell">
-              ${mediaSlot({
-                image: spotlightVisual,
-                alt: `${spotlightTrack?.title || 'Velvet'} feature visual`,
-                label: spotlightArtist?.name || spotlightTrack?.artist || 'Feature visual',
-                eyebrow: 'Feature visual',
-                monogram: spotlightArtist?.name || spotlightTrack?.artist || 'V',
-                className: 'home-feature-art',
-                kind: 'feature',
-                ratio: 'hero'
-              })}
-            </div>
-            <div class="home-feature-caption">
-              <span>Lead voice</span>
-              <strong>${spotlightArtist?.name || spotlightTrack?.artist || 'Velvet'}</strong>
+            <div class="home-feature-scene">
+              <div class="home-feature-plane home-feature-plane--rear"></div>
+              <div class="home-feature-plane home-feature-plane--mid"></div>
+              <div class="home-feature-art-shell">
+                ${mediaSlot({
+                  image: spotlightVisual,
+                  alt: `${spotlightTrack?.title || 'Velvet'} feature visual`,
+                  label: spotlightArtist?.name || spotlightTrack?.artist || 'Feature visual',
+                  eyebrow: 'Feature visual',
+                  monogram: spotlightArtist?.name || spotlightTrack?.artist || 'V',
+                  className: 'home-feature-art',
+                  kind: 'feature',
+                  ratio: 'hero'
+                })}
+              </div>
+              <div class="home-feature-float-card">
+                <span>Vantage Point</span>
+                <strong>${leadStation?.station.name || 'Open lane'}</strong>
+                <small>${leadStation?.station.description || leadStation?.station.query || 'Pick a station lane and let the rest of the room fall into place.'}</small>
+              </div>
+              <div class="home-feature-track-card">
+                <span>Now Framed</span>
+                <strong>${spotlightTrack?.title || 'Velvet'}</strong>
+                <small>${spotlightTrack?.artist || 'Private listening club'}</small>
+              </div>
             </div>
             <div class="home-feature-stat-row">
               <div class="home-feature-stat">
-                <small>Liked</small>
+                <small>Saved</small>
                 <strong>${formatCount(state.liked.length, 'song')}</strong>
               </div>
               <div class="home-feature-stat">
-                <small>Playlists</small>
+                <small>Stacks</small>
                 <strong>${formatCount(state.playlists.length, 'stack')}</strong>
               </div>
               <div class="home-feature-stat">
-                <small>Recents</small>
+                <small>Returns</small>
                 <strong>${formatCount(state.recent.length, 'return')}</strong>
               </div>
             </div>
@@ -202,11 +264,12 @@ function renderHomeView(container) {
 
       <aside class="panel home-companion-panel">
         <div class="home-companion-block home-companion-block--voice">
-          <span class="panel-kicker">Featured Voice</span>
-          <h3 class="home-side-title">${spotlightArtist?.name || 'Velvet'}</h3>
-          <p class="section-copy">${spotlightArtist?.tagline || 'A moody streaming room for R&B, soul, and after-hours replay value.'}</p>
-          <div class="meta-tags">${(spotlightArtist?.tags || ['late night', 'editorial']).slice(0, 3).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
-          ${spotlightArtist ? `<div class="inline-actions"><button class="btn btn-secondary" type="button" data-action="open-artist" data-slug="${spotlightArtist.slug}">Profile</button></div>` : ''}
+          <span class="panel-kicker">Depth Map</span>
+          <h3 class="home-side-title">Move through the room by lane</h3>
+          <p class="section-copy">Perspective works best when every alternate path feels placed on purpose instead of piled on top of the hero.</p>
+          <div class="home-axis-list">
+            ${spotlightStations.map(homeAxisRow).join('')}
+          </div>
         </div>
 
         <div class="home-companion-divider"></div>
@@ -229,25 +292,25 @@ function renderHomeView(container) {
     </section>
 
     <section class="panel home-band home-band--stations">
-      ${pageHead({ kicker:'Stations', title:'Mood Lanes', copy:'Four station worlds shaped around the lead record, with less dashboard repetition and more atmosphere.', linkText:'See all', linkHref:'stations.html' })}
+      ${pageHead({ kicker:'Stations', title:'Mood Lanes', copy:'Four angled station worlds arranged around the lead record, each one built to feel like a deliberate side plane instead of a repeated card.', linkText:'See all', linkHref:'stations.html' })}
       <div class="home-station-grid home-station-grid--panoramic">${spotlightStations.map(homeStationCard).join('')}</div>
     </section>
 
     <section class="panel home-band home-band--queue">
-      ${pageHead({ kicker:'For tonight', title:'Top Picks', copy:'A deeper editorial queue pulled from recents, likes, artist essentials, and the catalog core.' })}
+      ${pageHead({ kicker:'For tonight', title:'Frontline Queue', copy:'A front-facing queue pulled from recents, likes, artist essentials, and the catalog core, ordered to keep the home scene coherent.' })}
       <div class="song-list home-song-grid home-song-grid--wide">${curatedTracks.map(songRow).join('')}</div>
     </section>
 
     <section class="home-editorial-grid home-lower-grid">
       <article class="panel home-rail-panel home-rail-panel--returns">
-        ${pageHead({ kicker:'Return path', title:'Continue Listening', copy:'The fastest route back into the songs that already shaped your last session.' })}
+        ${pageHead({ kicker:'Return path', title:'Continue Listening', copy:'The quickest route back into the songs that already shaped your last session, kept in a clear lower layer instead of competing with the hero.' })}
         <div class="home-side-list">
           ${returnTracks.length ? returnTracks.map((track, index) => homeMiniRow(track, index, 'play-home-return')).join('') : emptyState('No recent or liked songs yet. Start the room and Velvet will hold onto the right moments here.')}
         </div>
       </article>
 
       <article class="panel home-rail-panel home-rail-panel--focus">
-        ${pageHead({ kicker:'Essentials', title:'Artist Focus', copy:'A dedicated lower rail built from the featured voice instead of another generic card wall.' })}
+        ${pageHead({ kicker:'Essentials', title:'Artist Layer', copy:'A dedicated lower rail built from the featured voice instead of another generic card wall, so the perspective hierarchy stays intact.' })}
         <div class="home-side-list">
           ${artistEssentials.length ? artistEssentials.map((track, index) => homeMiniRow(track, index, 'play-home-essential')).join('') : emptyState('No artist essentials yet. Velvet will surface them as the catalog grows.')}
         </div>
