@@ -844,7 +844,8 @@
 .page-home .home-feature-panel{
   padding:24px;
   background:
-    linear-gradient(148deg,rgba(4,12,14,.98) 0%,rgba(8,20,21,.94) 54%,rgba(4,10,12,.98) 100%);
+    radial-gradient(circle at 86% 14%,rgba(255,138,132,.12),transparent 22%),
+    linear-gradient(148deg,rgba(26,8,12,.82) 0%,rgba(34,10,14,.72) 54%,rgba(14,6,8,.8) 100%);
 }
 .page-home .home-feature-panel::before{
   content:"";
@@ -908,11 +909,11 @@
   min-height:126px;
   padding:14px;
   border-radius:18px;
-  border:1px solid rgba(244,226,230,.09);
+  border:1px solid rgba(248,228,232,.08);
   background:
-    linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015)),
-    linear-gradient(140deg,rgba(112,22,37,.14),transparent 48%);
-  box-shadow:0 18px 34px rgba(0,0,0,.16);
+    linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.022)),
+    linear-gradient(140deg,rgba(198,31,61,.16),transparent 52%);
+  box-shadow:0 12px 22px rgba(0,0,0,.12);
   transform:translateZ(0) rotateX(10deg) rotateY(-7deg);
 }
 .page-home .home-depth-card:nth-child(2){
@@ -962,13 +963,13 @@
 .page-home .home-feature-ribbon-track{
   padding:10px 12px;
   border-radius:18px;
-  border-color:rgba(244,226,230,.09);
-  background:linear-gradient(180deg,rgba(255,255,255,.042),rgba(255,255,255,.016));
+  border-color:rgba(248,228,232,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.022));
 }
 .page-home .home-feature-ribbon-track:hover{
   transform:translateY(-3px);
-  border-color:rgba(244,226,230,.15);
-  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.024));
+  border-color:rgba(248,228,232,.14);
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
 }
 .page-home .home-feature-visual{
   gap:14px;
@@ -985,9 +986,9 @@
   right:0;
   width:78%;
   border-radius:26px;
-  border:1px solid rgba(244,226,230,.08);
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.012));
-  box-shadow:0 22px 38px rgba(0,0,0,.16);
+  border:1px solid rgba(248,228,232,.07);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.016));
+  box-shadow:0 16px 28px rgba(0,0,0,.12);
 }
 .page-home .home-feature-plane--rear{
   left:18px;
@@ -1010,9 +1011,9 @@
   padding:16px;
   margin-left:auto;
   border-radius:28px;
-  border-color:rgba(244,226,230,.1);
-  background:linear-gradient(180deg,rgba(255,255,255,.048),rgba(255,255,255,.016));
-  box-shadow:0 28px 54px rgba(0,0,0,.24);
+  border-color:rgba(248,228,232,.1);
+  background:linear-gradient(180deg,rgba(255,255,255,.056),rgba(255,255,255,.022));
+  box-shadow:0 20px 38px rgba(0,0,0,.16);
   transform:rotateY(-18deg) rotateX(11deg) translateZ(26px);
   transform-style:preserve-3d;
 }
@@ -1022,7 +1023,7 @@
 }
 .page-home .home-feature-art{
   border-radius:20px;
-  border-color:rgba(244,226,230,.1);
+  border-color:rgba(248,228,232,.1);
 }
 .page-home .home-feature-float-card,
 .page-home .home-feature-track-card{
@@ -1033,9 +1034,9 @@
   gap:8px;
   padding:12px 14px;
   border-radius:16px;
-  border:1px solid rgba(244,226,230,.1);
-  background:linear-gradient(180deg,rgba(24,8,11,.92),rgba(18,7,9,.76));
-  box-shadow:0 20px 38px rgba(0,0,0,.2);
+  border:1px solid rgba(248,228,232,.1);
+  background:linear-gradient(180deg,rgba(40,12,16,.78),rgba(22,8,11,.58));
+  box-shadow:0 14px 24px rgba(0,0,0,.14);
   backdrop-filter:blur(20px);
 }
 .page-home .home-feature-float-card{
@@ -1078,8 +1079,8 @@
 .page-home .home-feature-stat{
   padding:12px 14px;
   border-radius:16px;
-  border-color:rgba(244,226,230,.1);
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.016));
+  border-color:rgba(248,228,232,.1);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.022));
 }
 .page-home .home-feature-stat small{
   color:rgba(246,224,228,.52);
@@ -1099,11 +1100,11 @@
   gap:18px;
   padding:20px;
   background:
-    linear-gradient(180deg,rgba(255,255,255,.036),rgba(255,255,255,.014)),
-    linear-gradient(160deg,rgba(112,22,37,.1),transparent 44%);
+    linear-gradient(180deg,rgba(255,255,255,.042),rgba(255,255,255,.018)),
+    linear-gradient(160deg,rgba(198,31,61,.12),transparent 44%);
 }
 .page-home .home-companion-divider{
-  background:linear-gradient(90deg,transparent,rgba(244,226,230,.14),transparent);
+  background:linear-gradient(90deg,transparent,rgba(248,228,232,.14),transparent);
 }
 .page-home .home-side-title{
   margin-top:2px;
@@ -1127,17 +1128,17 @@
   align-items:center;
   padding:12px 14px;
   border-radius:16px;
-  border:1px solid rgba(244,226,230,.09);
-  background:linear-gradient(180deg,rgba(255,255,255,.034),rgba(255,255,255,.014));
+  border:1px solid rgba(248,228,232,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.042),rgba(255,255,255,.02));
   text-align:left;
   color:var(--text);
   transition:transform .24s cubic-bezier(.2,.9,.28,1),border-color .22s ease,background .22s ease,box-shadow .22s ease;
 }
 .page-home .home-axis-row:hover{
   transform:translateY(-2px) translateX(2px);
-  border-color:rgba(244,226,230,.15);
-  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.022));
-  box-shadow:0 18px 30px rgba(0,0,0,.16);
+  border-color:rgba(248,228,232,.14);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.028));
+  box-shadow:0 12px 20px rgba(0,0,0,.12);
 }
 .page-home .home-axis-row-copy{
   display:flex;
@@ -1163,8 +1164,8 @@
   align-items:center;
   padding:7px 10px;
   border-radius:999px;
-  border:1px solid rgba(244,226,230,.1);
-  background:rgba(255,255,255,.03);
+  border:1px solid rgba(248,228,232,.1);
+  background:rgba(255,255,255,.04);
   color:rgba(246,224,228,.72);
   font-size:8.5px;
   letter-spacing:.16em;
@@ -1177,13 +1178,13 @@
 .page-home .home-band .section-head{margin-bottom:18px}
 .page-home .home-band--stations{
   background:
-    radial-gradient(circle at 88% 0%,rgba(112,22,37,.1),transparent 26%),
-    linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.012));
+    radial-gradient(circle at 88% 0%,rgba(198,31,61,.12),transparent 28%),
+    linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.016));
 }
 .page-home .home-band--queue{
   background:
-    radial-gradient(circle at 8% 0%,rgba(184,141,104,.08),transparent 22%),
-    linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.012));
+    radial-gradient(circle at 8% 0%,rgba(241,179,111,.1),transparent 24%),
+    linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.016));
 }
 .page-home .home-station-grid--panoramic{
   grid-template-columns:repeat(4,minmax(0,1fr));
@@ -1193,12 +1194,12 @@
   min-height:192px;
   padding:18px;
   border-radius:22px;
-  border-color:rgba(244,226,230,.09);
+  border-color:rgba(248,228,232,.08);
   background:
-    linear-gradient(180deg,rgba(22,8,10,.12),rgba(22,8,10,.68)),
+    linear-gradient(180deg,rgba(40,12,16,.1),rgba(40,12,16,.52)),
     radial-gradient(circle at top right,rgba(255,255,255,.14),transparent 34%),
-    var(--station-gradient,linear-gradient(135deg,#14070a,#3a1219));
-  box-shadow:0 20px 38px rgba(0,0,0,.18);
+    var(--station-gradient,linear-gradient(135deg,#2a0910,#8b1730));
+  box-shadow:0 14px 24px rgba(0,0,0,.14);
 }
 .page-home .home-station-card::before{
   opacity:.16;
@@ -1209,13 +1210,13 @@
   position:absolute;
   inset:18px 18px auto 18px;
   height:1px;
-  background:linear-gradient(90deg,transparent,rgba(244,226,230,.18),transparent);
+  background:linear-gradient(90deg,transparent,rgba(248,228,232,.18),transparent);
   opacity:.7;
   pointer-events:none;
 }
 .page-home .home-station-card:hover{
   transform:translateY(-4px) rotateX(2deg);
-  border-color:rgba(244,226,230,.15);
+  border-color:rgba(248,228,232,.14);
 }
 .page-home .home-station-shell{
   grid-template-columns:minmax(0,1fr) 124px;
@@ -1225,8 +1226,8 @@
 .page-home .home-station-copy,
 .page-home .home-station-card .inline-actions{z-index:1}
 .page-home .home-station-meta{
-  border-color:rgba(244,226,230,.12);
-  background:rgba(24,8,11,.3);
+  border-color:rgba(248,228,232,.12);
+  background:rgba(40,12,16,.26);
   color:rgba(246,224,228,.74);
 }
 .page-home .home-station-copy h3{
@@ -1251,14 +1252,14 @@
   padding:20px;
 }
 .page-home .home-mini-row{
-  border-color:rgba(244,226,230,.09);
-  background:linear-gradient(180deg,rgba(255,255,255,.032),rgba(255,255,255,.014));
+  border-color:rgba(248,228,232,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
 }
 .page-home .home-mini-row:hover{
   transform:translateY(-2px) translateX(2px);
-  border-color:rgba(244,226,230,.15);
-  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
-  box-shadow:0 16px 28px rgba(0,0,0,.14);
+  border-color:rgba(248,228,232,.14);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.026));
+  box-shadow:0 12px 20px rgba(0,0,0,.12);
 }
 .page-home .home-mini-row-end{
   background:rgba(255,255,255,.04);
@@ -1348,9 +1349,9 @@
   gap:8px;
   padding:14px 16px;
   border-radius:18px;
-  border:1px solid rgba(244,226,230,.09);
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.016));
-  box-shadow:0 16px 28px rgba(0,0,0,.14);
+  border:1px solid rgba(248,228,232,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.022));
+  box-shadow:0 12px 20px rgba(0,0,0,.12);
 }
 .page-artists .artists-perspective-card span,
 .page-library .library-memory-card span,
@@ -1391,13 +1392,13 @@
 }
 .page-artists .artist-card:hover{
   transform:translateY(-4px) translateX(2px);
-  border-color:rgba(244,226,230,.14);
-  box-shadow:0 18px 34px rgba(0,0,0,.18);
+  border-color:rgba(248,228,232,.14);
+  box-shadow:0 14px 24px rgba(0,0,0,.14);
 }
 .page-artists .artist-detail-panel{
   background:
-    radial-gradient(circle at top right,rgba(112,22,37,.14),transparent 28%),
-    linear-gradient(160deg,rgba(20,8,10,.96),rgba(10,4,6,.94)),
+    radial-gradient(circle at top right,rgba(198,31,61,.18),transparent 30%),
+    linear-gradient(160deg,rgba(28,9,12,.82),rgba(12,5,7,.72)),
     var(--artist-focus-gradient,linear-gradient(135deg,rgba(39,18,25,.46),rgba(10,9,12,0) 58%));
 }
 .page-artists .artist-detail-metrics{
@@ -1411,8 +1412,8 @@
 
 .page-library .library-hero-panel{
   background:
-    radial-gradient(circle at 88% 0%,rgba(112,22,37,.14),transparent 24%),
-    linear-gradient(150deg,rgba(20,8,10,.98),rgba(10,4,6,.94));
+    radial-gradient(circle at 88% 0%,rgba(198,31,61,.18),transparent 28%),
+    linear-gradient(150deg,rgba(28,9,12,.82),rgba(12,5,7,.72));
 }
 .page-library .library-memory-strip{
   display:grid;
@@ -1426,30 +1427,30 @@
 }
 .page-library .library-insight-panel{
   background:
-    radial-gradient(circle at top right,rgba(184,141,104,.08),transparent 28%),
-    linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.014));
+    radial-gradient(circle at top right,rgba(241,179,111,.12),transparent 28%),
+    linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
 }
 .page-library .library-summary-card{
-  border-color:rgba(244,226,230,.09);
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.016));
+  border-color:rgba(248,228,232,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.022));
 }
 .page-library .library-filter.is-active{
-  background:linear-gradient(135deg,rgba(112,22,37,.18),rgba(255,255,255,.04));
-  border-color:rgba(244,226,230,.14);
+  background:linear-gradient(135deg,rgba(198,31,61,.22),rgba(255,255,255,.05));
+  border-color:rgba(248,228,232,.14);
 }
 .page-library .library-playlist-card{
-  border-color:rgba(244,226,230,.09);
+  border-color:rgba(248,228,232,.08);
   transform-style:preserve-3d;
 }
 .page-library .library-playlist-card:hover{
   transform:translateY(-4px) rotateX(2deg);
-  border-color:rgba(244,226,230,.14);
+  border-color:rgba(248,228,232,.14);
 }
 
 .page-search .search-hero-panel{
   background:
-    radial-gradient(circle at top right,rgba(112,22,37,.14),transparent 26%),
-    linear-gradient(145deg,#120608 0%,#19090c 48%,#050304 100%);
+    radial-gradient(circle at top right,rgba(198,31,61,.18),transparent 28%),
+    linear-gradient(145deg,rgba(26,9,12,.82) 0%,rgba(34,10,14,.72) 48%,rgba(12,5,7,.76) 100%);
 }
 .page-search .search-lane-grid{
   grid-column:1 / -1;
@@ -1459,13 +1460,13 @@
 }
 .page-search .search-result-panel--catalog{
   background:
-    radial-gradient(circle at top right,rgba(112,22,37,.08),transparent 24%),
-    linear-gradient(180deg,rgba(255,255,255,.034),rgba(255,255,255,.014));
+    radial-gradient(circle at top right,rgba(198,31,61,.12),transparent 26%),
+    linear-gradient(180deg,rgba(255,255,255,.044),rgba(255,255,255,.02));
 }
 .page-search .search-result-panel--live{
   background:
-    radial-gradient(circle at top right,rgba(184,141,104,.08),transparent 24%),
-    linear-gradient(180deg,rgba(255,255,255,.034),rgba(255,255,255,.014));
+    radial-gradient(circle at top right,rgba(241,179,111,.12),transparent 26%),
+    linear-gradient(180deg,rgba(255,255,255,.044),rgba(255,255,255,.02));
 }
 
 .page-stations .stations-browser{
@@ -1476,8 +1477,8 @@
 .page-stations .stations-browser-panel{
   padding:18px;
   background:
-    radial-gradient(circle at 100% 0%,rgba(112,22,37,.14),transparent 28%),
-    linear-gradient(150deg,rgba(20,8,10,.98),rgba(10,4,6,.94));
+    radial-gradient(circle at 100% 0%,rgba(198,31,61,.18),transparent 30%),
+    linear-gradient(150deg,rgba(28,9,12,.82),rgba(12,5,7,.72));
 }
 .page-stations .stations-browser-stats{
   display:grid;
@@ -1486,21 +1487,21 @@
   margin-top:14px;
 }
 .page-stations .station-list-item{
-  border-color:rgba(244,226,230,.08);
-  background:linear-gradient(180deg,rgba(255,255,255,.036),rgba(255,255,255,.014));
+  border-color:rgba(248,228,232,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.046),rgba(255,255,255,.02));
 }
 .page-stations .station-list-item:hover{
   transform:translateY(-2px) translateX(2px);
-  border-color:rgba(244,226,230,.14);
+  border-color:rgba(248,228,232,.14);
 }
 .page-stations .station-list-item.is-active{
-  background:linear-gradient(135deg,rgba(112,22,37,.18),rgba(255,255,255,.03));
-  border-color:rgba(244,226,230,.14);
+  background:linear-gradient(135deg,rgba(198,31,61,.22),rgba(255,255,255,.05));
+  border-color:rgba(248,228,232,.14);
 }
 .page-stations .station-detail-panel{
   background:
-    radial-gradient(circle at top right,rgba(112,22,37,.14),transparent 28%),
-    linear-gradient(160deg,rgba(20,8,10,.96),rgba(10,4,6,.94)),
+    radial-gradient(circle at top right,rgba(198,31,61,.18),transparent 30%),
+    linear-gradient(160deg,rgba(28,9,12,.82),rgba(12,5,7,.72)),
     var(--station-focus-gradient,linear-gradient(135deg,rgba(39,18,25,.46),rgba(10,9,12,0) 58%));
 }
 .page-stations .station-detail-metrics{
