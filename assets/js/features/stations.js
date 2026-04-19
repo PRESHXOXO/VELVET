@@ -35,15 +35,6 @@ function stationBrowserItem(station, index, isActive = false) {
   `;
 }
 
-function stationSourceItem(label, value) {
-  return `
-    <div class="station-source-item">
-      <span>${label}</span>
-      <strong>${value}</strong>
-    </div>
-  `;
-}
-
 function getActiveQueueTrack(queue = []) {
   const activeIndex = queue.findIndex(track => track.videoId === state.currentTrack?.videoId);
   if (activeIndex >= 0) {
@@ -88,7 +79,6 @@ export async function renderStationsPage(container) {
   const focusTags = (station.tags || []).slice(0, 4);
   const seedCount = (station.seedIndexes || []).length;
   const seedLabel = seedCount ? `${seedCount} seeded anchors` : 'Open live route';
-  const routeMode = seedCount ? (liveTracks.length ? 'Seeded + live' : 'Seeded') : 'Exploratory';
   const chamberState = getActiveQueueTrack(queue);
   const chamberTrack = chamberState.track;
   const chamberArtwork =
@@ -158,33 +148,11 @@ export async function renderStationsPage(container) {
             </div>
 
             <div class="station-player-side">
-              <div class="station-detail-tracks station-detail-tracks--chamber" id="stationSongList">
-                <div class="station-detail-metrics">
-                  <div class="station-detail-metric">
-                    <span>Anchors</span>
-                    <strong>${seedCount || 'Open'}</strong>
-                  </div>
-                  <div class="station-detail-metric">
-                    <span>Route mode</span>
-                    <strong>${routeMode}</strong>
-                  </div>
-                  <div class="station-detail-metric">
-                    <span>Queue</span>
-                    <strong>${queue.length}</strong>
-                  </div>
-                </div>
-
-                <div class="station-source-card station-source-card--inline">
-                  <div class="station-source-grid">
-                    ${stationSourceItem('Search signal', station.query)}
-                    ${stationSourceItem('Anchor mode', seedLabel)}
-                    ${stationSourceItem('Shared player', 'Persists across pages')}
-                  </div>
-                </div>
-
-                <div class="station-track-head">
+              <div class="station-queue-panel" id="stationSongList">
+                <div class="station-track-head station-track-head--chamber">
                   <span class="panel-kicker">Queue</span>
                   <div class="section-title">On Deck</div>
+                  <p class="section-copy">${queue.length} tracks loaded for this station.</p>
                 </div>
                 <div class="station-song-scroll station-song-scroll--chamber">
                   ${queue.length
