@@ -130,66 +130,67 @@ export async function renderStationsPage(container) {
           </div>
 
           <div class="station-player-shell">
-            <div class="station-player-art-shell">
-              ${mediaSlot({
-                image: chamberArtwork,
-                alt: `${chamberTrack?.title || station.name || 'Station'} artwork`,
-                label: chamberTrack?.title || station.name || 'Station artwork',
-                eyebrow: playerLeadLabel,
-                monogram: chamberTrack?.title || station.name || 'V',
-                className: 'station-player-art',
-                kind: 'station-player',
-                ratio: 'landscape'
-              })}
-            </div>
-
-            <div class="station-player-now">
-              <span class="panel-kicker">${playerLeadLabel}</span>
-              <div class="section-title station-player-track-title">${chamberTrack?.title || 'Station ready'}</div>
-              <p class="section-copy station-player-track-copy">${playerLeadCopy}</p>
-              <div class="station-player-action-row">
-                <button class="btn btn-primary" id="playActiveStation" type="button">${playerPrimaryLabel}</button>
-                <button class="btn btn-secondary" id="stepActiveStation" type="button">Next In Queue</button>
-                <button class="btn btn-secondary" id="shuffleActiveStation" type="button">Shuffle Route</button>
+            <div class="station-player-main">
+              <div class="station-player-art-shell">
+                ${mediaSlot({
+                  image: chamberArtwork,
+                  alt: `${chamberTrack?.title || station.name || 'Station'} artwork`,
+                  label: chamberTrack?.title || station.name || 'Station artwork',
+                  eyebrow: playerLeadLabel,
+                  monogram: chamberTrack?.title || station.name || 'V',
+                  className: 'station-player-art',
+                  kind: 'station-player',
+                  ratio: 'landscape'
+                })}
               </div>
-              <div class="station-player-subline">The footer player keeps this route alive even when you jump to another page.</div>
-            </div>
-          </div>
 
-          <div class="station-detail-metrics">
-            <div class="station-detail-metric">
-              <span>Anchors</span>
-              <strong>${seedCount || 'Open'}</strong>
-            </div>
-            <div class="station-detail-metric">
-              <span>Route mode</span>
-              <strong>${routeMode}</strong>
-            </div>
-            <div class="station-detail-metric">
-              <span>Queue</span>
-              <strong>${queue.length}</strong>
-            </div>
-          </div>
-
-          <div class="station-detail-support">
-            <article class="station-source-card">
-              <span class="panel-kicker">Route Profile</span>
-              <div class="station-source-grid">
-                ${stationSourceItem('Search signal', station.query)}
-                ${stationSourceItem('Anchor mode', seedLabel)}
-                ${stationSourceItem('Shared player', 'Persists across pages')}
+              <div class="station-player-now">
+                <span class="panel-kicker">${playerLeadLabel}</span>
+                <div class="section-title station-player-track-title">${chamberTrack?.title || 'Station ready'}</div>
+                <p class="section-copy station-player-track-copy">${playerLeadCopy}</p>
+                <div class="station-player-action-row">
+                  <button class="btn btn-primary" id="playActiveStation" type="button">${playerPrimaryLabel}</button>
+                  <button class="btn btn-secondary" id="stepActiveStation" type="button">Next In Queue</button>
+                  <button class="btn btn-secondary" id="shuffleActiveStation" type="button">Shuffle Route</button>
+                </div>
+                <div class="station-player-subline">The footer player keeps this route alive even when you jump to another page.</div>
               </div>
-            </article>
+            </div>
 
-            <div class="station-detail-tracks" id="stationSongList">
-              <div class="station-track-head">
-                <span class="panel-kicker">Queue</span>
-                <div class="section-title">On Deck</div>
-              </div>
-              <div class="station-song-scroll">
-                ${queue.length
-                  ? `<div class="song-list station-song-list">${queue.map((track, index) => songRow(track, index)).join('')}</div>`
-                  : emptyState('This station does not have a mix yet.')}
+            <div class="station-player-side">
+              <div class="station-detail-tracks station-detail-tracks--chamber" id="stationSongList">
+                <div class="station-detail-metrics">
+                  <div class="station-detail-metric">
+                    <span>Anchors</span>
+                    <strong>${seedCount || 'Open'}</strong>
+                  </div>
+                  <div class="station-detail-metric">
+                    <span>Route mode</span>
+                    <strong>${routeMode}</strong>
+                  </div>
+                  <div class="station-detail-metric">
+                    <span>Queue</span>
+                    <strong>${queue.length}</strong>
+                  </div>
+                </div>
+
+                <div class="station-source-card station-source-card--inline">
+                  <div class="station-source-grid">
+                    ${stationSourceItem('Search signal', station.query)}
+                    ${stationSourceItem('Anchor mode', seedLabel)}
+                    ${stationSourceItem('Shared player', 'Persists across pages')}
+                  </div>
+                </div>
+
+                <div class="station-track-head">
+                  <span class="panel-kicker">Queue</span>
+                  <div class="section-title">On Deck</div>
+                </div>
+                <div class="station-song-scroll station-song-scroll--chamber">
+                  ${queue.length
+                    ? `<div class="song-list station-song-list">${queue.map((track, index) => songRow(track, index)).join('')}</div>`
+                    : emptyState('This station does not have a mix yet.')}
+                </div>
               </div>
             </div>
           </div>
