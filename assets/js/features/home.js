@@ -169,6 +169,14 @@ function renderHomeView(container) {
   const primaryPlaylist = getPrimaryPlaylist(state.playlists);
   const primaryPlaylistSignature = primaryPlaylist ? getPlaylistSignature(primaryPlaylist) : null;
   const primaryPlaylistPreview = primaryPlaylist ? getPlaylistPreviewEntries(primaryPlaylist, 3) : [];
+  const hasPrimaryPlaylistSongs = Boolean(primaryPlaylist?.songs?.length);
+  const stackRowsMarkup = hasPrimaryPlaylistSongs
+    ? primaryPlaylistPreview.map(entry => homeMiniRow(entry.track, entry.queueIndex, 'play-home-playlist-track', `data-playlist="${primaryPlaylist.id}"`)).join('')
+    : (primaryPlaylist
+      ? '<div class="empty">This stack is still empty. Build the current room into it or add songs from search, stations, and artists.</div>'
+      : (returnTracks.length
+        ? returnTracks.map((track, index) => homeMiniRow(track, index, 'play-home-return')).join('')
+        : '<div class="empty">Play or save a few songs and this shelf will start to feel personal fast.</div>'));
   const spotlightTags = (spotlightTrack?.moods || []).slice(0, 3);
   const spotlightIndex = curatedTracks.findIndex(track => track.videoId === spotlightTrack?.videoId);
   const spotlightArt = getTrackArtwork(spotlightTrack);
@@ -279,14 +287,13 @@ function renderHomeView(container) {
           <p class="section-copy">${primaryPlaylistSignature?.summary || 'Build or save the room once, then keep using Library as the place where it evolves.'}</p>
           ${primaryPlaylistSignature?.tags?.length ? `<div class="meta-tags">${primaryPlaylistSignature.tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>` : ''}
           <div class="home-side-list">
-            ${primaryPlaylistPreview.length
-              ? primaryPlaylistPreview.map(entry => homeMiniRow(entry.track, entry.queueIndex, 'play-home-playlist-track', `data-playlist="${primaryPlaylist.id}"`)).join('')
-              : (returnTracks.length ? returnTracks.map((track, index) => homeMiniRow(track, index, 'play-home-return')).join('') : '<div class="empty">Play or save a few songs and this shelf will start to feel personal fast.</div>')}
+            ${stackRowsMarkup}
           </div>
           <div class="inline-actions">
-            ${primaryPlaylist?.songs?.length
+            ${hasPrimaryPlaylistSongs
               ? `<a class="btn btn-secondary" href="library.html">Open library</a>`
-              : `<button class="btn btn-secondary" type="button" data-open-create-playlist>Create empty stack</button>`}
+              : `<button class="btn btn-secondary" type="button" data-action="build-home-stack" data-name="${buildHomeStackName}">${icon('plus')} Build room</button>
+                 <button class="btn btn-secondary" type="button" data-open-create-playlist>Create empty stack</button>`}
           </div>
         </div>
       </aside>
