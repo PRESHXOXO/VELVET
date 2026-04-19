@@ -14,14 +14,6 @@ function isStationsRoute() {
   return fileName === 'stations.html';
 }
 
-function getNearbyStations(activeIndex) {
-  const offsets = [-1, 1, 2];
-  return offsets.map(offset => {
-    const index = (activeIndex + offset + stations.length) % stations.length;
-    return { station: stations[index], index };
-  });
-}
-
 function stationBrowserItem(station, index, isActive = false) {
   const seedCount = (station.seedIndexes || []).length;
   const sourceLabel = seedCount ? `${seedCount} seeded` : 'Live-led';
@@ -39,26 +31,6 @@ function stationBrowserItem(station, index, isActive = false) {
         <span class="station-list-meta">${seedCount || 'YT'}</span>
         <small>${sourceLabel}</small>
       </div>
-    </button>
-  `;
-}
-
-function stationHeroStat(label, value, copy) {
-  return `
-    <article class="stations-browser-stat">
-      <span>${label}</span>
-      <strong>${value}</strong>
-      <small>${copy}</small>
-    </article>
-  `;
-}
-
-function stationNeighborCard(entry, slot) {
-  return `
-    <button class="station-neighbor-card" type="button" data-action="open-station" data-index="${entry.index}" data-slot="${slot}" style="--station-gradient:${entry.station.gradient || 'linear-gradient(135deg,#2a0910,#8b1730)'}">
-      <span>Side Deck ${formatStationOrdinal(entry.index)}</span>
-      <strong>${entry.station.name}</strong>
-      <small>${entry.station.description || entry.station.query}</small>
     </button>
   `;
 }
@@ -117,25 +89,6 @@ export async function renderStationsPage(container) {
   const seedCount = (station.seedIndexes || []).length;
   const seedLabel = seedCount ? `${seedCount} seeded anchors` : 'Open live route';
   const routeMode = seedCount ? (liveTracks.length ? 'Seeded + live' : 'Seeded') : 'Exploratory';
-  const nearbyStations = getNearbyStations(activeIndex);
-  const heroStats = [
-    {
-      label: 'Selected route',
-      value: station.name,
-      copy: 'the station currently steering the chamber player'
-    },
-    {
-      label: 'Route mode',
-      value: routeMode,
-      copy: 'how fixed or open this station is right now'
-    },
-    {
-      label: 'Queue depth',
-      value: `${queue.length}`,
-      copy: 'tracks stacked across local and live layers'
-    }
-  ];
-
   const chamberState = getActiveQueueTrack(queue);
   const chamberTrack = chamberState.track;
   const chamberArtwork =
@@ -157,28 +110,14 @@ export async function renderStationsPage(container) {
       ${pageHead({
         kicker: 'Station Atlas',
         title: 'Signal Deck',
-        copy: 'Pick a station below and the chamber becomes its live player. The shared player stays running while you move through the rest of Velvet.'
+        copy: 'Choose a route, control it in the chamber, and keep the rest of the page contained instead of stacked into one long spill.'
       })}
-
-      <article class="panel stations-hero-panel">
-        <div class="stations-hero-copy">
-          <span class="panel-kicker">Shared Chamber</span>
-          <div class="section-title">Atlas With Persistent Playback</div>
-          <p class="section-copy">The chamber now behaves like a true route player instead of a second station card. Choose a station below, control it here, and keep listening while you move across Velvet.</p>
-        </div>
-        <div class="stations-hero-stats">
-          ${heroStats.map(stat => stationHeroStat(stat.label, stat.value, stat.copy)).join('')}
-        </div>
-        <div class="stations-neighbor-strip">
-          ${nearbyStations.map(stationNeighborCard).join('')}
-        </div>
-      </article>
 
       <div class="stations-layout">
         <aside class="station-player panel detail-panel station-player-panel" style="--station-focus-gradient:${station.gradient || 'linear-gradient(135deg,#17121a,#43253c)'}">
           <div class="station-player-head">
             <div class="station-player-copy-wrap">
-              <span class="panel-kicker">Active Chamber Player</span>
+              <span class="panel-kicker">Chamber Player</span>
               <div class="section-title station-player-title">${station.name}</div>
               <p class="section-copy station-player-copy">${station.description || station.query}</p>
               <div class="meta-tags">${focusTags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
@@ -223,12 +162,12 @@ export async function renderStationsPage(container) {
               <strong>${seedCount || 'Open'}</strong>
             </div>
             <div class="station-detail-metric">
-              <span>Loaded</span>
-              <strong>${chamberState.isCurrent ? `${chamberState.index + 1}` : 'Ready'}</strong>
+              <span>Route mode</span>
+              <strong>${routeMode}</strong>
             </div>
             <div class="station-detail-metric">
-              <span>Live</span>
-              <strong>${liveTracks.length}</strong>
+              <span>Queue</span>
+              <strong>${queue.length}</strong>
             </div>
           </div>
 
@@ -239,18 +178,19 @@ export async function renderStationsPage(container) {
                 ${stationSourceItem('Search signal', station.query)}
                 ${stationSourceItem('Anchor mode', seedLabel)}
                 ${stationSourceItem('Shared player', 'Persists across pages')}
-                ${stationSourceItem('Mood markers', focusTags.length ? focusTags.join(' / ') : 'Open route')}
               </div>
             </article>
 
             <div class="station-detail-tracks" id="stationSongList">
               <div class="station-track-head">
-                <span class="panel-kicker">Station Queue</span>
+                <span class="panel-kicker">Queue</span>
                 <div class="section-title">On Deck</div>
               </div>
-              ${queue.length
-                ? `<div class="song-list station-song-list">${queue.map((track, index) => songRow(track, index)).join('')}</div>`
-                : emptyState('This station does not have a mix yet.')}
+              <div class="station-song-scroll">
+                ${queue.length
+                  ? `<div class="song-list station-song-list">${queue.map((track, index) => songRow(track, index)).join('')}</div>`
+                  : emptyState('This station does not have a mix yet.')}
+              </div>
             </div>
           </div>
         </aside>
@@ -261,7 +201,7 @@ export async function renderStationsPage(container) {
               <span class="panel-kicker">Atlas</span>
               <div>
                 <div class="section-title">All Routes</div>
-                <p class="section-copy">Five across on desktop, with the selected station feeding the chamber player above instead of splitting the page into two competing showcases.</p>
+                <p class="section-copy">This stays inside its own scroll frame so the chamber remains the primary surface and the page does not collapse into one long vertical stack.</p>
               </div>
             </div>
             <div class="stations-atlas-scroll">
