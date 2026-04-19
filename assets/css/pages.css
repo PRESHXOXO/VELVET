@@ -1545,17 +1545,20 @@
   color:rgba(246,224,228,.58);
 }
 .page-stations .stations-layout{
-  display:flex;
-  flex-direction:column;
-  gap:28px;
+  display:block;
+}
+.page-stations .station-player-panel{
+  position:relative;
+  top:auto;
+  align-self:auto;
+}
+.page-stations .stations-atlas-section{
+  margin-top:28px;
 }
 .page-stations .stations-browser{
   display:flex;
   flex-direction:column;
   gap:14px;
-  padding-top:4px;
-  position:relative;
-  isolation:isolate;
 }
 .page-stations .stations-browser-panel{
   display:flex;

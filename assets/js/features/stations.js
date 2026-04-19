@@ -104,7 +104,7 @@ export async function renderStationsPage(container) {
       })}
 
       <div class="stations-layout">
-        <aside class="station-player panel detail-panel station-player-panel" style="--station-focus-gradient:${station.gradient || 'linear-gradient(135deg,#17121a,#43253c)'}">
+        <aside class="station-player panel station-player-panel" style="--station-focus-gradient:${station.gradient || 'linear-gradient(135deg,#17121a,#43253c)'}">
           <div class="station-player-head">
             <div class="station-player-copy-wrap">
               <span class="panel-kicker">Chamber Player</span>
@@ -163,14 +163,16 @@ export async function renderStationsPage(container) {
             </div>
           </div>
         </aside>
+      </div>
 
+      <section class="stations-atlas-section">
         <div class="stations-browser">
           <article class="panel stations-browser-panel">
             <div class="stations-browser-head">
               <span class="panel-kicker">Atlas</span>
               <div>
                 <div class="section-title">All Routes</div>
-                <p class="section-copy">This stays inside its own scroll frame so the chamber remains the primary surface and the page does not collapse into one long vertical stack.</p>
+                <p class="section-copy">The atlas now lives in its own section below the chamber so the player stays clear and the route grid does not slide over it.</p>
               </div>
             </div>
             <div class="stations-atlas-scroll">
@@ -180,7 +182,7 @@ export async function renderStationsPage(container) {
             </div>
           </article>
         </div>
-      </div>
+      </section>
     </section>
   `;
 
