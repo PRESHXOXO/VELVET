@@ -1,9 +1,9 @@
 import { stations, getStationTracks, getStationVisual } from '../core/catalog.js';
 import { fetchSongs } from '../core/youtube.js';
 import { playFromQueue, togglePlay } from '../core/player.js';
-import { state } from '../core/state.js';
+import { createPlaylistFromTracks, isFavoriteStation, pushRecentStation, state, toggleFavoriteStation } from '../core/state.js';
 import { pageHead, songRow, emptyState, mediaSlot } from '../ui/templates.js';
-import { bindSongRowActions, resolveTrack } from '../core/ui.js';
+import { bindSongRowActions, resolveTrack, toast } from '../core/ui.js';
 
 function formatStationOrdinal(index) {
   return String(index + 1).padStart(2, '0');
@@ -64,7 +64,10 @@ function isStationsRoute() {
 function stationBrowserItem(station, index, isActive = false) {
   const seedCount = (station.seedIndexes || []).length;
   const sourceLabel = seedCount ? `${seedCount} curated` : 'Live-led';
-  const tags = (station.tags || []).slice(0, 2);
+  const tags = [
+    ...(isFavoriteStation(index) ? ['Pinned lane'] : []),
+    ...(station.tags || [])
+  ].slice(0, 2);
 
   return `
     <button class="station-list-item ${isActive ? 'is-active' : ''}" data-action="open-station" data-index="${index}" style="--station-gradient:${station.gradient || 'linear-gradient(135deg,#2a0910,#8b1730)'}">
@@ -99,6 +102,7 @@ export async function renderStationsPage(container) {
   const hashMatch = window.location.hash.match(/station-(\d+)/);
   const activeIndex = hashMatch ? Number(hashMatch[1]) : 0;
   const station = stations[activeIndex] || stations[0];
+  pushRecentStation(activeIndex);
   const localTracks = getStationTracks(activeIndex);
   const liveCache = container.__velvetStationLiveCache || new Map();
   container.__velvetStationLiveCache = liveCache;
@@ -155,6 +159,8 @@ export async function renderStationsPage(container) {
   const playerLeadCopy = chamberTrack
     ? `${chamberTrack.artist || 'Unknown artist'}`
     : 'Press play to load this station into the persistent player.';
+  const isPinnedLane = isFavoriteStation(activeIndex);
+  const routePlaylistName = `${station.name} Route`;
 
   container.innerHTML = `
     <section class="stations-page">
@@ -203,6 +209,10 @@ export async function renderStationsPage(container) {
                   <button class="btn btn-primary" id="playActiveStation" type="button">${playerPrimaryLabel}</button>
                   <button class="btn btn-secondary" id="stepActiveStation" type="button">Next In Queue</button>
                   <button class="btn btn-secondary" id="shuffleActiveStation" type="button">Shuffle Route</button>
+                </div>
+                <div class="inline-actions station-player-utility-row">
+                  <button class="btn btn-secondary" id="buildStationStack" type="button">Build Stack</button>
+                  <button class="btn btn-secondary" id="toggleStationPin" type="button">${isPinnedLane ? 'Pinned Lane' : 'Pin Lane'}</button>
                 </div>
                 <div class="station-player-subline">The footer player keeps this route alive even when you jump to another page.</div>
               </div>
@@ -287,6 +297,18 @@ export async function renderStationsPage(container) {
   document.getElementById('playActiveStation')?.addEventListener('click', playSelectedStation);
   document.getElementById('stepActiveStation')?.addEventListener('click', stepStationQueue);
   document.getElementById('shuffleActiveStation')?.addEventListener('click', shuffleStationQueue);
+  document.getElementById('buildStationStack')?.addEventListener('click', () => {
+    const playlist = createPlaylistFromTracks(routePlaylistName, queue);
+    if (!playlist) return;
+    toast('Route saved to stack');
+    window.dispatchEvent(new CustomEvent('velvet:library-changed'));
+  });
+  document.getElementById('toggleStationPin')?.addEventListener('click', () => {
+    const pinned = toggleFavoriteStation(activeIndex);
+    toast(pinned ? 'Lane pinned' : 'Lane unpinned');
+    window.dispatchEvent(new CustomEvent('velvet:stations-changed'));
+    rerenderStation();
+  });
 
   bindSongRowActions(container, {
     'play-track': async (event, data) => {

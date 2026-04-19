@@ -16,6 +16,8 @@ export const state = {
   liked: readStorage('vlv_liked', []),
   recent: readStorage('vlv_recent', []),
   playlists: readStorage('vlv_playlists', []).map(normalizePlaylist),
+  favoriteStations: readStorage('vlv_favorite_stations', []),
+  recentStations: readStorage('vlv_recent_stations', []),
   queue: readSession('vlv_queue', []),
   queueIndex: readSession('vlv_queue_index', 0),
   currentTrack: readSession('vlv_current_track', null),
@@ -27,6 +29,8 @@ export function refreshLibraryState(){
   state.liked = readStorage('vlv_liked', []);
   state.recent = readStorage('vlv_recent', []);
   state.playlists = readStorage('vlv_playlists', []).map(normalizePlaylist);
+  state.favoriteStations = readStorage('vlv_favorite_stations', []);
+  state.recentStations = readStorage('vlv_recent_stations', []);
 }
 
 export function syncLibrary(){
@@ -34,6 +38,8 @@ export function syncLibrary(){
   writeStorage('vlv_liked', state.liked);
   writeStorage('vlv_recent', state.recent);
   writeStorage('vlv_playlists', state.playlists);
+  writeStorage('vlv_favorite_stations', state.favoriteStations);
+  writeStorage('vlv_recent_stations', state.recentStations);
 }
 
 export function syncPlayback(){
@@ -73,6 +79,24 @@ export function createPlaylist(name){
   return playlist;
 }
 
+export function createPlaylistFromTracks(name, tracks = []){
+  const validTracks = tracks.filter(track => track?.videoId);
+  if(!validTracks.length){ return null; }
+
+  const playlist = createPlaylist(name);
+  if(!playlist){ return null; }
+
+  const seen = new Set();
+  playlist.songs = validTracks.filter(track => {
+    if(!track?.videoId || seen.has(track.videoId)){ return false; }
+    seen.add(track.videoId);
+    return true;
+  });
+  playlist.updatedAt = Date.now();
+  syncLibrary();
+  return playlist;
+}
+
 export function addTrackToPlaylist(track, playlistId){
   const playlist = state.playlists.find(item => item.id === playlistId);
   if(!playlist || !track?.videoId){ return false; }
@@ -81,4 +105,29 @@ export function addTrackToPlaylist(track, playlistId){
   playlist.updatedAt = Date.now();
   syncLibrary();
   return true;
+}
+
+export function isFavoriteStation(index){
+  const safeIndex = Number(index);
+  return state.favoriteStations.includes(safeIndex);
+}
+
+export function toggleFavoriteStation(index){
+  const safeIndex = Number(index);
+  if(!Number.isInteger(safeIndex) || safeIndex < 0){ return false; }
+
+  const exists = isFavoriteStation(safeIndex);
+  state.favoriteStations = exists
+    ? state.favoriteStations.filter(item => item !== safeIndex)
+    : [safeIndex, ...state.favoriteStations.filter(item => item !== safeIndex)].slice(0, 12);
+  syncLibrary();
+  return !exists;
+}
+
+export function pushRecentStation(index){
+  const safeIndex = Number(index);
+  if(!Number.isInteger(safeIndex) || safeIndex < 0){ return; }
+
+  state.recentStations = [safeIndex, ...state.recentStations.filter(item => item !== safeIndex)].slice(0, 12);
+  syncLibrary();
 }

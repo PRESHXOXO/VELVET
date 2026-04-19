@@ -1,11 +1,11 @@
-import { refreshLibraryState, state } from '../core/state.js';
+import { createPlaylistFromTracks, isFavoriteStation, refreshLibraryState, state, toggleFavoriteStation } from '../core/state.js';
 import { playFromQueue } from '../core/player.js';
-import { bindSongRowActions, resolveTrack } from '../core/ui.js';
+import { bindSongRowActions, resolveTrack, toast } from '../core/ui.js';
 import { pageHead, emptyState, icon, songRow, getTrackArtwork, mediaSlot } from '../ui/templates.js';
 import { catalogTracks, getArtistProfile, getArtistSlug, getArtistTracks, getStationTracks, getStationVisual, stations } from '../core/catalog.js';
 import { getPlaylistPreviewEntries, getPlaylistSignature, getPrimaryPlaylist } from '../core/playlists.js';
 
-const LIBRARY_KEYS = new Set(['vlv_liked', 'vlv_recent', 'vlv_playlists']);
+const APP_STATE_KEYS = new Set(['vlv_liked', 'vlv_recent', 'vlv_playlists', 'vlv_favorite_stations', 'vlv_recent_stations']);
 
 function dedupeTracks(tracks = []) {
   const seen = new Set();
@@ -26,15 +26,32 @@ function getSpotlightTrack() {
   return state.recent[0] || state.liked[0] || getPrimaryPlaylist(state.playlists)?.songs?.slice(-1)[0] || catalogTracks[0] || null;
 }
 
+function getStationPriority(index) {
+  let score = 0;
+
+  if (isFavoriteStation(index)) {
+    score += 100;
+  }
+
+  const recentIndex = state.recentStations.indexOf(index);
+  if (recentIndex >= 0) {
+    score += Math.max(24 - recentIndex * 4, 4);
+  }
+
+  return score;
+}
+
 function getSpotlightStations(track) {
   const seededMatches = stations
     .map((station, index) => ({ station, index, tracks: getStationTracks(index) }))
     .filter(entry => entry.tracks.some(item => item.videoId === track?.videoId))
-    .map(({ station, index }) => ({ station, index }));
+    .map(({ station, index }) => ({ station, index }))
+    .sort((a, b) => getStationPriority(b.index) - getStationPriority(a.index));
 
   const fallback = stations
     .map((station, index) => ({ station, index }))
-    .filter(entry => !seededMatches.some(match => match.index === entry.index));
+    .filter(entry => !seededMatches.some(match => match.index === entry.index))
+    .sort((a, b) => getStationPriority(b.index) - getStationPriority(a.index));
 
   return [...seededMatches, ...fallback].slice(0, 4);
 }
@@ -89,7 +106,9 @@ function homeDepthCard({ label, value, copy }) {
 }
 
 function homeAxisRow(entry, slot) {
-  const stationTag = (entry.station.tags || []).find(Boolean) || 'Open lane';
+  const stationTag = isFavoriteStation(entry.index)
+    ? 'Pinned lane'
+    : (state.recentStations.includes(entry.index) ? 'Recent lane' : ((entry.station.tags || []).find(Boolean) || 'Open lane'));
 
   return `
     <button class="home-axis-row" type="button" data-action="open-station" data-index="${entry.index}">
@@ -107,6 +126,13 @@ function homeStationCard(entry) {
   const stationImage = entry.station.cardImage || entry.station.image || getStationVisual(entry.index) || (stationLeadTrack ? getTrackArtwork(stationLeadTrack) : '');
   const seedCount = (entry.station.seedIndexes || []).length;
   const stationSourceLabel = seedCount ? `${seedCount} curated` : 'Live-led';
+  const isPinned = isFavoriteStation(entry.index);
+  const isRecent = state.recentStations.includes(entry.index);
+  const stationTags = [
+    ...(isPinned ? ['Pinned lane'] : []),
+    ...(isRecent && !isPinned ? ['Recent lane'] : []),
+    ...(entry.station.tags || []).slice(0, 2)
+  ].slice(0, 3);
 
   return `
     <article class="home-station-card" style="--station-gradient:${entry.station.gradient};${stationImage ? `--station-image:url('${stationImage}')` : ''}">
@@ -118,7 +144,7 @@ function homeStationCard(entry) {
         <div class="home-station-copy">
           <h3>${entry.station.name}</h3>
           <p>${entry.station.description || entry.station.query}</p>
-          <div class="meta-tags">${(entry.station.tags || []).slice(0, 2).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+          <div class="meta-tags">${stationTags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
         </div>
         ${mediaSlot({
           image: stationImage,
@@ -134,6 +160,7 @@ function homeStationCard(entry) {
       <div class="inline-actions">
         <button class="btn btn-primary" type="button" data-action="open-station" data-index="${entry.index}">${icon('play')} Open</button>
         <button class="btn btn-secondary" type="button" data-action="shuffle-station" data-index="${entry.index}">${icon('shuffle')} Mix</button>
+        <button class="btn btn-secondary" type="button" data-action="toggle-station-pin" data-index="${entry.index}">${icon('heart')} ${isPinned ? 'Pinned' : 'Pin lane'}</button>
       </div>
     </article>
   `;
@@ -158,6 +185,14 @@ function renderHomeView(container) {
   const spotlightVisual = spotlightArtist?.featureImage || spotlightArtist?.heroImage || spotlightArt || '';
   const spotlightRibbon = curatedTracks.filter(track => track.videoId !== spotlightTrack?.videoId).slice(0, 3);
   const leadStation = spotlightStations[0] || null;
+  const defaultStackTracks = dedupeTracks([
+    ...curatedTracks,
+    ...returnTracks,
+    ...artistEssentials
+  ]).slice(0, 10);
+  const buildHomeStackName = leadStation?.station?.name
+    ? `${leadStation.station.name} Room`
+    : `${spotlightTrack?.artist || 'Velvet'} Room`;
   const depthCards = [
     {
       label: 'Front Plane',
@@ -279,7 +314,7 @@ function renderHomeView(container) {
         <div class="home-companion-block home-companion-block--stack">
           <span class="panel-kicker">Room Stack</span>
           <div class="home-side-title">${primaryPlaylist?.name || 'Keep building the room'}</div>
-          <p class="section-copy">${primaryPlaylistSignature?.summary || 'Create a playlist and the strongest one will surface here automatically.'}</p>
+          <p class="section-copy">${primaryPlaylistSignature?.summary || 'Build the current room into a real stack so this side of Velvet starts reacting like a library, not a placeholder.'}</p>
           ${primaryPlaylistSignature?.tags?.length ? `<div class="meta-tags">${primaryPlaylistSignature.tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>` : ''}
           <div class="home-side-list">
             ${primaryPlaylistPreview.length
@@ -287,7 +322,10 @@ function renderHomeView(container) {
               : (returnTracks.length ? returnTracks.map((track, index) => homeMiniRow(track, index, 'play-home-return')).join('') : '<div class="empty">Play or save a few songs and this shelf will start to feel personal fast.</div>')}
           </div>
           <div class="inline-actions">
-            ${primaryPlaylist?.songs?.length ? `<button class="btn btn-primary" type="button" data-action="play-home-playlist" data-playlist="${primaryPlaylist.id}">${icon('play')} Play stack</button>` : '<button class="btn btn-primary" type="button" data-open-create-playlist>Create playlist</button>'}
+            ${primaryPlaylist?.songs?.length
+              ? `<button class="btn btn-primary" type="button" data-action="play-home-playlist" data-playlist="${primaryPlaylist.id}">${icon('play')} Play stack</button>`
+              : `<button class="btn btn-primary" type="button" data-action="build-home-stack" data-name="${buildHomeStackName}">${icon('plus')} Build current room</button>
+                 <button class="btn btn-secondary" type="button" data-open-create-playlist>Create empty stack</button>`}
           </div>
         </div>
       </aside>
@@ -319,6 +357,8 @@ function renderHomeView(container) {
       </article>
     </section>
   `;
+
+  const rerender = () => renderHomeView(container);
 
   bindSongRowActions(container, {
     'play-spotlight': () => {
@@ -354,6 +394,13 @@ function renderHomeView(container) {
     'shuffle-station': (_event, data) => {
       window.dispatchEvent(new CustomEvent('velvet:navigate', { detail: { href: `stations.html#station-${data.index}` } }));
     },
+    'toggle-station-pin': (_event, data) => {
+      const index = Number(data.index);
+      const pinned = toggleFavoriteStation(index);
+      toast(pinned ? 'Lane pinned' : 'Lane unpinned');
+      window.dispatchEvent(new CustomEvent('velvet:stations-changed'));
+      rerender();
+    },
     'open-artist': (_event, data) => {
       window.dispatchEvent(new CustomEvent('velvet:navigate', { detail: { href: `artists.html#artist-${data.slug}` } }));
     },
@@ -381,6 +428,13 @@ function renderHomeView(container) {
       if (playlist?.songs?.[index]) {
         playFromQueue(playlist.songs, index);
       }
+    },
+    'build-home-stack': (_event, data) => {
+      const playlist = createPlaylistFromTracks(data.name || buildHomeStackName, defaultStackTracks);
+      if (!playlist) return;
+      toast('Room stack created');
+      window.dispatchEvent(new CustomEvent('velvet:library-changed'));
+      rerender();
     }
   });
 }
@@ -395,8 +449,9 @@ export function mountHomePage(container){
     container.__velvetHomeRender = rerender;
 
     window.addEventListener('velvet:library-changed', rerender);
+    window.addEventListener('velvet:stations-changed', rerender);
     window.addEventListener('storage', event => {
-      if (!event.key || LIBRARY_KEYS.has(event.key)) {
+      if (!event.key || APP_STATE_KEYS.has(event.key)) {
         refreshLibraryState();
         rerender();
       }
