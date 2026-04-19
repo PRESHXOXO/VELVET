@@ -317,26 +317,39 @@ async function renderRoute(page, { scroll = true } = {}) {
 export async function navigateTo(href, { replace = false, scroll = true } = {}) {
   const url = new URL(String(href), window.location.href);
   const page = getRouteFromLocation(url);
+  const nextHref = url.toString();
 
   if (url.origin !== window.location.origin || !page) {
-    window.location.href = url.href;
+    window.location.href = nextHref;
     return false;
   }
 
   const current = window.location.href;
-  if (current === url.href) {
-    await renderRoute(page, { scroll: false });
+  if (current === nextHref) {
+    try {
+      await renderRoute(page, { scroll: false });
+    } catch (error) {
+      console.error('Velvet route render failed', error);
+      window.location.href = nextHref;
+    }
     return true;
   }
 
-  if (replace) {
-    window.history.replaceState({}, '', url);
-  } else {
-    window.history.pushState({}, '', url);
+  try {
+    if (replace) {
+      window.history.replaceState({}, '', nextHref);
+    } else {
+      window.history.pushState({}, '', nextHref);
+    }
+
+    routeRuntime.closePreview();
+    await renderRoute(page, { scroll });
+  } catch (error) {
+    console.error('Velvet navigation failed', error);
+    window.location.href = nextHref;
+    return false;
   }
 
-  routeRuntime.closePreview();
-  await renderRoute(page, { scroll });
   return true;
 }
 
@@ -469,19 +482,25 @@ function initInternalRouting() {
     if (url.origin !== window.location.origin || !page) return;
 
     event.preventDefault();
-    navigateTo(url.href);
+    navigateTo(url.href).catch(() => {
+      window.location.href = url.href;
+    });
   });
 
   window.addEventListener('popstate', () => {
     const page = getRouteFromLocation(window.location) || 'home';
     routeRuntime.closePreview();
-    renderRoute(page, { scroll: false });
+    renderRoute(page, { scroll: false }).catch(() => {
+      window.location.reload();
+    });
   });
 
   window.addEventListener('velvet:navigate', event => {
     const href = event.detail?.href;
     if (!href) return;
-    navigateTo(href);
+    navigateTo(href).catch(() => {
+      window.location.href = href;
+    });
   });
 }
 
