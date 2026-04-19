@@ -281,16 +281,18 @@ function ensureRouteRoot(page) {
   const root = document.createElement('div');
   root.className = 'page-stack route-root';
   root.dataset.routeRoot = page;
-  root.hidden = true;
-  routeRuntime.pageRoot.append(root);
   routeRuntime.routeRoots.set(page, root);
   return root;
 }
 
-function showRouteRoot(page) {
-  routeRuntime.routeRoots.forEach((root, key) => {
-    root.hidden = key !== page;
-  });
+function mountRouteRoot(page) {
+  const root = ensureRouteRoot(page);
+
+  if (routeRuntime.pageRoot.firstElementChild !== root) {
+    routeRuntime.pageRoot.replaceChildren(root);
+  }
+
+  return root;
 }
 
 async function renderRoute(page, { scroll = true } = {}) {
@@ -301,9 +303,7 @@ async function renderRoute(page, { scroll = true } = {}) {
   updateShellChrome(page);
   updateActiveNav(page);
 
-  const root = ensureRouteRoot(page);
-  showRouteRoot(page);
-
+  const root = mountRouteRoot(page);
   await route.render(root);
 
   syncLikeButtons();
