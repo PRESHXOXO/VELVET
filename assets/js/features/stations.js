@@ -9,6 +9,22 @@ function formatStationOrdinal(index) {
   return String(index + 1).padStart(2, '0');
 }
 
+function getStationMonogram(value = '') {
+  return String(value || '')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(part => part.charAt(0).toUpperCase())
+    .join('') || 'V';
+}
+
+function buildSignalBars(index = 0, seedCount = 0) {
+  return Array.from({ length: 4 }, (_, barIndex) => {
+    const level = 28 + (((index + 2) * (barIndex + 3) * 13) + seedCount * 9) % 54;
+    return `<span style="--signal-level:${level}%"></span>`;
+  }).join('');
+}
+
 function normalizeMatchText(value = '') {
   return String(value || '')
     .toLowerCase()
@@ -62,24 +78,64 @@ function isStationsRoute() {
 }
 
 function stationBrowserItem(station, index, isActive = false) {
+  const localTracks = getStationTracks(index);
+  const visualStack = [
+    station.cardImage,
+    station.image,
+    station.heroImage,
+    getStationVisual(index),
+    ...localTracks.map(track => track?.thumb)
+  ].filter(Boolean);
+  const uniqueVisuals = [...new Set(visualStack)];
+  const heroImage = uniqueVisuals[0] || '';
+  const previewImages = uniqueVisuals.slice(1, 4);
   const seedCount = (station.seedIndexes || []).length;
   const sourceLabel = seedCount ? `${seedCount} curated` : 'Live-led';
   const tags = [
     ...(isFavoriteStation(index) ? ['Pinned lane'] : []),
     ...(station.tags || [])
   ].slice(0, 2);
+  const visualBadge = isActive ? 'Selected route' : sourceLabel;
+  const visualHint = seedCount ? `${seedCount} anchors` : 'YouTube led';
+  const previewLabel = localTracks[0]?.artist || station.signal || station.query;
+  const previewCopy = station.description || station.query;
 
   return `
     <button class="station-list-item ${isActive ? 'is-active' : ''}" data-action="open-station" data-index="${index}" style="--station-gradient:${station.gradient || 'linear-gradient(135deg,#2a0910,#8b1730)'}">
-      <span class="station-list-ordinal">${formatStationOrdinal(index)}</span>
+      <div class="station-list-visual">
+        ${heroImage
+          ? `<img class="station-list-hero" src="${heroImage}" alt="${station.name || 'Station'} visual">`
+          : `<div class="station-list-fallback">${getStationMonogram(station.name)}</div>`}
+        <div class="station-list-visual-overlay"></div>
+        <div class="station-list-visual-head">
+          <span class="station-list-ordinal">${formatStationOrdinal(index)}</span>
+          <span class="station-list-status">${visualBadge}</span>
+        </div>
+        <div class="station-list-preview-row">
+          <div class="station-list-preview-stack">
+            ${previewImages.length
+              ? previewImages.map((image, imageIndex) => `<img src="${image}" alt="${station.name || 'Station'} preview ${imageIndex + 1}">`).join('')
+              : `<span class="station-list-preview-empty">${getStationMonogram(station.name)}</span>`}
+          </div>
+          <div class="station-list-preview-meta">
+            <strong>${visualHint}</strong>
+            <small>${previewLabel}</small>
+          </div>
+        </div>
+      </div>
       <div class="station-list-copy">
         <strong>${station.name}</strong>
-        <span>${station.description || station.query}</span>
+        <span>${previewCopy}</span>
         <div class="station-list-tags">${tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
       </div>
-      <div class="station-list-side">
-        <span class="station-list-meta">${seedCount || 'YT'}</span>
-        <small>${sourceLabel}</small>
+      <div class="station-list-side" aria-hidden="true">
+        <div class="station-list-signal">
+          ${buildSignalBars(index, seedCount)}
+        </div>
+        <div class="station-list-side-copy">
+          <span class="station-list-meta">${seedCount || 'YT'}</span>
+          <small>${sourceLabel}</small>
+        </div>
       </div>
     </button>
   `;
@@ -243,7 +299,7 @@ export async function renderStationsPage(container) {
               <span class="panel-kicker">Atlas</span>
               <div>
                 <div class="section-title">All Routes</div>
-                <p class="section-copy">The atlas now lives in its own section below the chamber so the player stays clear and the route grid does not slide over it.</p>
+                <p class="section-copy">Scan the route covers, pick a lane, and let the chamber carry the listening.</p>
               </div>
             </div>
             <div class="stations-atlas-scroll">
