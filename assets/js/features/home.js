@@ -83,18 +83,6 @@ function homeMiniRow(track, queueIndex, action, extras = '') {
   `;
 }
 
-function homeRibbonTrack(track, index) {
-  return `
-    <button class="home-feature-ribbon-track" type="button" data-action="play-home-curated" data-index="${index}" data-video="${track.videoId}">
-      <img src="${getTrackArtwork(track)}" alt="${track.title || 'Track artwork'}">
-      <span class="home-feature-ribbon-copy">
-        <strong>${track.title || 'Unknown track'}</strong>
-        <small>${track.artist || 'Unknown artist'}</small>
-      </span>
-    </button>
-  `;
-}
-
 function homeDepthCard({ label, value, copy }) {
   return `
     <article class="home-depth-card">
@@ -170,7 +158,9 @@ function renderHomeView(container) {
   const spotlightTrack = getSpotlightTrack();
   const spotlightArtist = spotlightTrack ? getArtistProfile(getArtistSlug(spotlightTrack)) : null;
   const spotlightStations = getSpotlightStations(spotlightTrack);
+  const featuredStations = spotlightStations.slice(0, 3);
   const curatedTracks = getCuratedTracks(spotlightTrack, spotlightArtist);
+  const displayCuratedTracks = curatedTracks.slice(0, 6);
   const returnTracks = dedupeTracks([...state.recent, ...state.liked]).slice(0, 4);
   const artistEssentials = dedupeTracks([
     spotlightTrack,
@@ -183,7 +173,6 @@ function renderHomeView(container) {
   const spotlightIndex = curatedTracks.findIndex(track => track.videoId === spotlightTrack?.videoId);
   const spotlightArt = getTrackArtwork(spotlightTrack);
   const spotlightVisual = spotlightArtist?.featureImage || spotlightArtist?.heroImage || spotlightArt || '';
-  const spotlightRibbon = curatedTracks.filter(track => track.videoId !== spotlightTrack?.videoId).slice(0, 3);
   const leadStation = spotlightStations[0] || null;
   const defaultStackTracks = dedupeTracks([
     ...curatedTracks,
@@ -195,19 +184,21 @@ function renderHomeView(container) {
     : `${spotlightTrack?.artist || 'Velvet'} Room`;
   const depthCards = [
     {
-      label: 'Front Plane',
+      label: 'Lead voice',
       value: spotlightArtist?.name || spotlightTrack?.artist || 'Velvet',
-      copy: 'Lead voice carrying the room.'
+      copy: 'Tonight starts here.'
     },
     {
-      label: 'Axis Lane',
+      label: 'Lane in focus',
       value: leadStation?.station.name || 'Open lane',
-      copy: leadStation?.station.description || leadStation?.station.query || 'A guiding mood lane for the night.'
+      copy: isFavoriteStation(leadStation?.index) ? 'Pinned and ready to open.' : (leadStation?.station.description || leadStation?.station.query || 'A guiding route for the room.')
     },
     {
-      label: 'Room Stack',
-      value: primaryPlaylist?.name || 'Build a stack',
-      copy: primaryPlaylistSignature?.caption || 'Your most coherent personal layer surfaces here.'
+      label: 'Room memory',
+      value: primaryPlaylist?.name || formatCount(state.liked.length, 'saved song'),
+      copy: primaryPlaylist?.songs?.length
+        ? `${formatCount(primaryPlaylist.songs.length, 'track')} inside your lead stack.`
+        : 'Build the current room into a real stack.'
     }
   ];
 
@@ -217,41 +208,31 @@ function renderHomeView(container) {
         <div class="home-feature-grid">
           <div class="home-feature-copy">
             <div class="home-feature-heading">
-              <span class="panel-kicker">Tonight's Spotlight</span>
+              <span class="panel-kicker">Tonight's Room</span>
               <div class="home-feature-meta">
                 <span>${spotlightTrack?.artist || 'Private listening club'}</span>
                 ${spotlightTrack?.year ? `<span>${spotlightTrack.year}</span>` : ''}
-                <span>Lead record</span>
+                <span>${leadStation?.station.name || 'Lead record'}</span>
               </div>
               <div class="home-feature-title">${spotlightTrack?.title || 'Velvet'}</div>
-              <p class="home-feature-blurb">${spotlightArtist?.description || 'Velvet now opens with a stronger editorial center: one lead record, one voice, and a cleaner path into the rest of the room.'}</p>
+              <p class="home-feature-blurb">${spotlightArtist?.description || 'Start with one front record, move into one lane, and build the room from there instead of splitting attention across too many equal surfaces.'}</p>
             </div>
 
             <div class="meta-tags home-feature-tags">
               ${(spotlightTags.length ? spotlightTags : ['after-hours', 'editorial', 'velvet']).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}
             </div>
 
+            <div class="inline-actions">
+              <button class="btn btn-primary" type="button" data-action="play-spotlight">${icon('play')} Start room</button>
+              ${primaryPlaylist?.songs?.length
+                ? `<button class="btn btn-secondary" type="button" data-action="play-home-playlist" data-playlist="${primaryPlaylist.id}">${icon('play')} Play stack</button>`
+                : `<button class="btn btn-secondary" type="button" data-action="build-home-stack" data-name="${buildHomeStackName}">${icon('plus')} Build room</button>`}
+              ${spotlightStations[0] ? `<button class="btn btn-secondary" type="button" data-action="open-station" data-index="${spotlightStations[0].index}">Open lane</button>` : ''}
+            </div>
+
             <div class="home-feature-depth-grid">
               ${depthCards.map(homeDepthCard).join('')}
             </div>
-
-            <div class="inline-actions">
-              <button class="btn btn-primary" type="button" data-action="play-spotlight">${icon('play')} Start here</button>
-              ${spotlightArtist ? `<button class="btn btn-secondary" type="button" data-action="open-artist" data-slug="${spotlightArtist.slug}">Open artist</button>` : ''}
-              ${spotlightStations[0] ? `<button class="btn btn-secondary" type="button" data-action="open-station" data-index="${spotlightStations[0].index}">Open station</button>` : ''}
-            </div>
-
-            ${spotlightRibbon.length ? `
-              <div class="home-feature-ribbon-shell">
-                <div class="home-feature-ribbon-head">
-                  <span class="panel-kicker">Side Planes</span>
-                  <p>Three nearby tracks that keep the scene coherent without flattening the mood.</p>
-                </div>
-                <div class="home-feature-ribbon">
-                  ${spotlightRibbon.map(track => homeRibbonTrack(track, curatedTracks.findIndex(item => item.videoId === track.videoId))).join('')}
-                </div>
-              </div>
-            ` : ''}
           </div>
 
           <div class="home-feature-visual">
@@ -271,28 +252,9 @@ function renderHomeView(container) {
                 })}
               </div>
               <div class="home-feature-float-card">
-                <span>Vantage Point</span>
+                <span>Lane Ready</span>
                 <strong>${leadStation?.station.name || 'Open lane'}</strong>
-                <small>${leadStation?.station.description || leadStation?.station.query || 'Pick a station lane and let the rest of the room fall into place.'}</small>
-              </div>
-              <div class="home-feature-track-card">
-                <span>Now Framed</span>
-                <strong>${spotlightTrack?.title || 'Velvet'}</strong>
-                <small>${spotlightTrack?.artist || 'Private listening club'}</small>
-              </div>
-            </div>
-            <div class="home-feature-stat-row">
-              <div class="home-feature-stat">
-                <small>Saved</small>
-                <strong>${formatCount(state.liked.length, 'song')}</strong>
-              </div>
-              <div class="home-feature-stat">
-                <small>Stacks</small>
-                <strong>${formatCount(state.playlists.length, 'stack')}</strong>
-              </div>
-              <div class="home-feature-stat">
-                <small>Returns</small>
-                <strong>${formatCount(state.recent.length, 'return')}</strong>
+                <small>${leadStation?.station.description || leadStation?.station.query || 'Pick a lane and let the chamber take over from there.'}</small>
               </div>
             </div>
           </div>
@@ -302,8 +264,8 @@ function renderHomeView(container) {
       <aside class="panel home-companion-panel">
         <div class="home-companion-block home-companion-block--voice">
           <span class="panel-kicker">Depth Map</span>
-          <h3 class="home-side-title">Move through the room by lane</h3>
-          <p class="section-copy">Perspective works best when every alternate path feels placed on purpose instead of piled on top of the hero.</p>
+          <h3 class="home-side-title">Choose a lane</h3>
+          <p class="section-copy">Open one route from here and let the station page carry the heavier listening controls.</p>
           <div class="home-axis-list">
             ${spotlightStations.map(homeAxisRow).join('')}
           </div>
@@ -313,8 +275,8 @@ function renderHomeView(container) {
 
         <div class="home-companion-block home-companion-block--stack">
           <span class="panel-kicker">Room Stack</span>
-          <div class="home-side-title">${primaryPlaylist?.name || 'Keep building the room'}</div>
-          <p class="section-copy">${primaryPlaylistSignature?.summary || 'Build the current room into a real stack so this side of Velvet starts reacting like a library, not a placeholder.'}</p>
+          <div class="home-side-title">${primaryPlaylist?.name || 'Current room'}</div>
+          <p class="section-copy">${primaryPlaylistSignature?.summary || 'Build or save the room once, then keep using Library as the place where it evolves.'}</p>
           ${primaryPlaylistSignature?.tags?.length ? `<div class="meta-tags">${primaryPlaylistSignature.tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>` : ''}
           <div class="home-side-list">
             ${primaryPlaylistPreview.length
@@ -323,34 +285,33 @@ function renderHomeView(container) {
           </div>
           <div class="inline-actions">
             ${primaryPlaylist?.songs?.length
-              ? `<button class="btn btn-primary" type="button" data-action="play-home-playlist" data-playlist="${primaryPlaylist.id}">${icon('play')} Play stack</button>`
-              : `<button class="btn btn-primary" type="button" data-action="build-home-stack" data-name="${buildHomeStackName}">${icon('plus')} Build current room</button>
-                 <button class="btn btn-secondary" type="button" data-open-create-playlist>Create empty stack</button>`}
+              ? `<a class="btn btn-secondary" href="library.html">Open library</a>`
+              : `<button class="btn btn-secondary" type="button" data-open-create-playlist>Create empty stack</button>`}
           </div>
         </div>
       </aside>
     </section>
 
     <section class="panel home-band home-band--stations">
-      ${pageHead({ kicker:'Stations', title:'Mood Lanes', copy:'Four angled station worlds arranged around the lead record, each one built to feel like a deliberate side plane instead of a repeated card.', linkText:'See all', linkHref:'stations.html' })}
-      <div class="home-station-grid home-station-grid--panoramic">${spotlightStations.map(homeStationCard).join('')}</div>
+      ${pageHead({ kicker:'Stations', title:'Open a lane', copy:'Three strong routes surfaced from the current room, kept lighter than the hero so they feel like options instead of competing fronts.', linkText:'See all', linkHref:'stations.html' })}
+      <div class="home-station-grid home-station-grid--panoramic">${featuredStations.map(homeStationCard).join('')}</div>
     </section>
 
     <section class="panel home-band home-band--queue">
-      ${pageHead({ kicker:'For tonight', title:'Frontline Queue', copy:'A front-facing queue pulled from recents, likes, artist essentials, and the catalog core, ordered to keep the home scene coherent.' })}
-      <div class="song-list home-song-grid home-song-grid--wide">${curatedTracks.map(songRow).join('')}</div>
+      ${pageHead({ kicker:'For tonight', title:'Room picks', copy:'A shorter queue pulled from returns, saves, and the catalog core so the home page stays quick to scan.' })}
+      <div class="song-list home-song-grid home-song-grid--wide">${displayCuratedTracks.map(songRow).join('')}</div>
     </section>
 
     <section class="home-editorial-grid home-lower-grid">
       <article class="panel home-rail-panel home-rail-panel--returns">
-        ${pageHead({ kicker:'Return path', title:'Continue Listening', copy:'The quickest route back into the songs that already shaped your last session, kept in a clear lower layer instead of competing with the hero.' })}
+        ${pageHead({ kicker:'Return path', title:'Continue listening', copy:'A clean lower rail for the tracks that already shaped the room.' })}
         <div class="home-side-list">
           ${returnTracks.length ? returnTracks.map((track, index) => homeMiniRow(track, index, 'play-home-return')).join('') : emptyState('No recent or liked songs yet. Start the room and Velvet will hold onto the right moments here.')}
         </div>
       </article>
 
       <article class="panel home-rail-panel home-rail-panel--focus">
-        ${pageHead({ kicker:'Essentials', title:'Artist Layer', copy:'A dedicated lower rail built from the featured voice instead of another generic card wall, so the perspective hierarchy stays intact.' })}
+        ${pageHead({ kicker:'Essentials', title:'Artist layer', copy:'A tighter lower shelf built from the featured voice, not another full page of competing cards.' })}
         <div class="home-side-list">
           ${artistEssentials.length ? artistEssentials.map((track, index) => homeMiniRow(track, index, 'play-home-essential')).join('') : emptyState('No artist essentials yet. Velvet will surface them as the catalog grows.')}
         </div>
