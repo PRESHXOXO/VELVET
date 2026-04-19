@@ -264,8 +264,10 @@ export async function renderStationsPage(container) {
                 <p class="section-copy">Five across on desktop, with the selected station feeding the chamber player above instead of splitting the page into two competing showcases.</p>
               </div>
             </div>
-            <div class="stations-list">
-              ${stations.map((item, index) => stationBrowserItem(item, index, index === activeIndex)).join('')}
+            <div class="stations-atlas-scroll">
+              <div class="stations-list">
+                ${stations.map((item, index) => stationBrowserItem(item, index, index === activeIndex)).join('')}
+              </div>
             </div>
           </article>
         </div>
