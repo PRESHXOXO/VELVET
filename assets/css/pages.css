@@ -1098,7 +1098,7 @@
   position:sticky;
   top:88px;
   display:grid;
-  grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+  grid-template-columns:minmax(320px,.98fr) minmax(360px,1.02fr);
   gap:18px 20px;
   align-items:start;
   padding:20px;
@@ -1119,15 +1119,15 @@
 .page-home .home-side-title{
   margin-top:2px;
   font-family:"Oswald",sans-serif;
-  font-size:clamp(1.5rem,2vw,2rem);
+  font-size:clamp(1.34rem,1.7vw,1.86rem);
   line-height:.9;
   letter-spacing:.05em;
   text-transform:uppercase;
 }
 .page-home .home-axis-list{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px 12px;
   margin-top:4px;
 }
 .page-home .home-axis-row{
@@ -1304,6 +1304,7 @@
   .page-home .home-station-grid--panoramic,
   .page-home .home-song-grid--wide{grid-template-columns:1fr}
   .page-home .home-companion-panel{grid-template-columns:1fr}
+  .page-home .home-axis-list{grid-template-columns:1fr}
   .page-home .home-feature-scene{
     width:100%;
     min-height:360px;
