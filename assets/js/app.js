@@ -12,7 +12,7 @@ import { renderStationsPage } from './features/stations.js';
 const ROUTES = {
   home: {
     path: 'index.html',
-    bodyClass: 'page-home',
+    bodyClass: 'page-velvet page-home',
     title: 'Velvet | Home',
     description: 'Velvet home view with a perspective-driven listening room for after-hours R&B and soul.',
     brandNote: 'After-hours R&B and soul arranged in layered lanes, guided depth, and a quieter home view.',
@@ -24,7 +24,7 @@ const ROUTES = {
   },
   stations: {
     path: 'stations.html',
-    bodyClass: 'page-home page-stations',
+    bodyClass: 'page-velvet page-stations',
     title: 'Velvet | Stations',
     description: 'Velvet stations view with perspective-driven mood lanes, side corridors, and a front-focused station mix.',
     brandNote: 'After-hours R&B and soul arranged in layered lanes, guided depth, and station-led movement.',
@@ -36,7 +36,7 @@ const ROUTES = {
   },
   search: {
     path: 'search.html',
-    bodyClass: 'page-home page-search',
+    bodyClass: 'page-velvet page-search',
     title: 'Velvet | Search',
     description: 'Velvet search view with perspective-driven radar, layered local matches, and live YouTube pulls.',
     brandNote: 'After-hours R&B and soul arranged in layered lanes, guided depth, and search-first motion.',
@@ -48,7 +48,7 @@ const ROUTES = {
   },
   artists: {
     path: 'artists.html',
-    bodyClass: 'page-home page-artists',
+    bodyClass: 'page-velvet page-artists',
     title: 'Velvet | Artists',
     description: 'Velvet artist view mapped as a perspective-driven index of voices, essentials, and front-plane profiles.',
     brandNote: 'After-hours R&B and soul arranged in layered lanes, guided depth, and artist-first focus.',
@@ -60,7 +60,7 @@ const ROUTES = {
   },
   library: {
     path: 'library.html',
-    bodyClass: 'page-home page-library',
+    bodyClass: 'page-velvet page-library',
     title: 'Velvet | Library',
     description: 'Velvet library view with perspective-driven stacks, saved tracks, and return lanes kept in one memory room.',
     brandNote: 'After-hours R&B and soul arranged in layered lanes, guided depth, and a memory-first library.',

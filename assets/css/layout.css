@@ -334,24 +334,26 @@
   .player-bar{flex-wrap:wrap;height:auto}
   .player-center{order:3;width:100%}
 }
-.page-home .app-shell{
+.page-velvet .app-shell{
   gap:20px;
+}
+.page-home .app-shell{
   perspective:1800px;
 }
-.page-home .sidebar,
-.page-home .main-shell{
+.page-velvet .sidebar,
+.page-velvet .main-shell{
   border-color:rgba(248,228,232,.08);
   border-radius:24px 24px 0 0;
-  box-shadow:0 18px 34px rgba(0,0,0,.18);
+  box-shadow:0 14px 28px rgba(0,0,0,.16);
 }
-.page-home .sidebar{
+.page-velvet .sidebar{
   background:
-    linear-gradient(180deg,rgba(34,10,14,.8),rgba(16,6,9,.7)),
-    linear-gradient(130deg,rgba(198,31,61,.12),transparent 38%),
-    radial-gradient(circle at top right,rgba(255,138,132,.1),transparent 26%);
+    linear-gradient(180deg,rgba(30,10,14,.72),rgba(15,6,9,.62)),
+    linear-gradient(130deg,rgba(var(--accent-rgb),.1),transparent 38%),
+    radial-gradient(circle at top right,rgba(var(--accent-2-rgb),.08),transparent 26%);
 }
-.page-home .sidebar::after,
-.page-home .main-shell::after{
+.page-velvet .sidebar::after,
+.page-velvet .main-shell::after{
   content:"";
   position:absolute;
   inset:0;
@@ -360,99 +362,99 @@
     linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
     linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
   background-size:100% 52px,52px 100%;
-  opacity:.06;
+  opacity:.04;
 }
-.page-home .brand{
+.page-velvet .brand{
   padding:26px 22px 18px;
   border-bottom-color:rgba(248,228,232,.06);
 }
-.page-home .brand-mark{
+.page-velvet .brand-mark{
   font-family:"Oswald",sans-serif;
   font-size:32px;
   letter-spacing:.22em;
   text-transform:uppercase;
 }
-.page-home .brand-mark span,
-.page-home .topbar-signature span{color:var(--accent-2)}
-.page-home .brand-note,
-.page-home .nav-label,
-.page-home .topbar-overline,
-.page-home .player-kicker{
+.page-velvet .brand-mark span,
+.page-velvet .topbar-signature span{color:var(--accent-2)}
+.page-velvet .brand-note,
+.page-velvet .nav-label,
+.page-velvet .topbar-overline,
+.page-velvet .player-kicker{
   font-family:"JetBrains Mono",monospace;
 }
-.page-home .sidebar-nav{padding:16px 12px}
-.page-home .nav-item{
+.page-velvet .sidebar-nav{padding:16px 12px}
+.page-velvet .nav-item{
   padding:9px 11px;
   border-color:rgba(248,228,232,0);
   color:rgba(244,225,229,.78);
 }
-.page-home .nav-item:hover{
+.page-velvet .nav-item:hover{
   transform:translateX(4px);
   background:rgba(255,255,255,.04);
   border-color:rgba(248,228,232,.08);
 }
-.page-home .nav-item.active{
-  background:linear-gradient(135deg,rgba(198,31,61,.28),rgba(255,255,255,.06));
+.page-velvet .nav-item.active{
+  background:linear-gradient(135deg,rgba(var(--accent-rgb),.22),rgba(255,255,255,.04));
   border-color:rgba(248,228,232,.14);
-  box-shadow:0 12px 24px rgba(0,0,0,.14);
+  box-shadow:0 10px 20px rgba(0,0,0,.12);
 }
-.page-home .nav-icon{
+.page-velvet .nav-icon{
   background:rgba(255,255,255,.034);
   border-color:rgba(248,228,232,.08);
 }
-.page-home .sidebar-foot{
+.page-velvet .sidebar-foot{
   border-top-color:rgba(248,228,232,.06);
   background:linear-gradient(180deg,rgba(255,255,255,.024),rgba(255,255,255,.012));
 }
-.page-home .main-shell{
+.page-velvet .main-shell{
   background:
-    radial-gradient(circle at top right,rgba(198,31,61,.22),transparent 24%),
-    radial-gradient(circle at 16% 0%,rgba(241,179,111,.12),transparent 20%),
-    linear-gradient(180deg,rgba(26,9,12,.84),rgba(12,5,7,.74));
+    radial-gradient(circle at top right,rgba(var(--accent-rgb),.18),transparent 24%),
+    radial-gradient(circle at 16% 0%,rgba(var(--warm-rgb),.1),transparent 20%),
+    linear-gradient(180deg,rgba(24,9,12,.8),rgba(12,5,7,.72));
 }
-.page-home .topbar{
+.page-velvet .topbar{
   padding:18px 26px 12px;
-  background:linear-gradient(180deg,rgba(26,9,12,.84) 72%,rgba(26,9,12,0));
+  background:linear-gradient(180deg,rgba(22,8,11,.78) 72%,rgba(22,8,11,0));
 }
-.page-home .topbar::after{
+.page-velvet .topbar::after{
   left:26px;
   right:26px;
-  background:linear-gradient(90deg,transparent,rgba(248,228,232,.14),transparent);
+  background:linear-gradient(90deg,transparent,rgba(248,228,232,.1),transparent);
 }
-.page-home .topbar-brand{gap:6px}
-.page-home .topbar-signature{
+.page-velvet .topbar-brand{gap:6px}
+.page-velvet .topbar-signature{
   font-family:"Oswald",sans-serif;
   font-size:30px;
   letter-spacing:.18em;
   text-transform:uppercase;
 }
-.page-home .topbar-search{
+.page-velvet .topbar-search{
   border-color:rgba(248,228,232,.12);
-  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.022));
-  box-shadow:0 12px 24px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.06);
+  background:linear-gradient(180deg,rgba(255,255,255,.042),rgba(255,255,255,.018));
+  box-shadow:0 10px 20px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.05);
 }
-.page-home .topbar-search svg{stroke:rgba(228,204,208,.7)}
-.page-home .topbar-links{
+.page-velvet .topbar-search svg{stroke:rgba(228,204,208,.7)}
+.page-velvet .topbar-links{
   border-color:rgba(248,228,232,.08);
   background:rgba(255,255,255,.028);
 }
-.page-home .top-link{
+.page-velvet .top-link{
   color:rgba(244,225,229,.76);
 }
-.page-home .top-link:hover,
-.page-home .top-link.active{
-  background:linear-gradient(135deg,rgba(198,31,61,.22),rgba(255,255,255,.04));
+.page-velvet .top-link:hover,
+.page-velvet .top-link.active{
+  background:linear-gradient(135deg,rgba(var(--accent-rgb),.18),rgba(255,255,255,.035));
   border-color:rgba(248,228,232,.12);
 }
-.page-home .content{padding-bottom:154px}
-.page-home .player-bar{
+.page-velvet .content{padding-bottom:154px}
+.page-velvet .player-bar{
   border-color:rgba(248,228,232,.09);
-  background:linear-gradient(180deg,rgba(24,8,11,.78),rgba(12,5,7,.7));
+  background:linear-gradient(180deg,rgba(22,8,11,.76),rgba(12,5,7,.68));
 }
-.page-home .player-bar::before{
-  background:linear-gradient(90deg,rgba(198,31,61,.24),transparent 28%,transparent 72%,rgba(241,179,111,.14));
+.page-velvet .player-bar::before{
+  background:linear-gradient(90deg,rgba(var(--accent-rgb),.22),transparent 28%,transparent 72%,rgba(var(--warm-rgb),.12));
 }
-.page-home .vol-wrap{
+.page-velvet .vol-wrap{
   border-color:rgba(248,228,232,.1);
   background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.018));
 }
