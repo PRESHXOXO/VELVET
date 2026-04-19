@@ -9,6 +9,53 @@ function formatStationOrdinal(index) {
   return String(index + 1).padStart(2, '0');
 }
 
+function normalizeMatchText(value = '') {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/&amp;/g, ' and ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function compactMatchText(value = '') {
+  return normalizeMatchText(value).replace(/\s+/g, '');
+}
+
+function matchesStationTerm(haystack = '', term = '') {
+  const normalizedTerm = normalizeMatchText(term);
+  if (!normalizedTerm) return false;
+
+  const compactTerm = normalizedTerm.replace(/\s+/g, '');
+  const normalizedHaystack = normalizeMatchText(haystack);
+  const compactHaystack = compactMatchText(haystack);
+
+  return normalizedHaystack.includes(normalizedTerm) || compactHaystack.includes(compactTerm);
+}
+
+function filterStationLiveTracks(tracks = [], station = {}, localTracks = []) {
+  const matchTerms = Array.isArray(station.matchTerms) ? station.matchTerms : [];
+  const localArtists = localTracks.map(track => track?.artist).filter(Boolean);
+  const terms = [...new Set([...matchTerms, ...localArtists].map(normalizeMatchText).filter(Boolean))];
+  const blockedTerms = ['playlist', 'full album', 'full mixtape', 'slowed', 'reverb', 'karaoke', 'instrumental', '8d', 'sped up', 'loop'];
+
+  return tracks.filter(track => {
+    const haystack = `${track?.title || ''} ${track?.artist || ''}`;
+    const normalizedHaystack = normalizeMatchText(haystack);
+    if (!normalizedHaystack) return false;
+
+    if (blockedTerms.some(term => normalizedHaystack.includes(term))) {
+      return false;
+    }
+
+    if (!terms.length) {
+      return true;
+    }
+
+    return terms.some(term => matchesStationTerm(haystack, term));
+  });
+}
+
 function isStationsRoute() {
   const fileName = window.location.pathname.split('/').pop() || 'index.html';
   return fileName === 'stations.html';
@@ -16,7 +63,7 @@ function isStationsRoute() {
 
 function stationBrowserItem(station, index, isActive = false) {
   const seedCount = (station.seedIndexes || []).length;
-  const sourceLabel = seedCount ? `${seedCount} seeded` : 'Live-led';
+  const sourceLabel = seedCount ? `${seedCount} curated` : 'Live-led';
   const tags = (station.tags || []).slice(0, 2);
 
   return `
@@ -55,11 +102,25 @@ export async function renderStationsPage(container) {
   const localTracks = getStationTracks(activeIndex);
   const liveCache = container.__velvetStationLiveCache || new Map();
   container.__velvetStationLiveCache = liveCache;
+  const liveCount = Number.isFinite(station.liveCount)
+    ? Math.max(0, station.liveCount)
+    : (localTracks.length ? 4 : 8);
 
   let liveTracks = liveCache.get(activeIndex);
   if (!liveTracks) {
     try {
-      liveTracks = await fetchSongs(station.query, 8);
+      if (!liveCount) {
+        liveTracks = [];
+      } else {
+        const fetchedTracks = await fetchSongs(station.query, Math.max(liveCount * 2, liveCount));
+        const filteredTracks = filterStationLiveTracks(fetchedTracks, station, localTracks);
+
+        if (localTracks.length) {
+          liveTracks = filteredTracks.slice(0, liveCount);
+        } else {
+          liveTracks = (filteredTracks.length ? filteredTracks : fetchedTracks).slice(0, liveCount);
+        }
+      }
     } catch (_err) {
       liveTracks = [];
     }
@@ -78,7 +139,7 @@ export async function renderStationsPage(container) {
 
   const focusTags = (station.tags || []).slice(0, 4);
   const seedCount = (station.seedIndexes || []).length;
-  const seedLabel = seedCount ? `${seedCount} seeded anchors` : 'Open live route';
+  const seedLabel = seedCount ? `${seedCount} curated anchors` : 'Live-led route';
   const chamberState = getActiveQueueTrack(queue);
   const chamberTrack = chamberState.track;
   const chamberArtwork =
@@ -114,7 +175,7 @@ export async function renderStationsPage(container) {
             </div>
             <div class="station-player-route-note">
               <span>Route signal</span>
-              <strong>${station.query}</strong>
+              <strong>${station.signal || station.name}</strong>
               <small>${seedLabel}</small>
             </div>
           </div>

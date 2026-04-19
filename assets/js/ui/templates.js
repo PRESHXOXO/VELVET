@@ -82,14 +82,15 @@ export function mediaSlot({
 }
 
 export function stationCard(station, index){
-  const seedCount = (station.seedIndexes || []).length || 'Live';
+  const seedCount = (station.seedIndexes || []).length;
+  const seedLabel = seedCount ? `${seedCount} curated` : 'Live-led';
   const stationImage = station.cardImage || station.image || station.heroImage || getStationVisual(index);
 
   return `
     <article class="station-card" style="--station-gradient:${station.gradient}">
       <div class="station-card-top">
         <span class="panel-kicker">Station View</span>
-        <span class="station-card-seed">${seedCount} seeds</span>
+        <span class="station-card-seed">${seedLabel}</span>
       </div>
       <div class="station-card-shell">
         <div class="station-card-copy">

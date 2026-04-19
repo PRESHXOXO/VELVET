@@ -116,15 +116,9 @@ export function getStationTracks(index) {
   if (!station) return [];
 
   const indexes = Array.isArray(station.seedIndexes) ? station.seedIndexes : [];
-  const seeded = indexes
+  return indexes
     .map(i => catalogTracks[i])
     .filter(Boolean);
-
-  if (seeded.length) return seeded;
-
-  const safeLength = Math.max(1, catalogTracks.length);
-  const start = index % safeLength;
-  return catalogTracks.slice(start, start + 6);
 }
 
 export function getStationVisual(index) {

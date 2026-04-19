@@ -105,12 +105,14 @@ function homeAxisRow(entry, slot) {
 function homeStationCard(entry) {
   const stationLeadTrack = getStationTracks(entry.index)[0];
   const stationImage = entry.station.cardImage || entry.station.image || getStationVisual(entry.index) || (stationLeadTrack ? getTrackArtwork(stationLeadTrack) : '');
+  const seedCount = (entry.station.seedIndexes || []).length;
+  const stationSourceLabel = seedCount ? `${seedCount} curated` : 'Live-led';
 
   return `
     <article class="home-station-card" style="--station-gradient:${entry.station.gradient};${stationImage ? `--station-image:url('${stationImage}')` : ''}">
       <div class="home-station-top">
         <span class="panel-kicker">Station Lane</span>
-        <span class="home-station-meta">${(entry.station.seedIndexes || []).length || 'Live'} seeds</span>
+        <span class="home-station-meta">${stationSourceLabel}</span>
       </div>
       <div class="home-station-shell">
         <div class="home-station-copy">
