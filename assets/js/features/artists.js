@@ -154,9 +154,10 @@ function relatedArtistChip(entry) {
 
 function rotationTrackCard(track, index, isCurrent = false) {
   const artwork = getTrackArtwork(track);
+  const emphasisClass = index === 0 ? 'is-featured' : (index === 2 ? 'is-tall' : '');
 
   return `
-    <button class="artist-rotation-card ${isCurrent ? 'is-current' : ''}" type="button" data-action="play-artist-track" data-index="${index}" data-video="${track.videoId}">
+    <button class="artist-rotation-card ${emphasisClass} ${isCurrent ? 'is-current' : ''}" type="button" data-action="play-artist-track" data-index="${index}" data-video="${track.videoId}">
       <div class="artist-rotation-art">
         ${artwork
           ? `<img src="${artwork}" alt="${track.title || 'Track artwork'}">`
@@ -200,10 +201,10 @@ export function renderArtistsPage(container) {
 
   const leadLine = getArtistLeadLine(activeProfile, tracks);
   const focusTags = (activeProfile?.tags || []).slice(0, 4);
-  const relatedArtists = getRelatedArtists(activeProfile, profiles);
+  const relatedArtists = getRelatedArtists(activeProfile, profiles, 4);
   const isPinnedArtist = isFavoriteArtist(activeSlug);
   const visibleProfiles = filteredProfiles.filter(profile => profile.slug !== activeSlug);
-  const currentRotation = tracks.slice(0, 8);
+  const currentRotation = tracks.slice(0, 5);
   const activeTrack = tracks.find(track => track.videoId === state.currentTrack?.videoId) || tracks[0] || null;
   const laneSummary = activeLetter === 'All' ? 'All voices' : `${activeLetter} lane`;
   const activeEra = getArtistEraLabel(tracks);
@@ -216,7 +217,7 @@ export function renderArtistsPage(container) {
       ${pageHead({
         kicker: 'Velvet Gallery',
         title: 'Artist Salon',
-        copy: 'Move through artists like a velvet gallery: quiet rail, one featured voice, and a smooth rotation strip underneath.',
+        copy: 'Move through one voice at a time: quiet rail, lifted portrait stage, and a recessed listening shelf.',
         linkText: 'Back Home',
         linkHref: 'index.html'
       })}
@@ -226,7 +227,7 @@ export function renderArtistsPage(container) {
           <div class="artists-gallery-rail-head">
             <span class="panel-kicker">Artist Index</span>
             <div class="section-title">Select A Voice</div>
-            <p class="section-copy">Use the rail to move the whole room toward one artist at a time.</p>
+            <p class="section-copy">A quieter selector rail that lets the featured stage stay in front.</p>
           </div>
 
           <div class="alpha-bar artist-alpha-bar">
@@ -312,14 +313,19 @@ export function renderArtistsPage(container) {
                   : `<div class="artist-stage-fallback">${getArtistInitials(activeProfile?.name)}</div>`}
                 <div class="artist-stage-visual-glass"></div>
               </div>
+              <div class="artist-stage-floating-card">
+                <span class="panel-kicker">Now Holding</span>
+                <strong>${activeTrack?.title || 'Quiet room'}</strong>
+                <small>${activeTrack?.artist || 'Choose a track from the listening shelf.'}</small>
+              </div>
             </div>
           </div>
 
           <div class="artist-rotation-band">
             <div class="artist-rotation-head">
               <div>
-                <span class="panel-kicker">On Rotation</span>
-                <div class="section-title">Current Room</div>
+                <span class="panel-kicker">Listening Shelf</span>
+                <div class="section-title">Room In View</div>
               </div>
               <p class="section-copy">${rotationSummary}</p>
             </div>
