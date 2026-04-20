@@ -18,6 +18,8 @@ export const state = {
   playlists: readStorage('vlv_playlists', []).map(normalizePlaylist),
   favoriteStations: readStorage('vlv_favorite_stations', []),
   recentStations: readStorage('vlv_recent_stations', []),
+  favoriteArtists: readStorage('vlv_favorite_artists', []),
+  recentArtists: readStorage('vlv_recent_artists', []),
   queue: readSession('vlv_queue', []),
   queueIndex: readSession('vlv_queue_index', 0),
   currentTrack: readSession('vlv_current_track', null),
@@ -31,6 +33,8 @@ export function refreshLibraryState(){
   state.playlists = readStorage('vlv_playlists', []).map(normalizePlaylist);
   state.favoriteStations = readStorage('vlv_favorite_stations', []);
   state.recentStations = readStorage('vlv_recent_stations', []);
+  state.favoriteArtists = readStorage('vlv_favorite_artists', []);
+  state.recentArtists = readStorage('vlv_recent_artists', []);
 }
 
 export function syncLibrary(){
@@ -40,6 +44,8 @@ export function syncLibrary(){
   writeStorage('vlv_playlists', state.playlists);
   writeStorage('vlv_favorite_stations', state.favoriteStations);
   writeStorage('vlv_recent_stations', state.recentStations);
+  writeStorage('vlv_favorite_artists', state.favoriteArtists);
+  writeStorage('vlv_recent_artists', state.recentArtists);
 }
 
 export function syncPlayback(){
@@ -129,5 +135,30 @@ export function pushRecentStation(index){
   if(!Number.isInteger(safeIndex) || safeIndex < 0){ return; }
 
   state.recentStations = [safeIndex, ...state.recentStations.filter(item => item !== safeIndex)].slice(0, 12);
+  syncLibrary();
+}
+
+export function isFavoriteArtist(slug){
+  const safeSlug = String(slug || '').trim();
+  return safeSlug ? state.favoriteArtists.includes(safeSlug) : false;
+}
+
+export function toggleFavoriteArtist(slug){
+  const safeSlug = String(slug || '').trim();
+  if(!safeSlug){ return false; }
+
+  const exists = isFavoriteArtist(safeSlug);
+  state.favoriteArtists = exists
+    ? state.favoriteArtists.filter(item => item !== safeSlug)
+    : [safeSlug, ...state.favoriteArtists.filter(item => item !== safeSlug)].slice(0, 18);
+  syncLibrary();
+  return !exists;
+}
+
+export function pushRecentArtist(slug){
+  const safeSlug = String(slug || '').trim();
+  if(!safeSlug){ return; }
+
+  state.recentArtists = [safeSlug, ...state.recentArtists.filter(item => item !== safeSlug)].slice(0, 18);
   syncLibrary();
 }

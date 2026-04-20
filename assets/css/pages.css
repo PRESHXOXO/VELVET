@@ -1379,6 +1379,228 @@
   grid-template-columns:repeat(3,minmax(0,1fr));
   gap:12px;
 }
+.page-artists .artist-alpha-bar{
+  margin-bottom:14px;
+}
+.page-artists .artists-layout{
+  grid-template-columns:minmax(0,1.06fr) minmax(380px,.94fr);
+  gap:16px;
+}
+.page-artists .artists-browser-panel{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  padding:18px;
+  background:
+    radial-gradient(circle at top right,rgba(var(--accent-rgb),.1),transparent 28%),
+    linear-gradient(160deg,rgba(19,7,10,.9),rgba(11,4,6,.88));
+}
+.page-artists .artists-browser-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(220px,.5fr);
+  gap:14px;
+  align-items:start;
+}
+.page-artists .artists-browser-note{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:14px 16px;
+  border-radius:18px;
+  border:1px solid rgba(248,228,232,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+}
+.page-artists .artists-browser-note span,
+.page-artists .artist-plane-preview span,
+.page-artists .artist-plane-count{
+  font-family:"JetBrains Mono",monospace;
+  font-size:8px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+.page-artists .artists-browser-note span{
+  color:rgba(246,224,228,.58);
+}
+.page-artists .artists-browser-note strong{
+  font-family:"Oswald",sans-serif;
+  font-size:1.08rem;
+  line-height:1;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.page-artists .artists-browser-note small{
+  color:rgba(236,216,220,.72);
+  font-size:10px;
+  line-height:1.55;
+}
+.page-artists .artist-plane-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.page-artists .artist-plane-card{
+  position:relative;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  padding:14px;
+  border-radius:20px;
+  border:1px solid rgba(248,228,232,.08);
+  background:
+    linear-gradient(180deg,rgba(14,5,8,.82),rgba(9,4,6,.92)),
+    radial-gradient(circle at top right,rgba(255,255,255,.08),transparent 34%),
+    var(--artist-gradient,linear-gradient(135deg,#161116,#301921));
+  overflow:hidden;
+  text-align:left;
+  transition:transform .24s cubic-bezier(.2,.9,.28,1),border-color .22s ease,box-shadow .22s ease;
+}
+.page-artists .artist-plane-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:var(--artist-image);
+  background-size:cover;
+  background-position:center;
+  opacity:.12;
+  filter:blur(24px) saturate(1.06);
+  transform:scale(1.08);
+  pointer-events:none;
+}
+.page-artists .artist-plane-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(248,228,232,.14);
+  box-shadow:0 18px 28px rgba(0,0,0,.18);
+}
+.page-artists .artist-plane-card.is-active{
+  border-color:rgba(248,228,232,.16);
+  box-shadow:0 20px 34px rgba(0,0,0,.2), inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.page-artists .artist-plane-visual,
+.page-artists .artist-plane-copy{
+  position:relative;
+  z-index:1;
+}
+.page-artists .artist-plane-visual{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-height:188px;
+  padding:12px;
+  border-radius:18px;
+  overflow:hidden;
+  border:1px solid rgba(248,228,232,.1);
+  background:
+    linear-gradient(180deg,rgba(12,4,6,.08),rgba(12,4,6,.68)),
+    var(--artist-gradient,linear-gradient(135deg,#161116,#301921));
+}
+.page-artists .artist-plane-image,
+.page-artists .artist-plane-fallback{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+.page-artists .artist-plane-image{
+  object-fit:cover;
+  transition:transform .28s cubic-bezier(.2,.9,.28,1),filter .24s ease;
+}
+.page-artists .artist-plane-fallback{
+  display:grid;
+  place-items:center;
+  font-family:"Oswald",sans-serif;
+  font-size:2.8rem;
+  letter-spacing:.08em;
+  color:rgba(248,228,232,.88);
+  background:
+    radial-gradient(circle at 24% 20%,rgba(255,255,255,.16),transparent 30%),
+    linear-gradient(160deg,rgba(18,6,8,.24),rgba(18,6,8,.64)),
+    var(--artist-gradient,linear-gradient(135deg,#161116,#301921));
+}
+.page-artists .artist-plane-overlay{
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(180deg,rgba(12,4,6,.08),rgba(12,4,6,.28) 42%,rgba(12,4,6,.84)),
+    radial-gradient(circle at top right,rgba(255,255,255,.16),transparent 34%);
+}
+.page-artists .artist-plane-top,
+.page-artists .artist-plane-preview{
+  position:relative;
+  z-index:1;
+}
+.page-artists .artist-plane-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.page-artists .artist-plane-count{
+  display:inline-flex;
+  align-items:center;
+  min-height:30px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1px solid rgba(248,228,232,.14);
+  background:rgba(12,4,6,.22);
+  color:rgba(248,228,232,.82);
+}
+.page-artists .artist-plane-preview{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.page-artists .artist-plane-preview span{
+  color:rgba(248,228,232,.64);
+}
+.page-artists .artist-plane-preview strong{
+  font-family:"Oswald",sans-serif;
+  font-size:1.06rem;
+  line-height:1;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.page-artists .artist-plane-preview small{
+  max-width:22ch;
+  color:rgba(236,216,220,.7);
+  font-size:10px;
+  line-height:1.5;
+}
+.page-artists .artist-plane-copy{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.page-artists .artist-plane-copy strong{
+  font-family:"Oswald",sans-serif;
+  font-size:1.18rem;
+  line-height:1;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.page-artists .artist-plane-copy > span{
+  display:-webkit-box;
+  color:rgba(236,216,220,.74);
+  font-size:10.5px;
+  line-height:1.58;
+  overflow:hidden;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+}
+.page-artists .artist-plane-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.page-artists .artist-plane-card:hover .artist-plane-image,
+.page-artists .artist-plane-card.is-active .artist-plane-image{
+  transform:scale(1.06);
+  filter:saturate(1.08);
+}
+.page-artists .artist-plane-card.is-active .artist-plane-visual{
+  border-color:rgba(248,228,232,.18);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+}
 .page-artists .artists-perspective-card,
 .page-library .library-memory-card,
 .page-search .search-lane-card,
@@ -1449,6 +1671,66 @@
   grid-template-columns:repeat(3,minmax(0,1fr));
   gap:10px;
   margin-top:16px;
+}
+.page-artists .artist-nearby-panel{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:16px;
+  padding:14px;
+  border-radius:18px;
+  border:1px solid rgba(248,228,232,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.048),rgba(255,255,255,.02));
+  box-shadow:0 14px 24px rgba(0,0,0,.12);
+}
+.page-artists .artist-nearby-head{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.page-artists .artist-nearby-row{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.page-artists .artist-nearby-chip{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:12px 14px;
+  border-radius:16px;
+  border:1px solid rgba(248,228,232,.08);
+  background:rgba(255,255,255,.03);
+  text-align:left;
+  transition:transform .22s cubic-bezier(.2,.9,.28,1),border-color .22s ease,background .22s ease;
+}
+.page-artists .artist-nearby-chip:hover{
+  transform:translateY(-2px);
+  border-color:rgba(248,228,232,.14);
+  background:rgba(255,255,255,.05);
+}
+.page-artists .artist-nearby-chip span{
+  font-family:"Oswald",sans-serif;
+  font-size:1rem;
+  line-height:1;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+.page-artists .artist-nearby-chip strong{
+  color:rgba(236,216,220,.72);
+  font-size:10px;
+  line-height:1.5;
+  font-weight:600;
+}
+.page-artists .artist-track-head{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-bottom:14px;
 }
 
 .page-library .library-hero-panel{
@@ -1569,11 +1851,16 @@
 
 @media (max-width:980px){
   .page-artists .artists-perspective-band,
+  .page-artists .artist-plane-grid,
+  .page-artists .artist-nearby-row,
   .page-library .library-memory-strip,
   .page-search .search-lane-grid,
   .page-stations .stations-browser-stats,
   .page-stations .station-detail-metrics,
   .page-artists .artist-detail-metrics{
+    grid-template-columns:1fr;
+  }
+  .page-artists .artists-browser-head{
     grid-template-columns:1fr;
   }
 }
