@@ -7,21 +7,11 @@ import {
   state,
   toggleFavoriteArtist
 } from '../core/state.js';
-import { pageHead, songRow, emptyState, mediaSlot } from '../ui/templates.js';
-import { bindSongRowActions, resolveTrack, toast } from '../core/ui.js';
+import { pageHead, emptyState, getTrackArtwork, icon } from '../ui/templates.js';
+import { bindSongRowActions, toast } from '../core/ui.js';
 import { readStorage, writeStorage } from '../core/storage.js';
 
 const ARTIST_ALPHA_KEY = 'vlv_artist_alpha';
-
-function artistPerspectiveCard({ label, value, copy }) {
-  return `
-    <article class="artists-perspective-card">
-      <span>${label}</span>
-      <strong>${value}</strong>
-      <small>${copy}</small>
-    </article>
-  `;
-}
 
 function normalizeLetter(value = '') {
   const letter = String(value || '').trim().charAt(0).toUpperCase();
@@ -53,54 +43,86 @@ function getArtistInitials(value = '') {
     .join('') || 'V';
 }
 
-function getTrackPreviewLabel(tracks = []) {
-  const leadTrack = tracks[0];
-  if (!leadTrack) return 'Open artist';
-  return leadTrack.title || leadTrack.artist || 'Open artist';
+function shortLine(value = '', fallback = 'Velvet voice.') {
+  const raw = String(value || '').trim();
+  if (!raw) return fallback;
+
+  const trimmed = raw.split(/[.!?]/)[0]?.trim() || raw;
+  return trimmed.endsWith('.') ? trimmed : `${trimmed}.`;
 }
 
-function artistPlaneCard(profile, { trackCount = 0, isActive = false, isPinned = false, isRecent = false } = {}) {
-  const portraitImage = profile?.portraitImage || profile?.image || '';
-  const artistTracks = getArtistTracks(profile.slug);
-  const previewTracks = artistTracks.slice(0, 3);
-  const previewText = previewTracks
-    .map(track => track?.title)
-    .filter(Boolean)
-    .slice(0, 2)
-    .join(' / ');
-  const laneBadge = isActive ? 'Front focus' : (isPinned ? 'Pinned voice' : (isRecent ? 'Recent voice' : 'Artist plane'));
+function getArtistLeadLine(profile, tracks = []) {
+  if (profile?.tagline) {
+    return shortLine(profile.tagline, 'Velvet voice.');
+  }
+
+  if (profile?.description) {
+    return shortLine(profile.description, 'Velvet voice.');
+  }
+
+  if (tracks.length) {
+    return `${tracks.length} tracks are currently revolving around this voice.`;
+  }
+
+  return 'Velvet voice.';
+}
+
+function getTrackCountLabel(trackCount = 0) {
+  return `${trackCount} ${trackCount === 1 ? 'track' : 'tracks'}`;
+}
+
+function getArtistEraLabel(tracks = []) {
+  const years = tracks
+    .map(track => Number(track?.year))
+    .filter(year => Number.isFinite(year) && year > 0);
+
+  if (!years.length) return 'Velvet era';
+
+  const min = Math.min(...years);
+  const max = Math.max(...years);
+  return min === max ? `${min}` : `${min} - ${max}`;
+}
+
+function getArtistAtmosphere(profile, tracks = []) {
+  const tags = (profile?.tags || []).slice(0, 2);
+  if (tags.length) return tags.join(' / ');
+
+  const leadTrack = tracks[0];
+  if (leadTrack?.title) return leadTrack.title;
+
+  return 'Featured voice';
+}
+
+function artistRailFeature(profile, tracks = [], { isPinned = false, isRecent = false } = {}) {
+  const image = profile?.portraitImage || profile?.image || '';
+  const descriptor = getArtistLeadLine(profile, tracks);
 
   return `
-    <button class="artist-plane-card ${isActive ? 'is-active' : ''}" type="button" data-action="open-artist" data-slug="${profile.slug}" style="--artist-gradient:${profile.gradient || 'linear-gradient(135deg,#17121a,#43253c)'};${portraitImage ? `--artist-image:url('${portraitImage}')` : ''}">
-      <div class="artist-plane-visual">
-        ${portraitImage
-          ? `<img class="artist-plane-image" src="${portraitImage}" alt="${profile.name || 'Artist'} portrait">`
-          : `<div class="artist-plane-fallback">${getArtistInitials(profile.name)}</div>`}
-        <div class="artist-plane-overlay"></div>
-        <div class="artist-plane-top">
-          <span class="panel-kicker">${laneBadge}</span>
-          <span class="artist-plane-count">${trackCount} tracks</span>
-        </div>
-        <div class="artist-plane-preview">
-          <span>${previewTracks.length ? 'Preview stack' : 'Profile ready'}</span>
-          <strong>${getTrackPreviewLabel(previewTracks)}</strong>
-          ${previewText ? `<small>${previewText}</small>` : ''}
-        </div>
+    <button class="artist-rail-feature" type="button" data-action="open-artist" data-slug="${profile.slug}">
+      <div class="artist-rail-feature-thumb">
+        ${image
+          ? `<img src="${image}" alt="${profile.name || 'Artist'} portrait">`
+          : `<span>${getArtistInitials(profile.name)}</span>`}
       </div>
-      <div class="artist-plane-copy">
+      <div class="artist-rail-feature-copy">
+        <span class="panel-kicker">${isPinned ? 'Pinned voice' : (isRecent ? 'Recent voice' : 'Featured voice')}</span>
         <strong>${profile.name}</strong>
-        <span>${profile.description || profile.tagline || 'Velvet artist profile.'}</span>
-        <div class="artist-plane-tags">
-          ${(profile.tags || []).slice(0, 3).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}
-          ${isPinned ? '<span class="mini-tag">Pinned</span>' : ''}
-          ${isRecent ? '<span class="mini-tag">Recent</span>' : ''}
-        </div>
+        <small>${descriptor}</small>
       </div>
     </button>
   `;
 }
 
-function getRelatedArtists(activeProfile, profiles = [], limit = 4) {
+function artistRailItem(profile, { trackCount = 0, isPinned = false, isRecent = false } = {}) {
+  return `
+    <button class="artist-rail-item" type="button" data-action="open-artist" data-slug="${profile.slug}">
+      <span>${profile.name}</span>
+      <small>${isPinned ? 'Pinned' : (isRecent ? 'Recent' : getTrackCountLabel(trackCount))}</small>
+    </button>
+  `;
+}
+
+function getRelatedArtists(activeProfile, profiles = [], limit = 5) {
   const activeTags = new Set((activeProfile?.tags || []).map(tag => String(tag).toLowerCase()));
 
   return profiles
@@ -117,15 +139,35 @@ function getRelatedArtists(activeProfile, profiles = [], limit = 4) {
     .slice(0, limit);
 }
 
-function relatedArtistButton(entry) {
-  const sharedLabel = entry.sharedTags.length
+function relatedArtistChip(entry) {
+  const label = entry.sharedTags.length
     ? entry.sharedTags.slice(0, 2).join(' / ')
-    : `${entry.trackCount} seeded tracks`;
+    : getTrackCountLabel(entry.trackCount);
 
   return `
-    <button class="artist-nearby-chip" type="button" data-action="open-artist" data-slug="${entry.profile.slug}">
+    <button class="artist-stage-nearby-chip" type="button" data-action="open-artist" data-slug="${entry.profile.slug}">
       <span>${entry.profile.name}</span>
-      <strong>${sharedLabel}</strong>
+      <small>${label}</small>
+    </button>
+  `;
+}
+
+function rotationTrackCard(track, index, isCurrent = false) {
+  const artwork = getTrackArtwork(track);
+
+  return `
+    <button class="artist-rotation-card ${isCurrent ? 'is-current' : ''}" type="button" data-action="play-artist-track" data-index="${index}" data-video="${track.videoId}">
+      <div class="artist-rotation-art">
+        ${artwork
+          ? `<img src="${artwork}" alt="${track.title || 'Track artwork'}">`
+          : `<div class="artist-rotation-fallback">${getArtistInitials(track.artist || track.title)}</div>`}
+        <span class="artist-rotation-order">${String(index + 1).padStart(2, '0')}</span>
+        <span class="artist-rotation-play">${icon('play')}</span>
+      </div>
+      <div class="artist-rotation-copy">
+        <strong>${track.title || 'Unknown track'}</strong>
+        <small>${track.artist || 'Unknown artist'}</small>
+      </div>
     </button>
   `;
 }
@@ -152,158 +194,142 @@ export function renderArtistsPage(container) {
     : (filteredProfiles[0] || requestedProfile || getArtistProfile(fallbackSlug));
   const activeSlug = activeProfile?.slug || fallbackSlug;
   const tracks = getArtistTracks(activeSlug);
+  const activeImage = activeProfile?.featureImage || activeProfile?.portraitImage || activeProfile?.image || '';
 
   pushRecentArtist(activeSlug);
 
-  const activeImage = activeProfile?.portraitImage || activeProfile?.image || '';
+  const leadLine = getArtistLeadLine(activeProfile, tracks);
   const focusTags = (activeProfile?.tags || []).slice(0, 4);
-  const pinnedCount = state.favoriteArtists.length;
-  const recentLabel = state.recentArtists
-    .slice(0, 3)
-    .map(slug => getArtistProfile(slug)?.name)
-    .filter(Boolean)
-    .join(' / ') || 'No recent voices yet.';
-  const perspectiveCards = [
-    {
-      label: 'Visible profiles',
-      value: `${filteredProfiles.length}`,
-      copy: activeLetter === 'All'
-        ? `All ${profiles.length} voices are visible in the artist plane.`
-        : `${activeLetter} lane is isolating the artists that start there.`
-    },
-    {
-      label: 'Pinned voices',
-      value: `${pinnedCount}`,
-      copy: pinnedCount
-        ? 'Pinned artists stay easy to return to as you move through Velvet.'
-        : 'Pin artists here to keep your core voices close.'
-    },
-    {
-      label: 'Recent focus',
-      value: activeLetter === 'All' ? 'All lanes' : `${activeLetter} lane`,
-      copy: recentLabel
-    }
-  ];
   const relatedArtists = getRelatedArtists(activeProfile, profiles);
   const isPinnedArtist = isFavoriteArtist(activeSlug);
-  const filteredTrackCount = filteredProfiles.reduce((sum, profile) => sum + getArtistTracks(profile.slug).length, 0);
+  const visibleProfiles = filteredProfiles.filter(profile => profile.slug !== activeSlug);
+  const currentRotation = tracks.slice(0, 8);
+  const activeTrack = tracks.find(track => track.videoId === state.currentTrack?.videoId) || tracks[0] || null;
+  const laneSummary = activeLetter === 'All' ? 'All voices' : `${activeLetter} lane`;
+  const activeEra = getArtistEraLabel(tracks);
+  const rotationSummary = activeTrack
+    ? `${activeTrack.title || 'Lead track'} is setting the tone.`
+    : 'Tap a cover to start this voice in the shared player.';
 
   container.innerHTML = `
-    <section class="artists-page">
+    <section class="artists-page artists-gallery-page">
       ${pageHead({
-        kicker: 'Perspective Profiles',
-        title: 'Artist Plane',
-        copy: 'Browse by voice, isolate a letter lane, and turn any artist focus into a playable stack.',
+        kicker: 'Velvet Gallery',
+        title: 'Artist Salon',
+        copy: 'Move through artists like a velvet gallery: quiet rail, one featured voice, and a smooth rotation strip underneath.',
         linkText: 'Back Home',
         linkHref: 'index.html'
       })}
 
-      <div class="alpha-bar artist-alpha-bar">
-        <button class="alpha-btn ${activeLetter === 'All' ? 'active' : ''}" type="button" data-action="filter-artist-letter" data-letter="All">All</button>
-        ${letters.map(letter => `
-          <button class="alpha-btn ${activeLetter === letter ? 'active' : ''}" type="button" data-action="filter-artist-letter" data-letter="${letter}">
-            ${letter}
-          </button>
-        `).join('')}
-      </div>
-
-      <div class="artists-perspective-band">
-        ${perspectiveCards.map(artistPerspectiveCard).join('')}
-      </div>
-
-      <div class="split artists-layout">
-        <section class="panel artists-browser-panel">
-          <div class="artists-browser-head">
-            <div>
-              <span class="panel-kicker">Artist Directory</span>
-              <div class="section-title">Voices by Letter</div>
-              <p class="section-copy">Jump by alphabet, scan the portraits, and move one artist into the front plane at a time.</p>
-            </div>
-            <div class="artists-browser-note">
-              <span>Current lane</span>
-              <strong>${activeLetter === 'All' ? 'All voices' : `${activeLetter} lane`}</strong>
-              <small>${filteredTrackCount} total tracks visible in this pass.</small>
-            </div>
+      <section class="panel artists-gallery-shell" style="--artist-gallery-gradient:${activeProfile?.gradient || 'linear-gradient(135deg,#17121a,#43253c)'};${activeImage ? `--artist-gallery-image:url('${activeImage}')` : ''}">
+        <aside class="artists-gallery-rail">
+          <div class="artists-gallery-rail-head">
+            <span class="panel-kicker">Artist Index</span>
+            <div class="section-title">Select A Voice</div>
+            <p class="section-copy">Use the rail to move the whole room toward one artist at a time.</p>
           </div>
-          <div class="artist-grid artist-plane-grid">
-            ${filteredProfiles.length
-              ? filteredProfiles.map(profile => artistPlaneCard(profile, {
+
+          <div class="alpha-bar artist-alpha-bar">
+            <button class="alpha-btn ${activeLetter === 'All' ? 'active' : ''}" type="button" data-action="filter-artist-letter" data-letter="All">All</button>
+            ${letters.map(letter => `
+              <button class="alpha-btn ${activeLetter === letter ? 'active' : ''}" type="button" data-action="filter-artist-letter" data-letter="${letter}">
+                ${letter}
+              </button>
+            `).join('')}
+          </div>
+
+          ${artistRailFeature(activeProfile, tracks, {
+            isPinned: isPinnedArtist,
+            isRecent: state.recentArtists.slice(0, 3).includes(activeSlug)
+          })}
+
+          <div class="artist-rail-list">
+            ${visibleProfiles.length
+              ? visibleProfiles.map(profile => artistRailItem(profile, {
                   trackCount: getArtistTracks(profile.slug).length,
-                  isActive: profile.slug === activeSlug,
                   isPinned: isFavoriteArtist(profile.slug),
                   isRecent: state.recentArtists.slice(0, 4).includes(profile.slug)
                 })).join('')
-              : emptyState('No artists match this letter yet.')}
+              : '<div class="artist-rail-empty">No other artists in this lane yet.</div>'}
           </div>
-        </section>
+        </aside>
 
-        <aside class="panel detail-panel artist-detail-panel" style="--artist-focus-gradient:${activeProfile?.gradient || 'linear-gradient(135deg,#17121a,#43253c)'};${activeImage ? `--artist-focus-image:url('${activeImage}')` : ''}">
-          <div class="artist-detail-hero">
-            ${mediaSlot({
-              image: activeImage,
-              alt: `${activeProfile?.name || 'Artist'} portrait`,
-              label: activeProfile?.name || 'Artist portrait',
-              eyebrow: 'Front-plane portrait',
-              monogram: activeProfile?.name || 'V',
-              className: 'artist-detail-media',
-              kind: 'artist-detail',
-              ratio: 'portrait'
-            })}
-            <div class="artist-detail-copy">
-              <span class="panel-kicker">Front Plane</span>
-              <div class="section-title artist-detail-title">${activeProfile?.name || 'Artist focus'}</div>
-              <p class="section-copy">${activeProfile?.description || activeProfile?.tagline || 'Velvet artist profile.'}</p>
-              <div class="meta-tags">${focusTags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
-              <div class="inline-actions">
+        <div class="artists-gallery-stage">
+          <div class="artists-gallery-main">
+            <div class="artist-stage-copy">
+              <div class="artist-stage-topline">
+                <span class="panel-kicker">Featured Voice</span>
+                <span class="artist-stage-lane">${laneSummary}</span>
+              </div>
+
+              <div class="artist-stage-title-block">
+                <div class="artist-stage-name">${activeProfile?.name || 'Artist focus'}</div>
+                <p class="artist-stage-line">${leadLine}</p>
+              </div>
+
+              <div class="artist-stage-tags">
+                ${focusTags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}
+                ${isPinnedArtist ? '<span class="mini-tag">Pinned voice</span>' : ''}
+                <span class="mini-tag">${activeEra}</span>
+              </div>
+
+              <div class="artist-stage-glance">
+                <div class="artist-stage-stat">
+                  <span>Tracks</span>
+                  <strong>${tracks.length}</strong>
+                </div>
+                <div class="artist-stage-stat">
+                  <span>Atmosphere</span>
+                  <strong>${getArtistAtmosphere(activeProfile, tracks)}</strong>
+                </div>
+                <div class="artist-stage-stat">
+                  <span>Nearby</span>
+                  <strong>${relatedArtists.length}</strong>
+                </div>
+              </div>
+
+              <div class="inline-actions artist-stage-actions">
                 <button class="btn btn-primary" id="playArtistTracks" type="button">Play Frontline</button>
                 <button class="btn btn-secondary" id="shuffleArtistTracks" type="button">Shuffle Plane</button>
                 <button class="btn btn-secondary" id="buildArtistStack" type="button">Build Artist Stack</button>
                 <button class="btn btn-secondary" id="toggleArtistPin" type="button">${isPinnedArtist ? 'Pinned Voice' : 'Pin Artist'}</button>
               </div>
+
+              <div class="artist-stage-nearby">
+                <span class="panel-kicker">Move Sideways</span>
+                <div class="artist-stage-nearby-row">
+                  ${relatedArtists.length
+                    ? relatedArtists.map(relatedArtistChip).join('')
+                    : '<div class="artist-stage-nearby-empty">More adjacent voices will surface as the catalog grows.</div>'}
+                </div>
+              </div>
+            </div>
+
+            <div class="artist-stage-visual-wrap">
+              <div class="artist-stage-visual-frame">
+                ${activeImage
+                  ? `<img class="artist-stage-image" src="${activeImage}" alt="${activeProfile?.name || 'Artist'} portrait">`
+                  : `<div class="artist-stage-fallback">${getArtistInitials(activeProfile?.name)}</div>`}
+                <div class="artist-stage-visual-glass"></div>
+              </div>
             </div>
           </div>
 
-          <div class="artist-detail-metrics">
-            <div class="artist-detail-metric">
-              <span>Lane</span>
-              <strong>${focusTags[0] || 'Core voice'}</strong>
-              <small>${activeLetter === 'All' ? 'Visible in the full directory.' : `Surfaced from the ${activeLetter} lane.`}</small>
+          <div class="artist-rotation-band">
+            <div class="artist-rotation-head">
+              <div>
+                <span class="panel-kicker">On Rotation</span>
+                <div class="section-title">Current Room</div>
+              </div>
+              <p class="section-copy">${rotationSummary}</p>
             </div>
-            <div class="artist-detail-metric">
-              <span>Tracks</span>
-              <strong>${tracks.length}</strong>
-              <small>Seeded songs ready to drive the player and stacks.</small>
-            </div>
-            <div class="artist-detail-metric">
-              <span>Nearby</span>
-              <strong>${relatedArtists.length}</strong>
-              <small>Related voices are surfaced below for quick pivots.</small>
-            </div>
-          </div>
 
-          <div class="artist-nearby-panel">
-            <div class="artist-nearby-head">
-              <span class="panel-kicker">Nearby Voices</span>
-              <div class="section-title">Move Sideways</div>
-              <p class="section-copy">Open adjacent artists without losing the mood you're already in.</p>
-            </div>
-            <div class="artist-nearby-row">
-              ${relatedArtists.length
-                ? relatedArtists.map(relatedArtistButton).join('')
-                : '<div class="empty">More related voices will surface as the catalog grows.</div>'}
-            </div>
+            ${currentRotation.length
+              ? `<div class="artist-rotation-strip">${currentRotation.map((track, index) => rotationTrackCard(track, index, track.videoId === state.currentTrack?.videoId)).join('')}</div>`
+              : emptyState('No seeded tracks yet for this artist.')}
           </div>
-
-          <div class="artist-detail-tracklist">
-            <div class="artist-track-head">
-              <span class="panel-kicker">Frontline Queue</span>
-              <div class="section-title">On This Voice</div>
-              <p class="section-copy">${tracks.length ? 'Play from the queue or send individual tracks into a stack.' : 'No seeded tracks yet for this artist.'}</p>
-            </div>
-            ${tracks.length ? `<div class="song-list artist-detail-song-list">${tracks.map(songRow).join('')}</div>` : emptyState('No seeded tracks yet for this artist.')}
-          </div>
-        </aside>
-      </div>
+        </div>
+      </section>
     </section>
   `;
 
@@ -311,17 +337,20 @@ export function renderArtistsPage(container) {
     if (!tracks.length) return;
     playFromQueue(tracks, 0);
   });
+
   document.getElementById('shuffleArtistTracks')?.addEventListener('click', () => {
     if (!tracks.length) return;
     const shuffled = tracks.slice().sort(() => Math.random() - 0.5);
     playFromQueue(shuffled, 0);
   });
+
   document.getElementById('buildArtistStack')?.addEventListener('click', () => {
     const playlist = createPlaylistFromTracks(`${activeProfile?.name || 'Artist'} Stack`, tracks);
     if (!playlist) return;
     toast('Artist stack saved');
     window.dispatchEvent(new CustomEvent('velvet:library-changed'));
   });
+
   document.getElementById('toggleArtistPin')?.addEventListener('click', () => {
     const pinned = toggleFavoriteArtist(activeSlug);
     toast(pinned ? 'Artist pinned' : 'Artist unpinned');
@@ -329,21 +358,6 @@ export function renderArtistsPage(container) {
   });
 
   bindSongRowActions(container, {
-    'play-track': (_event, data) => {
-      const queueIndex = tracks.findIndex(track => track.videoId === data.video);
-      if (queueIndex < 0) return;
-      playFromQueue(tracks, queueIndex);
-    },
-    'toggle-like': (_event, data) => {
-      const track = tracks.find(item => item.videoId === data.video) || resolveTrack(data.video);
-      if (!track) return;
-      window.dispatchEvent(new CustomEvent('velvet:toggle-like', { detail: { track } }));
-    },
-    'add-playlist': (_event, data) => {
-      const track = tracks.find(item => item.videoId === data.video) || resolveTrack(data.video);
-      if (!track) return;
-      window.dispatchEvent(new CustomEvent('velvet:playlist-pick', { detail: { track } }));
-    },
     'filter-artist-letter': (event, data) => {
       event.preventDefault();
       writeArtistAlphaFilter(data.letter || 'All');
@@ -360,6 +374,12 @@ export function renderArtistsPage(container) {
       } else {
         window.location.hash = nextHash;
       }
+    },
+    'play-artist-track': (event, data) => {
+      event.preventDefault();
+      const index = Number(data.index);
+      if (Number.isNaN(index) || index < 0 || index >= tracks.length) return;
+      playFromQueue(tracks, index);
     }
   });
 
