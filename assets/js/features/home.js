@@ -47,7 +47,7 @@ function getHomeHeroTitle(track, artistName = '') {
   const cleanedArtist = formatDisplayText(artistName || track?.artist || '');
   if (!cleanedArtist) return title;
 
-  const stripped = title.replace(new RegExp(`^${escapeRegex(cleanedArtist)}\\s*[-–—:|]\\s*`, 'i'), '').trim();
+  const stripped = title.replace(new RegExp(`^${escapeRegex(cleanedArtist)}(?:\\s*[-:|]\\s*|\\s+)`, 'i'), '').trim();
   return stripped || title;
 }
 
@@ -481,10 +481,4 @@ export function mountHomePage(container){
 
   renderHomeView(container);
 }
-
-
-
-
-
-
 
