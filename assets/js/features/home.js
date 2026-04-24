@@ -26,6 +26,31 @@ function getSpotlightTrack() {
   return state.recent[0] || state.liked[0] || getPrimaryPlaylist(state.playlists)?.songs?.slice(-1)[0] || catalogTracks[0] || null;
 }
 
+function formatDisplayText(value = '') {
+  const raw = String(value || '').trim().replace(/[_-]+/g, ' ');
+  if (!raw) return '';
+
+  return raw
+    .split(/\s+/)
+    .map(part => /^[a-z]+$/.test(part) ? `${part.charAt(0).toUpperCase()}${part.slice(1)}` : part)
+    .join(' ');
+}
+
+function escapeRegex(value = '') {
+  return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function getHomeHeroTitle(track, artistName = '') {
+  const title = formatDisplayText(track?.title || '');
+  if (!title) return '';
+
+  const cleanedArtist = formatDisplayText(artistName || track?.artist || '');
+  if (!cleanedArtist) return title;
+
+  const stripped = title.replace(new RegExp(`^${escapeRegex(cleanedArtist)}\\s*[-–—:|]\\s*`, 'i'), '').trim();
+  return stripped || title;
+}
+
 function getStationPriority(index) {
   let score = 0;
 
@@ -182,6 +207,15 @@ function renderHomeView(container) {
   const spotlightArt = getTrackArtwork(spotlightTrack);
   const spotlightVisual = spotlightArtist?.featureImage || spotlightArtist?.heroImage || spotlightArt || '';
   const leadStation = spotlightStations[0] || null;
+  const featureVoice = formatDisplayText(spotlightArtist?.name || spotlightTrack?.artist || 'Velvet');
+  const featureTitle = getHomeHeroTitle(spotlightTrack, featureVoice) || 'Velvet';
+  const featureBlurb = spotlightArtist?.description || `Let ${leadStation?.station?.name || 'one lane'} carry this record outward in softer waves instead of crowding the room with equal-weight surfaces.`;
+  const leadVoicePill = spotlightArtist?.slug
+    ? `<a class="home-feature-orbit-pill" href="artists.html#artist-${spotlightArtist.slug}">
+         <span>Lead voice</span>
+         <strong>${featureVoice}</strong>
+       </a>`
+    : '';
   const defaultStackTracks = dedupeTracks([
     ...curatedTracks,
     ...returnTracks,
@@ -189,11 +223,11 @@ function renderHomeView(container) {
   ]).slice(0, 10);
   const buildHomeStackName = leadStation?.station?.name
     ? `${leadStation.station.name} Room`
-    : `${spotlightTrack?.artist || 'Velvet'} Room`;
+    : `${featureVoice || 'Velvet'} Room`;
   const depthCards = [
     {
       label: 'Lead voice',
-      value: spotlightArtist?.name || spotlightTrack?.artist || 'Velvet',
+      value: featureVoice || 'Velvet',
       copy: 'Tonight starts here.'
     },
     {
@@ -209,24 +243,6 @@ function renderHomeView(container) {
         : 'Build the current room into a real stack.'
     }
   ];
-  const stackOrbitControl = hasPrimaryPlaylistSongs
-    ? `<a class="home-feature-orb home-feature-orb--stack" href="library.html">
-         <span>Room stack</span>
-         <strong>${primaryPlaylist?.name || 'Open stack'}</strong>
-         <small>${formatCount(primaryPlaylist?.songs?.length || 0, 'song')}</small>
-       </a>`
-    : `<button class="home-feature-orb home-feature-orb--stack" type="button" data-action="build-home-stack" data-name="${buildHomeStackName}">
-         <span>Room stack</span>
-         <strong>Build one</strong>
-         <small>Save this room</small>
-       </button>`;
-  const artistOrbitControl = spotlightArtist?.slug
-    ? `<a class="home-feature-orb home-feature-orb--artist" href="artists.html#artist-${spotlightArtist.slug}">
-         <span>Lead voice</span>
-         <strong>${spotlightArtist.name}</strong>
-         <small>Open portrait</small>
-       </a>`
-    : '';
 
   container.innerHTML = `
     <section class="home-stage">
@@ -236,12 +252,12 @@ function renderHomeView(container) {
             <div class="home-feature-heading">
               <span class="panel-kicker">Tonight's Room</span>
               <div class="home-feature-meta">
-                <span>${spotlightTrack?.artist || 'Private listening club'}</span>
+                <span>${featureVoice || 'Private listening club'}</span>
                 ${spotlightTrack?.year ? `<span>${spotlightTrack.year}</span>` : ''}
                 <span>${leadStation?.station.name || 'Lead record'}</span>
               </div>
-              <div class="home-feature-title">${spotlightTrack?.title || 'Velvet'}</div>
-              <p class="home-feature-blurb">${spotlightArtist?.description || 'Start with one front record, move into one lane, and build the room from there instead of splitting attention across too many equal surfaces.'}</p>
+              <div class="home-feature-title">${featureTitle}</div>
+              <p class="home-feature-blurb">${featureBlurb}</p>
             </div>
 
             <div class="meta-tags home-feature-tags">
@@ -255,16 +271,7 @@ function renderHomeView(container) {
                      <strong>${leadStation.station.name}</strong>
                    </button>`
                 : ''}
-              ${spotlightArtist?.slug
-                ? `<a class="home-feature-orbit-pill" href="artists.html#artist-${spotlightArtist.slug}">
-                     <span>Lead voice</span>
-                     <strong>${spotlightArtist.name}</strong>
-                   </a>`
-                : ''}
-              <button class="home-feature-orbit-pill" type="button" data-action="play-spotlight">
-                <span>Start here</span>
-                <strong>${spotlightTrack?.title || 'Velvet room'}</strong>
-              </button>
+              ${leadVoicePill}
             </div>
 
             <div class="inline-actions">
@@ -286,14 +293,13 @@ function renderHomeView(container) {
               <div class="home-feature-halo home-feature-halo--soft"></div>
               <div class="home-feature-bubble home-feature-bubble--one"></div>
               <div class="home-feature-bubble home-feature-bubble--two"></div>
-              <div class="home-feature-bubble home-feature-bubble--three"></div>
               <div class="home-feature-art-shell">
                 ${mediaSlot({
                   image: spotlightVisual,
-                  alt: `${spotlightTrack?.title || 'Velvet'} feature visual`,
-                  label: spotlightArtist?.name || spotlightTrack?.artist || 'Feature visual',
+                  alt: `${featureTitle || 'Velvet'} feature visual`,
+                  label: featureVoice || spotlightTrack?.artist || 'Feature visual',
                   eyebrow: 'Feature visual',
-                  monogram: spotlightArtist?.name || spotlightTrack?.artist || 'V',
+                  monogram: featureVoice || spotlightTrack?.artist || 'V',
                   className: 'home-feature-art',
                   kind: 'feature',
                   ratio: 'hero'
@@ -306,8 +312,6 @@ function renderHomeView(container) {
                      <small>${leadStation.station.tags?.[0] || 'Guiding route'}</small>
                    </button>`
                 : ''}
-              ${stackOrbitControl}
-              ${artistOrbitControl}
               <div class="home-feature-float-card">
                 <span>Room weather</span>
                 <strong>${spotlightTags[0] || 'Soft focus'}</strong>
@@ -477,4 +481,10 @@ export function mountHomePage(container){
 
   renderHomeView(container);
 }
+
+
+
+
+
+
 
