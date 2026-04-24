@@ -1,22 +1,22 @@
 :root{
-  --bg:#060305;
-  --bg-soft:#10070b;
-  --panel:rgba(21,12,17,.72);
-  --panel-strong:rgba(15,10,14,.9);
-  --card:rgba(30,14,20,.78);
-  --card-soft:rgba(255,248,250,.034);
-  --line:rgba(255,244,247,.11);
-  --line-strong:rgba(255,244,247,.22);
-  --text:#f8eff0;
-  --muted:rgba(237,226,229,.66);
-  --accent:#641126;
-  --accent-2:#f0e8e8;
-  --warm:#9ea7b4;
+  --bg:#faf6f2;
+  --bg-soft:#f1ebe5;
+  --panel:rgba(255,255,255,.74);
+  --panel-strong:rgba(255,255,255,.9);
+  --card:rgba(255,255,255,.82);
+  --card-soft:rgba(255,255,255,.6);
+  --line:rgba(104,49,64,.11);
+  --line-strong:rgba(104,49,64,.22);
+  --text:#23181c;
+  --muted:rgba(60,43,50,.66);
+  --accent:#6f1730;
+  --accent-2:#fffaf7;
+  --warm:#bcc7d3;
   --radius-xl:30px;
   --radius-lg:24px;
   --radius-md:18px;
   --radius-sm:14px;
-  --shadow:0 28px 82px rgba(0,0,0,.3);
-  --shadow-soft:0 18px 44px rgba(0,0,0,.18);
+  --shadow:0 28px 82px rgba(95,72,84,.14);
+  --shadow-soft:0 18px 44px rgba(95,72,84,.1);
   --max-width:1460px;
 }

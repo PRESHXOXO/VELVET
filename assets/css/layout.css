@@ -483,3 +483,124 @@
   border-color:rgba(255,246,248,.1);
   background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.014));
 }
+
+/* ===== FLOATING FANTASY LIGHT RESET ===== */
+.page-velvet .app-shell{
+  gap:18px;
+  padding:18px 18px 0;
+}
+.page-home .app-shell{perspective:1800px}
+.page-velvet .sidebar,
+.page-velvet .main-shell{
+  border-color:rgba(106,62,74,.08);
+  border-radius:32px;
+  box-shadow:0 26px 60px rgba(103,82,91,.12);
+  backdrop-filter:blur(30px) saturate(1.02);
+}
+.page-velvet .sidebar{
+  background:
+    radial-gradient(circle at 8% 0%,rgba(var(--accent-rgb),.09),transparent 24%),
+    linear-gradient(180deg,rgba(255,255,255,.84),rgba(255,255,255,.66));
+}
+.page-velvet .sidebar::after,
+.page-velvet .main-shell::after{
+  background:
+    linear-gradient(rgba(var(--accent-rgb),.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(var(--accent-rgb),.018) 1px,transparent 1px);
+  opacity:.06;
+}
+.page-velvet .brand{
+  border-bottom-color:rgba(106,62,74,.08);
+}
+.page-velvet .brand-mark span,
+.page-velvet .topbar-signature span{
+  color:#2a171c;
+}
+.page-velvet .brand-note,
+.page-velvet .nav-label,
+.page-velvet .topbar-overline,
+.page-velvet .player-kicker{
+  color:rgba(89,65,74,.56);
+}
+.page-velvet .nav-item{
+  color:rgba(47,32,38,.78);
+}
+.page-velvet .nav-item:hover{
+  background:rgba(255,255,255,.56);
+  border-color:rgba(106,62,74,.08);
+  box-shadow:0 12px 28px rgba(103,82,91,.08);
+}
+.page-velvet .nav-item.active{
+  background:
+    linear-gradient(135deg,rgba(var(--accent-rgb),.12),rgba(255,255,255,.84)),
+    linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.54));
+  border-color:rgba(106,62,74,.16);
+  box-shadow:0 16px 30px rgba(103,82,91,.12);
+}
+.page-velvet .nav-icon{
+  background:rgba(255,255,255,.66);
+  border-color:rgba(106,62,74,.08);
+}
+.page-velvet .sidebar-foot{
+  border-top-color:rgba(106,62,74,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.4));
+}
+.page-velvet .main-shell{
+  background:
+    radial-gradient(circle at top right,rgba(var(--accent-rgb),.09),transparent 20%),
+    radial-gradient(circle at 14% 0%,rgba(var(--warm-rgb),.16),transparent 18%),
+    linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.64));
+}
+.page-velvet .topbar{
+  background:linear-gradient(180deg,rgba(255,255,255,.82) 64%,rgba(255,255,255,0));
+}
+.page-velvet .topbar::after{
+  background:linear-gradient(90deg,transparent,rgba(106,62,74,.1),transparent);
+}
+.page-velvet .topbar-search{
+  border-color:rgba(106,62,74,.1);
+  background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.68));
+  box-shadow:0 16px 32px rgba(103,82,91,.08), inset 0 1px 0 rgba(255,255,255,.7);
+}
+.page-velvet .topbar-search svg{
+  stroke:rgba(74,54,61,.54);
+}
+.page-velvet .topbar-search input::placeholder{
+  color:rgba(74,54,61,.42);
+}
+.page-velvet .topbar-links{
+  border-color:rgba(106,62,74,.08);
+  background:rgba(255,255,255,.58);
+}
+.page-velvet .top-link{
+  color:rgba(62,44,52,.72);
+}
+.page-velvet .top-link:hover,
+.page-velvet .top-link.active{
+  background:linear-gradient(135deg,rgba(var(--accent-rgb),.12),rgba(255,255,255,.76));
+  border-color:rgba(106,62,74,.12);
+}
+.page-velvet .player-bar{
+  border-color:rgba(106,62,74,.09);
+  background:
+    radial-gradient(circle at 0% 0%,rgba(var(--accent-rgb),.09),transparent 24%),
+    linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.74));
+  box-shadow:0 24px 48px rgba(103,82,91,.12);
+}
+.page-velvet .player-bar::before{
+  background:linear-gradient(90deg,rgba(var(--accent-rgb),.08),transparent 28%,transparent 72%,rgba(var(--warm-rgb),.12));
+}
+.page-velvet .player-meta strong,
+.page-velvet .player-meta small,
+.page-velvet .player-time,
+.page-velvet .player-meta{
+  color:inherit;
+}
+.page-velvet .vol-wrap{
+  border-color:rgba(106,62,74,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.66));
+}
+.page-velvet .player-fill{
+  background:linear-gradient(90deg,rgba(var(--accent-rgb),.92) 0%,rgba(var(--warm-rgb),.86) 100%);
+  box-shadow:0 0 14px rgba(var(--accent-rgb),.18);
+}

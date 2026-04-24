@@ -3266,3 +3266,168 @@
     justify-content:center;
   }
 }
+
+/* ===== FLOATING FANTASY LIGHT PAGE RESET ===== */
+.page-home .home-feature-panel,
+.page-home .home-companion-panel,
+.page-home .home-band,
+.page-home .home-rail-panel,
+.page-search .search-query-bank,
+.page-search .search-result-panel,
+.page-search .search-hero-panel,
+.page-library .library-insight-panel,
+.page-library .library-playlist-card,
+.page-library .library-hero-panel,
+.page-stations .stations-browser-panel,
+.page-stations .station-player-panel,
+.page-stations .station-detail-panel,
+.page-stations .station-queue-panel,
+.page-stations .station-source-card,
+.page-artists .artists-gallery-shell,
+.page-artists .artists-gallery-rail,
+.page-artists .artist-stage-copy,
+.page-artists .artist-stage-floating-card,
+.page-artists .artist-rotation-band,
+.page-artists .artist-stage-nearby-chip,
+.page-artists .artist-rail-feature,
+.page-artists .artist-rotation-card{
+  border-color:rgba(106,62,74,.08);
+  background:
+    radial-gradient(circle at top right,rgba(var(--accent-rgb),.08),transparent 22%),
+    radial-gradient(circle at 0% 0%,rgba(255,255,255,.7),transparent 28%),
+    linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.66));
+  box-shadow:0 20px 40px rgba(103,82,91,.1);
+  backdrop-filter:blur(24px) saturate(1.02);
+}
+.page-home .home-feature-panel,
+.page-search .search-hero-panel,
+.page-library .library-hero-panel,
+.page-stations .station-player-panel,
+.page-artists .artists-gallery-shell{
+  border-radius:34px;
+  background:
+    radial-gradient(circle at top right,rgba(var(--accent-rgb),.1),transparent 24%),
+    radial-gradient(circle at 12% 0%,rgba(var(--warm-rgb),.2),transparent 18%),
+    linear-gradient(180deg,rgba(255,255,255,.94),rgba(250,244,239,.74));
+  box-shadow:0 28px 56px rgba(103,82,91,.12);
+}
+.page-home .home-feature-panel::before,
+.page-home .home-feature-panel::after{
+  opacity:.38;
+}
+.page-home .home-feature-float-card,
+.page-home .home-feature-track-card,
+.page-home .home-axis-row,
+.page-home .home-mini-row,
+.page-home .home-feature-ribbon-track,
+.page-home .home-feature-caption,
+.page-home .home-feature-stat,
+.page-home .home-station-meta,
+.page-search .search-filter,
+.page-library .library-filter,
+.page-stations .station-player-shell,
+.page-stations .station-source-card--inline,
+.page-stations .station-source-card--inline .station-source-grid,
+.page-stations .station-list-item,
+.page-artists .artist-stage-nearby-chip,
+.page-artists .artist-rotation-card,
+.page-artists .artist-rail-feature,
+.page-artists .artist-stage-lane{
+  border-color:rgba(106,62,74,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(255,255,255,.64));
+  box-shadow:0 14px 28px rgba(103,82,91,.08);
+}
+.page-home .home-station-card,
+.page-stations .station-list-item{
+  border-color:rgba(255,255,255,.42);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.06)),
+    radial-gradient(circle at top right,rgba(255,255,255,.2),transparent 34%),
+    var(--station-gradient,linear-gradient(135deg,#e2c4cb,#b17d8b));
+  box-shadow:0 18px 32px rgba(103,82,91,.12);
+}
+.page-library .library-playlist-card{
+  background:
+    radial-gradient(circle at top right,rgba(var(--accent-rgb),.08),transparent 24%),
+    linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.68));
+}
+.page-velvet .section-copy,
+.page-home .home-feature-blurb,
+.page-home .home-station-copy p,
+.page-home .home-axis-row-copy small,
+.page-home .home-feature-ribbon-copy small,
+.page-home .home-mini-row small,
+.page-artists .artist-stage-line,
+.page-artists .artist-rail-feature-copy small,
+.page-artists .artist-rotation-copy small,
+.page-artists .artist-stage-floating-card small,
+.page-artists .artist-stage-nearby-chip small,
+.page-stations .station-list-copy p,
+.page-stations .station-source-copy p,
+.page-stations .station-player-copy p,
+.page-search .search-query-chip,
+.page-library .library-hero-copy p{
+  color:rgba(70,52,59,.72);
+}
+.page-home .home-feature-title,
+.page-home .home-side-title,
+.page-home .home-station-copy h3,
+.page-home .home-feature-caption strong,
+.page-home .home-feature-stat strong,
+.page-home .home-axis-row-copy strong,
+.page-home .home-mini-row strong,
+.page-artists .artist-stage-name,
+.page-artists .artist-rail-feature-copy strong,
+.page-artists .artist-rotation-copy strong,
+.page-artists .artist-stage-floating-card strong,
+.page-stations .station-player-copy h1,
+.page-stations .station-list-copy h3,
+.page-search .search-hero-copy h1,
+.page-library .library-hero-copy h1{
+  color:#28191f;
+}
+.page-home .home-feature-meta,
+.page-home .home-feature-caption span,
+.page-home .home-feature-stat small,
+.page-home .home-station-meta,
+.page-artists .artist-stage-stat span,
+.page-artists .artist-stage-lane,
+.page-artists .artist-stage-floating-card .panel-kicker,
+.page-stations .station-source-copy span,
+.page-search .search-query-chip,
+.page-library .library-filter,
+.page-stations .station-list-item .panel-kicker{
+  color:rgba(89,65,74,.58);
+}
+.page-artists .artist-stage-stat strong,
+.page-artists .artist-stage-nearby-chip span,
+.page-artists .artist-rotation-copy strong,
+.page-stations .station-source-copy strong,
+.page-stations .station-player-stat strong{
+  color:#351e25;
+}
+.page-artists .artist-stage-visual-frame,
+.page-home .home-feature-art,
+.page-stations .station-player-media,
+.page-search .search-result-media,
+.page-library .library-playlist-media{
+  box-shadow:0 22px 44px rgba(103,82,91,.14);
+}
+.page-search .search-filter.is-active,
+.page-library .library-filter.is-active,
+.page-stations .station-list-item.is-active,
+.page-artists .artist-rotation-card.is-current,
+.page-artists .artist-rail-item:hover{
+  background:
+    linear-gradient(135deg,rgba(var(--accent-rgb),.14),rgba(255,255,255,.86)),
+    linear-gradient(180deg,rgba(255,255,255,.76),rgba(255,255,255,.6));
+  border-color:rgba(106,62,74,.16);
+}
+.page-velvet .song-row{
+  border-color:rgba(106,62,74,.08);
+  background:rgba(255,255,255,.68);
+  box-shadow:0 12px 22px rgba(103,82,91,.06);
+}
+.page-velvet .song-row:hover{
+  background:rgba(255,255,255,.88);
+}
