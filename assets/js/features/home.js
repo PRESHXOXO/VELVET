@@ -209,6 +209,24 @@ function renderHomeView(container) {
         : 'Build the current room into a real stack.'
     }
   ];
+  const stackOrbitControl = hasPrimaryPlaylistSongs
+    ? `<a class="home-feature-orb home-feature-orb--stack" href="library.html">
+         <span>Room stack</span>
+         <strong>${primaryPlaylist?.name || 'Open stack'}</strong>
+         <small>${formatCount(primaryPlaylist?.songs?.length || 0, 'song')}</small>
+       </a>`
+    : `<button class="home-feature-orb home-feature-orb--stack" type="button" data-action="build-home-stack" data-name="${buildHomeStackName}">
+         <span>Room stack</span>
+         <strong>Build one</strong>
+         <small>Save this room</small>
+       </button>`;
+  const artistOrbitControl = spotlightArtist?.slug
+    ? `<a class="home-feature-orb home-feature-orb--artist" href="artists.html#artist-${spotlightArtist.slug}">
+         <span>Lead voice</span>
+         <strong>${spotlightArtist.name}</strong>
+         <small>Open portrait</small>
+       </a>`
+    : '';
 
   container.innerHTML = `
     <section class="home-stage">
@@ -230,6 +248,25 @@ function renderHomeView(container) {
               ${(spotlightTags.length ? spotlightTags : ['after-hours', 'editorial', 'velvet']).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}
             </div>
 
+            <div class="home-feature-orbit-strip">
+              ${leadStation?.station
+                ? `<button class="home-feature-orbit-pill" type="button" data-action="open-station" data-index="${leadStation.index}">
+                     <span>Lead lane</span>
+                     <strong>${leadStation.station.name}</strong>
+                   </button>`
+                : ''}
+              ${spotlightArtist?.slug
+                ? `<a class="home-feature-orbit-pill" href="artists.html#artist-${spotlightArtist.slug}">
+                     <span>Lead voice</span>
+                     <strong>${spotlightArtist.name}</strong>
+                   </a>`
+                : ''}
+              <button class="home-feature-orbit-pill" type="button" data-action="play-spotlight">
+                <span>Start here</span>
+                <strong>${spotlightTrack?.title || 'Velvet room'}</strong>
+              </button>
+            </div>
+
             <div class="inline-actions">
               <button class="btn btn-primary" type="button" data-action="play-spotlight">${icon('play')} Start room</button>
               ${primaryPlaylist?.songs?.length
@@ -245,8 +282,11 @@ function renderHomeView(container) {
 
           <div class="home-feature-visual">
             <div class="home-feature-scene">
-              <div class="home-feature-plane home-feature-plane--rear"></div>
-              <div class="home-feature-plane home-feature-plane--mid"></div>
+              <div class="home-feature-halo home-feature-halo--primary"></div>
+              <div class="home-feature-halo home-feature-halo--soft"></div>
+              <div class="home-feature-bubble home-feature-bubble--one"></div>
+              <div class="home-feature-bubble home-feature-bubble--two"></div>
+              <div class="home-feature-bubble home-feature-bubble--three"></div>
               <div class="home-feature-art-shell">
                 ${mediaSlot({
                   image: spotlightVisual,
@@ -259,9 +299,18 @@ function renderHomeView(container) {
                   ratio: 'hero'
                 })}
               </div>
+              ${leadStation?.station
+                ? `<button class="home-feature-orb home-feature-orb--lane" type="button" data-action="open-station" data-index="${leadStation.index}">
+                     <span>Open lane</span>
+                     <strong>${leadStation.station.name}</strong>
+                     <small>${leadStation.station.tags?.[0] || 'Guiding route'}</small>
+                   </button>`
+                : ''}
+              ${stackOrbitControl}
+              ${artistOrbitControl}
               <div class="home-feature-float-card">
-                <span>Lane Ready</span>
-                <strong>${leadStation?.station.name || 'Open lane'}</strong>
+                <span>Room weather</span>
+                <strong>${spotlightTags[0] || 'Soft focus'}</strong>
                 <small>${leadStation?.station.description || leadStation?.station.query || 'Pick a lane and let the chamber take over from there.'}</small>
               </div>
             </div>
@@ -428,3 +477,4 @@ export function mountHomePage(container){
 
   renderHomeView(container);
 }
+
