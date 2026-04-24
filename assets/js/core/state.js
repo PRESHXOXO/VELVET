@@ -1,4 +1,8 @@
-﻿import { readStorage, writeStorage, readSession, writeSession } from './storage.js';
+import { readStorage, writeStorage, readSession, writeSession } from './storage.js';
+
+const PLATFORM_PLAY_BASELINES = {
+  'w9XLDme8HQ4': 182
+};
 
 function normalizePlaylist(playlist = {}) {
   const stamp = Number(playlist?.updatedAt || playlist?.createdAt || playlist?.id) || Date.now();
@@ -12,6 +16,51 @@ function normalizePlaylist(playlist = {}) {
   };
 }
 
+function normalizePlayCounts(value = {}) {
+  const next = { ...PLATFORM_PLAY_BASELINES };
+
+  if (!value || typeof value !== 'object') {
+    return next;
+  }
+
+  Object.entries(value).forEach(([videoId, count]) => {
+    const safeVideoId = String(videoId || '').trim();
+    const safeCount = Math.max(0, Number(count) || 0);
+    if (!safeVideoId || !safeCount) return;
+    next[safeVideoId] = safeCount;
+  });
+
+  return next;
+}
+
+function normalizeDailyPick(value = null) {
+  if (!value || typeof value !== 'object') return null;
+
+  const date = String(value.date || '').trim();
+  const videoId = String(value.videoId || '').trim();
+  if (!date || !videoId) return null;
+
+  return { date, videoId };
+}
+
+function getTodayStamp() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getTopPlayedVideoId() {
+  const entries = Object.entries(state.playCounts || {}).sort((a, b) => {
+    const delta = (Number(b[1]) || 0) - (Number(a[1]) || 0);
+    if (delta !== 0) return delta;
+    return String(a[0]).localeCompare(String(b[0]));
+  });
+
+  return entries[0]?.[0] || '';
+}
+
 export const state = {
   liked: readStorage('vlv_liked', []),
   recent: readStorage('vlv_recent', []),
@@ -20,6 +69,8 @@ export const state = {
   recentStations: readStorage('vlv_recent_stations', []),
   favoriteArtists: readStorage('vlv_favorite_artists', []),
   recentArtists: readStorage('vlv_recent_artists', []),
+  playCounts: normalizePlayCounts(readStorage('vlv_play_counts', {})),
+  dailyPick: normalizeDailyPick(readStorage('vlv_daily_pick', null)),
   queue: readSession('vlv_queue', []),
   queueIndex: readSession('vlv_queue_index', 0),
   currentTrack: readSession('vlv_current_track', null),
@@ -35,6 +86,8 @@ export function refreshLibraryState(){
   state.recentStations = readStorage('vlv_recent_stations', []);
   state.favoriteArtists = readStorage('vlv_favorite_artists', []);
   state.recentArtists = readStorage('vlv_recent_artists', []);
+  state.playCounts = normalizePlayCounts(readStorage('vlv_play_counts', {}));
+  state.dailyPick = normalizeDailyPick(readStorage('vlv_daily_pick', null));
 }
 
 export function syncLibrary(){
@@ -46,6 +99,8 @@ export function syncLibrary(){
   writeStorage('vlv_recent_stations', state.recentStations);
   writeStorage('vlv_favorite_artists', state.favoriteArtists);
   writeStorage('vlv_recent_artists', state.recentArtists);
+  writeStorage('vlv_play_counts', state.playCounts);
+  writeStorage('vlv_daily_pick', state.dailyPick);
 }
 
 export function syncPlayback(){
@@ -73,6 +128,37 @@ export function pushRecent(track){
   if(!track?.videoId){ return; }
   state.recent = [track, ...state.recent.filter(item => item.videoId !== track.videoId)].slice(0, 18);
   syncLibrary();
+}
+
+export function recordTrackPlay(track){
+  if(!track?.videoId){ return 0; }
+
+  const safeVideoId = String(track.videoId).trim();
+  const nextCount = (Number(state.playCounts[safeVideoId]) || 0) + 1;
+  state.playCounts = {
+    ...state.playCounts,
+    [safeVideoId]: nextCount
+  };
+  syncLibrary();
+  return nextCount;
+}
+
+export function getTrackPlayCount(videoId){
+  const safeVideoId = String(videoId || '').trim();
+  return safeVideoId ? (Number(state.playCounts[safeVideoId]) || 0) : 0;
+}
+
+export function getVelvetPickVideoId(fallbackVideoId = ''){
+  const today = getTodayStamp();
+  const currentPick = normalizeDailyPick(state.dailyPick);
+  if (currentPick?.date === today && currentPick.videoId) {
+    return currentPick.videoId;
+  }
+
+  const nextVideoId = getTopPlayedVideoId() || String(fallbackVideoId || '').trim();
+  state.dailyPick = nextVideoId ? { date: today, videoId: nextVideoId } : null;
+  syncLibrary();
+  return nextVideoId;
 }
 
 export function createPlaylist(name){
@@ -162,3 +248,4 @@ export function pushRecentArtist(slug){
   state.recentArtists = [safeSlug, ...state.recentArtists.filter(item => item !== safeSlug)].slice(0, 18);
   syncLibrary();
 }
+

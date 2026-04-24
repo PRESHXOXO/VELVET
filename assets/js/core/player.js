@@ -1,4 +1,4 @@
-import { state, syncPlayback, pushRecent, toggleLike } from './state.js';
+import { state, syncPlayback, pushRecent, recordTrackPlay, toggleLike } from './state.js';
 import {
   loadVideo,
   playVideo,
@@ -176,6 +176,7 @@ export async function playTrack(track, queue = null, index = 0){
   state.isPlaying = true;
   syncPlayback();
   pushRecent(track);
+  recordTrackPlay(track);
   renderBar();
   stopProgress();
 
@@ -256,3 +257,4 @@ export async function prevTrack(){
 export function refreshPlayer(){
   renderBar();
 }
+

@@ -1,11 +1,11 @@
-import { createPlaylistFromTracks, isFavoriteStation, refreshLibraryState, state, toggleFavoriteStation } from '../core/state.js';
+import { createPlaylistFromTracks, getTrackPlayCount, getVelvetPickVideoId, isFavoriteStation, refreshLibraryState, state, toggleFavoriteStation } from '../core/state.js';
 import { playFromQueue } from '../core/player.js';
 import { bindSongRowActions, resolveTrack, toast } from '../core/ui.js';
 import { pageHead, emptyState, icon, songRow, getTrackArtwork, mediaSlot } from '../ui/templates.js';
-import { catalogTracks, getArtistProfile, getArtistSlug, getArtistTracks, getStationTracks, getStationVisual, stations } from '../core/catalog.js';
+import { catalogTracks, findTrackByVideoId, getArtistProfile, getArtistSlug, getArtistTracks, getStationTracks, getStationVisual, stations } from '../core/catalog.js';
 import { getPlaylistPreviewEntries, getPlaylistSignature, getPrimaryPlaylist } from '../core/playlists.js';
 
-const APP_STATE_KEYS = new Set(['vlv_liked', 'vlv_recent', 'vlv_playlists', 'vlv_favorite_stations', 'vlv_recent_stations']);
+const APP_STATE_KEYS = new Set(['vlv_liked', 'vlv_recent', 'vlv_playlists', 'vlv_favorite_stations', 'vlv_recent_stations', 'vlv_play_counts', 'vlv_daily_pick']);
 
 function dedupeTracks(tracks = []) {
   const seen = new Set();
@@ -23,7 +23,15 @@ function formatCount(value, singular, plural = `${singular}s`) {
 }
 
 function getSpotlightTrack() {
-  return state.recent[0] || state.liked[0] || getPrimaryPlaylist(state.playlists)?.songs?.slice(-1)[0] || catalogTracks[0] || null;
+  const pickVideoId = getVelvetPickVideoId(catalogTracks[0]?.videoId || '');
+  const candidateTracks = dedupeTracks([
+    ...state.recent,
+    ...state.liked,
+    ...state.playlists.flatMap(playlist => playlist.songs || []),
+    ...catalogTracks
+  ]);
+
+  return candidateTracks.find(track => track.videoId === pickVideoId) || findTrackByVideoId(pickVideoId) || catalogTracks[0] || null;
 }
 
 function formatDisplayText(value = '') {
@@ -40,15 +48,31 @@ function escapeRegex(value = '') {
   return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function normalizeHomeHeroPhrase(value = '') {
+  return formatDisplayText(value)
+    .replace(/\((official|audio|video|visualizer|lyrics?|explicit|clean|live|performance|hd|4k)[^)]*\)/ig, ' ')
+    .replace(/\[(official|audio|video|visualizer|lyrics?|explicit|clean|live|performance|hd|4k)[^\]]*\]/ig, ' ')
+    .replace(/\b(?:ft|feat)\.?\b.*$/i, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+function trimHeroTitle(value = '') {
+  const words = String(value || '').split(/\s+/).filter(Boolean);
+  if (words.length <= 6) return String(value || '').trim();
+  return `${words.slice(0, 6).join(' ')}...`;
+}
+
 function getHomeHeroTitle(track, artistName = '') {
-  const title = formatDisplayText(track?.title || '');
+  const title = normalizeHomeHeroPhrase(track?.title || '');
   if (!title) return '';
 
   const cleanedArtist = formatDisplayText(artistName || track?.artist || '');
-  if (!cleanedArtist) return title;
+  const stripped = cleanedArtist
+    ? title.replace(new RegExp(`^${escapeRegex(cleanedArtist)}(?:\\s*[-:|]\\s*|\\s+)`, 'i'), '').trim()
+    : title;
 
-  const stripped = title.replace(new RegExp(`^${escapeRegex(cleanedArtist)}(?:\\s*[-:|]\\s*|\\s+)`, 'i'), '').trim();
-  return stripped || title;
+  return trimHeroTitle(stripped || title);
 }
 
 function getStationPriority(index) {
@@ -207,9 +231,11 @@ function renderHomeView(container) {
   const spotlightArt = getTrackArtwork(spotlightTrack);
   const spotlightVisual = spotlightArtist?.featureImage || spotlightArtist?.heroImage || spotlightArt || '';
   const leadStation = spotlightStations[0] || null;
+  const spotlightPlayCount = getTrackPlayCount(spotlightTrack?.videoId);
   const featureVoice = formatDisplayText(spotlightArtist?.name || spotlightTrack?.artist || 'Velvet');
   const featureTitle = getHomeHeroTitle(spotlightTrack, featureVoice) || 'Velvet';
-  const featureBlurb = spotlightArtist?.description || `Let ${leadStation?.station?.name || 'one lane'} carry this record outward in softer waves instead of crowding the room with equal-weight surfaces.`;
+  const featureBlurb = spotlightArtist?.description || `Velvet is holding ${featureTitle} as the platform lead today, with ${leadStation?.station?.name || 'one lane'} carrying the mood outward instead of letting the hero drift with every recent play.`;
+  const featureMetaSignal = spotlightPlayCount ? `${formatCount(spotlightPlayCount, 'play')} on Velvet` : 'Platform lead';
   const leadVoicePill = spotlightArtist?.slug
     ? `<a class="home-feature-orbit-pill" href="artists.html#artist-${spotlightArtist.slug}">
          <span>Lead voice</span>
@@ -250,11 +276,11 @@ function renderHomeView(container) {
         <div class="home-feature-grid">
           <div class="home-feature-copy">
             <div class="home-feature-heading">
-              <span class="panel-kicker">Tonight's Room</span>
+              <span class="panel-kicker">Velvet Pick of the Day</span>
               <div class="home-feature-meta">
                 <span>${featureVoice || 'Private listening club'}</span>
                 ${spotlightTrack?.year ? `<span>${spotlightTrack.year}</span>` : ''}
-                <span>${leadStation?.station.name || 'Lead record'}</span>
+                <span>${featureMetaSignal}</span>
               </div>
               <div class="home-feature-title">${featureTitle}</div>
               <p class="home-feature-blurb">${featureBlurb}</p>
@@ -481,4 +507,5 @@ export function mountHomePage(container){
 
   renderHomeView(container);
 }
+
 

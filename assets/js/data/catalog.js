@@ -37,7 +37,7 @@ export const stations = [
     signal: 'Current R&B',
     query: 'current R&B official audio SZA Victoria Monet Coco Jones Summer Walker',
     gradient: 'linear-gradient(135deg,#1a0008,#3d0018)',
-    seedIndexes: [],
+    seedIndexes: [12],
     liveCount: 8,
     matchTerms: ['sza', 'victoria monet', 'coco jones', 'summer walker', 'tems', 'kehlani', 'jhene aiko', 'tyla'],
     description: 'A softer present-day lane with breakup records and conversational vocals.',
@@ -233,7 +233,8 @@ export const seedSongs = [
   { title: 'I Believe I Can Fly', artist: 'R. Kelly', videoId: 'GIQn8pab8Vc', artistSlug: 'r-kelly', year: '1996', tags: ['90s r&b', 'ballads', 'power vocal'] },
   { title: 'I Wanna Be Down', artist: 'Brandy', videoId: 'PzpLkcfBe-A', artistSlug: 'brandy', year: '1994', tags: ['90s r&b', 'women of r&b', 'classics'] },
   { title: 'End of the Road', artist: 'Boyz II Men', videoId: 'zDKO6XYXioc', artistSlug: 'boyz-ii-men', year: '1992', tags: ['90s r&b', 'slow jams', 'harmonies'] },
-  { title: 'If Your Girl Only Knew', artist: 'Aaliyah', videoId: 'v_Qy6vaMsFQ', artistSlug: 'aaliyah', year: '1996', tags: ['90s r&b', 'women of r&b', 'cool swing'] }
+  { title: 'If Your Girl Only Knew', artist: 'Aaliyah', videoId: 'v_Qy6vaMsFQ', artistSlug: 'aaliyah', year: '1996', tags: ['90s r&b', 'women of r&b', 'cool swing'] },
+  { title: 'Touch Me', artist: 'Victoria Monet', videoId: 'w9XLDme8HQ4', artistSlug: 'victoria-monet', year: '2020', tags: ['current r&b', 'sensual', 'after-hours'] }
 ];
 
 export const artistProfiles = {
@@ -369,5 +370,13 @@ export const artistProfiles = {
     bio: 'Frank Ocean writes about vulnerability, identity, and memory with the kind of precision that turns personal records into universal ones. Blonde and Channel Orange remain the most studied R&B albums of the 2010s.',
     gradient: 'linear-gradient(135deg,#001a18,#003028)',
     tags: ['alt r&b', 'introspective', '2010s']
+  },
+  'victoria-monet': {
+    name: 'Victoria Monet',
+    tagline: 'Silky writing, intimate delivery, and modern R&B with real atmosphere.',
+    bio: 'Victoria Monet holds Velvet\'s softer modern edge: breathy detail, confident sensuality, and records that feel expensive without losing warmth.',
+    gradient: 'linear-gradient(135deg,#2a1420,#7a415d)',
+    tags: ['current r&b', 'sensual', 'after-hours']
   }
 };
+
