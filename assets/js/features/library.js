@@ -2,13 +2,12 @@ import { refreshLibraryState, isLiked, state } from '../core/state.js';
 import { playFromQueue } from '../core/player.js';
 import { bindSongRowActions, resolveTrack } from '../core/ui.js';
 import { getPlaylistPreviewEntries, getPlaylistSignature, getPrimaryPlaylist } from '../core/playlists.js';
-import { pageHead, emptyState, icon, getTrackArtwork, libraryPlaylistCard } from '../ui/templates.js';
+import { pageHead, emptyState, icon, getTrackArtwork, libraryPlaylistCard, escapeHtml, safeUrl } from '../ui/templates.js';
 import { formatCount } from '../core/tracks.js';
 
 const LIBRARY_KEYS = new Set(['vlv_liked', 'vlv_recent', 'vlv_playlists']);
 const LIBRARY_VIEWS = ['playlists', 'liked', 'recent'];
 let activeLibraryView = 'playlists';
-
 
 function getPlaylistsTrackCount() {
   return state.playlists.reduce((total, playlist) => total + (playlist.songs?.length || 0), 0);
@@ -62,8 +61,8 @@ function getMemoryStrip(primaryPlaylist, primarySignature) {
 
 function libraryFilterButton(view, label) {
   return `
-    <button class="library-filter${activeLibraryView === view ? ' is-active' : ''}" type="button" data-library-view="${view}">
-      ${label}
+    <button class="library-filter${activeLibraryView === view ? ' is-active' : ''}" type="button" data-library-view="${escapeHtml(view)}">
+      ${escapeHtml(label)}
     </button>
   `;
 }
@@ -92,40 +91,45 @@ function renderLibraryPlaylistCard(playlist) {
 }
 
 function librarySongRow(track, index, source, playlistId = '') {
+  const artwork = safeUrl(getTrackArtwork(track), '');
+  const title = escapeHtml(track.title || 'Unknown track');
+  const artist = escapeHtml(track.artist || 'Unknown artist');
+  const videoId = escapeHtml(track.videoId || '');
+
   return `
     <article class="song-row">
-      <button class="song-index" data-action="play-library-track" data-source="${source}" data-playlist="${playlistId}" data-index="${index}" data-video="${track.videoId}">
+      <button class="song-index" data-action="play-library-track" data-source="${escapeHtml(source)}" data-playlist="${escapeHtml(playlistId)}" data-index="${Number(index)}" data-video="${videoId}">
         ${icon('play')}
       </button>
 
       <img
         class="song-thumb"
-        src="${getTrackArtwork(track)}"
-        alt="${track.title || 'Track artwork'}"
+        src="${escapeHtml(artwork)}"
+        alt="${title || 'Track artwork'}"
         data-action="play-library-track"
-        data-source="${source}"
-        data-playlist="${playlistId}"
-        data-index="${index}"
-        data-video="${track.videoId}"
+        data-source="${escapeHtml(source)}"
+        data-playlist="${escapeHtml(playlistId)}"
+        data-index="${Number(index)}"
+        data-video="${videoId}"
       >
 
       <div
         class="song-main"
         data-action="play-library-track"
-        data-source="${source}"
-        data-playlist="${playlistId}"
-        data-index="${index}"
-        data-video="${track.videoId}"
+        data-source="${escapeHtml(source)}"
+        data-playlist="${escapeHtml(playlistId)}"
+        data-index="${Number(index)}"
+        data-video="${videoId}"
       >
-        <div class="song-title">${track.title || 'Unknown track'}</div>
-        <div class="song-sub">${track.artist || 'Unknown artist'}</div>
+        <div class="song-title">${title}</div>
+        <div class="song-sub">${artist}</div>
       </div>
 
-      <button class="btn-icon ${isLiked(track.videoId) ? 'on' : ''}" data-action="toggle-like" data-source="${source}" data-playlist="${playlistId}" data-index="${index}" data-video="${track.videoId}">
+      <button class="btn-icon ${isLiked(track.videoId) ? 'on' : ''}" data-action="toggle-like" data-source="${escapeHtml(source)}" data-playlist="${escapeHtml(playlistId)}" data-index="${Number(index)}" data-video="${videoId}">
         ${icon('heart')}
       </button>
 
-      <button class="btn-icon" data-action="add-playlist" data-source="${source}" data-playlist="${playlistId}" data-index="${index}" data-video="${track.videoId}">
+      <button class="btn-icon" data-action="add-playlist" data-source="${escapeHtml(source)}" data-playlist="${escapeHtml(playlistId)}" data-index="${Number(index)}" data-video="${videoId}">
         ${icon('plus')}
       </button>
     </article>
@@ -160,9 +164,9 @@ function overviewMarkup() {
         <div class="library-memory-strip">
           ${memoryStrip.map(card => `
             <article class="library-memory-card">
-              <span>${card.label}</span>
-              <strong>${card.value}</strong>
-              <small>${card.copy}</small>
+              <span>${escapeHtml(card.label)}</span>
+              <strong>${escapeHtml(card.value)}</strong>
+              <small>${escapeHtml(card.copy)}</small>
             </article>
           `).join('')}
         </div>
@@ -171,22 +175,22 @@ function overviewMarkup() {
       <aside class="library-side-panel">
         <div class="panel library-insight-panel">
           <span class="panel-kicker">Depth check</span>
-          <div class="library-insight-value">${formatCount(getPlaylistsTrackCount(), 'stored track')}</div>
-          <p class="section-copy">${getLastSavedLabel()}</p>
+          <div class="library-insight-value">${escapeHtml(formatCount(getPlaylistsTrackCount(), 'stored track'))}</div>
+          <p class="section-copy">${escapeHtml(getLastSavedLabel())}</p>
         </div>
         <div class="panel library-insight-panel">
           <span class="panel-kicker">Lead stack</span>
-          <div class="library-insight-value">${primaryPlaylist?.name || 'No stack yet'}</div>
-          <p class="section-copy">${primarySignature?.summary || 'Build a stack and it will surface here automatically.'}</p>
+          <div class="library-insight-value">${escapeHtml(primaryPlaylist?.name || 'No stack yet')}</div>
+          <p class="section-copy">${escapeHtml(primarySignature?.summary || 'Build a stack and it will surface here automatically.')}</p>
         </div>
       </aside>
 
       <div class="library-summary-grid">
         ${cards.map(card => `
           <article class="library-summary-card">
-            <span class="panel-kicker">${card.kicker}</span>
-            <strong>${card.value}</strong>
-            <p>${card.copy}</p>
+            <span class="panel-kicker">${escapeHtml(card.kicker)}</span>
+            <strong>${escapeHtml(card.value)}</strong>
+            <p>${escapeHtml(card.copy)}</p>
           </article>
         `).join('')}
       </div>
@@ -314,5 +318,3 @@ export function mountLibraryPage(container) {
 
   renderLibraryView(container);
 }
-
-

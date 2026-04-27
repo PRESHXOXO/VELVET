@@ -1,5 +1,6 @@
 import { isLiked } from '../core/state.js';
 import { getStationVisual } from '../core/catalog.js';
+import { escapeHtml, normalizeText, safeUrl } from '../core/sanitize.js';
 
 export function getInitials(value = '') {
   return String(value)
@@ -11,11 +12,19 @@ export function getInitials(value = '') {
 }
 
 function escapeAttr(value = '') {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  return escapeHtml(value);
+}
+
+function safeStyleValue(value = '', fallback = '') {
+  return escapeAttr(String(value || fallback).replace(/[;{}<>]/g, ' ').trim() || fallback);
+}
+
+function safeText(value = '', fallback = '') {
+  return escapeHtml(normalizeText(value, { fallback, maxLength: 260 }));
+}
+
+function safeIdValue(value = '') {
+  return escapeAttr(String(value ?? '').replace(/["<>`\s]/g, '').trim());
 }
 
 export function icon(name){
@@ -33,11 +42,11 @@ export function heroBanner({ kicker, title, copy, actions }){
   return `
     <section class="hero-banner">
       <div class="hero-copy">
-        <span class="panel-kicker">${kicker}</span>
-        <h1>${title}</h1>
-        <p>${copy}</p>
+        <span class="panel-kicker">${safeText(kicker)}</span>
+        <h1>${safeText(title)}</h1>
+        <p>${safeText(copy)}</p>
       </div>
-      <div class="hero-actions">${actions}</div>
+      <div class="hero-actions">${actions || ''}</div>
     </section>
   `;
 }
@@ -53,21 +62,21 @@ export function mediaSlot({
   ratio = 'square',
   forceMeta = false
 } = {}) {
-  const safeImage = image ? escapeAttr(image) : '';
-  const safeAlt = escapeAttr(alt);
-  const safeLabel = label;
-  const safeEyebrow = eyebrow;
+  const safeImage = safeUrl(image, '');
+  const safeAlt = escapeAttr(normalizeText(alt, { fallback: 'Velvet visual', maxLength: 140 }));
+  const safeLabel = safeText(label, 'Image slot');
+  const safeEyebrow = safeText(eyebrow, 'Velvet visual');
   const showMeta = forceMeta || !safeImage;
   const filledClass = safeImage ? 'is-filled' : 'is-empty';
 
   return `
-    <div class="media-slot media-slot--${ratio} media-slot--${kind} ${filledClass} ${className}" data-media-slot="${kind}">
+    <div class="media-slot media-slot--${escapeAttr(ratio)} media-slot--${escapeAttr(kind)} ${filledClass} ${escapeAttr(className)}" data-media-slot="${escapeAttr(kind)}">
       ${safeImage ? `
-        <img src="${safeImage}" alt="${safeAlt}">
+        <img src="${escapeAttr(safeImage)}" alt="${safeAlt}">
       ` : `
         <div class="media-slot-placeholder" aria-hidden="true">
           <div class="media-slot-glow"></div>
-          <span class="media-slot-monogram">${getInitials(monogram || safeLabel)}</span>
+          <span class="media-slot-monogram">${escapeHtml(getInitials(monogram || label))}</span>
           <div class="media-slot-lines"><span></span><span></span><span></span></div>
         </div>
       `}
@@ -84,18 +93,18 @@ export function mediaSlot({
 export function stationCard(station, index){
   const seedCount = (station.seedIndexes || []).length;
   const seedLabel = seedCount ? `${seedCount} curated` : 'Live-led';
-  const stationImage = station.cardImage || station.image || station.heroImage || getStationVisual(index);
+  const stationImage = safeUrl(station.cardImage || station.image || station.heroImage || getStationVisual(index), '');
 
   return `
-    <article class="station-card" style="--station-gradient:${station.gradient}">
+    <article class="station-card" style="--station-gradient:${safeStyleValue(station.gradient, 'linear-gradient(135deg,#17121a,#43253c)')}">
       <div class="station-card-top">
         <span class="panel-kicker">Station View</span>
-        <span class="station-card-seed">${seedLabel}</span>
+        <span class="station-card-seed">${safeText(seedLabel)}</span>
       </div>
       <div class="station-card-shell">
         <div class="station-card-copy">
-          <h3>${station.name}</h3>
-          <p>${station.description || station.query}</p>
+          <h3>${safeText(station.name, 'Station')}</h3>
+          <p>${safeText(station.description || station.query, 'Station route')}</p>
         </div>
         ${mediaSlot({
           image: stationImage,
@@ -109,19 +118,19 @@ export function stationCard(station, index){
         })}
       </div>
       <div class="meta-tags">
-        <span class="mini-tag">${seedCount} seeds</span>
+        <span class="mini-tag">${safeText(`${seedCount} seeds`)}</span>
         <span class="mini-tag">YouTube pull</span>
       </div>
       <div class="actions">
-        <button class="btn btn-primary" data-action="open-station" data-index="${index}">${icon('play')} Play Station</button>
-        <button class="btn btn-secondary" data-action="shuffle-station" data-index="${index}">${icon('shuffle')} Shuffle</button>
+        <button class="btn btn-primary" data-action="open-station" data-index="${Number(index)}">${icon('play')} Play Station</button>
+        <button class="btn btn-secondary" data-action="shuffle-station" data-index="${Number(index)}">${icon('shuffle')} Shuffle</button>
       </div>
     </article>
   `;
 }
 
 export function getTrackArtwork(track = {}){
-  return (
+  return safeUrl(
     track.thumb ||
     track.thumbnail ||
     track.image ||
@@ -129,53 +138,59 @@ export function getTrackArtwork(track = {}){
     (track.snippet && track.snippet.thumbnails && track.snippet.thumbnails.high && track.snippet.thumbnails.high.url) ||
     (track.snippet && track.snippet.thumbnails && track.snippet.thumbnails.medium && track.snippet.thumbnails.medium.url) ||
     (track.snippet && track.snippet.thumbnails && track.snippet.thumbnails.default && track.snippet.thumbnails.default.url) ||
-    (track.videoId ? `https://i.ytimg.com/vi/${track.videoId}/hqdefault.jpg` : '')
+    (track.videoId ? `https://i.ytimg.com/vi/${safeIdValue(track.videoId)}/hqdefault.jpg` : ''),
+    ''
   );
 }
 
 export function renderPlaylistArtwork(entries = [], { emptyClass = '', emptyLabel = 'V' } = {}){
   if (!entries.length) {
-    return `<div class="${emptyClass}">${emptyLabel}</div>`;
+    return `<div class="${escapeAttr(emptyClass)}">${escapeHtml(getInitials(emptyLabel))}</div>`;
   }
 
-  return entries.slice(0, 4).map(entry => `
-    <img src="${getTrackArtwork(entry.track)}" alt="${entry.track.title || 'Track artwork'}">
-  `).join('');
+  return entries.slice(0, 4).map(entry => {
+    const artwork = getTrackArtwork(entry.track);
+    const alt = escapeAttr(normalizeText(entry.track?.title || 'Track artwork', { fallback: 'Track artwork', maxLength: 140 }));
+    return `<img src="${escapeAttr(artwork)}" alt="${alt}">`;
+  }).join('');
 }
 
 export function songRow(track, index){
   const thumb = getTrackArtwork(track);
+  const title = safeText(track.title, 'Unknown track');
+  const artist = safeText(track.artist, 'Unknown artist');
+  const videoId = safeIdValue(track.videoId);
 
   return `
     <article class="song-row">
-      <button class="song-index" data-action="play-track" data-video="${track.videoId}" data-index="${index}">
+      <button class="song-index" data-action="play-track" data-video="${videoId}" data-index="${Number(index)}">
         ${icon('play')}
       </button>
 
       <img
         class="song-thumb"
-        src="${thumb}"
-        alt="${track.title || 'Track artwork'}"
+        src="${escapeAttr(thumb)}"
+        alt="${escapeAttr(normalizeText(track.title || 'Track artwork', { fallback: 'Track artwork', maxLength: 140 }))}"
         data-action="play-track"
-        data-video="${track.videoId}"
-        data-index="${index}"
+        data-video="${videoId}"
+        data-index="${Number(index)}"
       >
 
       <div
         class="song-main"
         data-action="play-track"
-        data-video="${track.videoId}"
-        data-index="${index}"
+        data-video="${videoId}"
+        data-index="${Number(index)}"
       >
-        <div class="song-title">${track.title || 'Unknown track'}</div>
-        <div class="song-sub">${track.artist || 'Unknown artist'}</div>
+        <div class="song-title">${title}</div>
+        <div class="song-sub">${artist}</div>
       </div>
 
-      <button class="btn-icon ${isLiked(track.videoId) ? 'on' : ''}" data-action="toggle-like" data-video="${track.videoId}">
+      <button class="btn-icon ${isLiked(track.videoId) ? 'on' : ''}" data-action="toggle-like" data-video="${videoId}">
         ${icon('heart')}
       </button>
 
-      <button class="btn-icon" data-action="add-playlist" data-video="${track.videoId}">
+      <button class="btn-icon" data-action="add-playlist" data-video="${videoId}">
         ${icon('plus')}
       </button>
     </article>
@@ -185,21 +200,21 @@ export function songRow(track, index){
 export function shelfCard(card){
   return `
     <article class="shelf-card">
-      <div class="shelf-card-media"><img src="${card.image}" alt=""></div>
+      <div class="shelf-card-media"><img src="${escapeAttr(safeUrl(card.image, ''))}" alt=""></div>
       <div class="shelf-card-copy">
-        <span class="panel-kicker">${card.kicker}</span>
-        <h3>${card.title}</h3>
-        <p>${card.copy}</p>
+        <span class="panel-kicker">${safeText(card.kicker)}</span>
+        <h3>${safeText(card.title)}</h3>
+        <p>${safeText(card.copy)}</p>
       </div>
     </article>
   `;
 }
 
 export function artistCard(profile){
-  const portraitImage = profile.portraitImage || profile.image || '';
+  const portraitImage = safeUrl(profile.portraitImage || profile.image || '', '');
 
   return `
-    <article class="artist-card" style="--artist-gradient:${profile.gradient || 'linear-gradient(135deg,#17121a,#43253c)'};${portraitImage ? `--artist-image:url('${portraitImage}')` : ''}">
+    <article class="artist-card" style="--artist-gradient:${safeStyleValue(profile.gradient || 'linear-gradient(135deg,#17121a,#43253c)')};${portraitImage ? `--artist-image:url('${escapeAttr(portraitImage)}')` : ''}">
       <div class="artist-card-visual">
         ${mediaSlot({
           image: portraitImage,
@@ -214,11 +229,11 @@ export function artistCard(profile){
         <span class="panel-kicker">Artist Profile</span>
       </div>
       <div class="artist-card-body">
-        <h3>${profile.name}</h3>
-        <p>${profile.description || 'Velvet artist profile'}</p>
-        <div class="meta-tags">${(profile.tags || []).slice(0,3).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+        <h3>${safeText(profile.name, 'Artist')}</h3>
+        <p>${safeText(profile.description || 'Velvet artist profile')}</p>
+        <div class="meta-tags">${(profile.tags || []).slice(0,3).map(tag => `<span class="mini-tag">${safeText(tag)}</span>`).join('')}</div>
         <div class="actions">
-          <button class="btn btn-primary" data-action="open-artist" data-slug="${profile.slug}">${icon('play')} Open Artist</button>
+          <button class="btn btn-primary" data-action="open-artist" data-slug="${escapeAttr(profile.slug || '')}">${icon('play')} Open Artist</button>
         </div>
       </div>
     </article>
@@ -227,39 +242,39 @@ export function artistCard(profile){
 
 export function libraryPlaylistCard(playlist, signature, previewEntries){
   return `
-    <article class="library-playlist-card" style="--playlist-gradient:${signature.gradient}">
+    <article class="library-playlist-card" style="--playlist-gradient:${safeStyleValue(signature.gradient, 'linear-gradient(135deg,#17121a,#43253c)')}">
       <div class="library-playlist-cover">
         <div class="library-playlist-collage">
           ${renderPlaylistArtwork(previewEntries, { emptyClass: 'library-playlist-cover-empty' })}
         </div>
-        <span class="library-playlist-badge">${signature.topMood || 'Open Stack'}</span>
+        <span class="library-playlist-badge">${safeText(signature.topMood || 'Open Stack')}</span>
       </div>
 
       <div class="library-playlist-head">
         <div>
           <span class="panel-kicker">Playlist</span>
-          <h3>${playlist.name}</h3>
+          <h3>${safeText(playlist.name, 'Untitled Playlist')}</h3>
         </div>
-        <div class="library-playlist-metric">${signature.caption}</div>
+        <div class="library-playlist-metric">${safeText(signature.caption || '')}</div>
       </div>
 
-      <p class="library-playlist-copy">${signature.summary}</p>
-      <div class="meta-tags">${signature.tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+      <p class="library-playlist-copy">${safeText(signature.summary || '')}</p>
+      <div class="meta-tags">${(signature.tags || []).map(tag => `<span class="mini-tag">${safeText(tag)}</span>`).join('')}</div>
 
       <div class="library-playlist-preview">
         ${previewEntries.length ? previewEntries.map(entry => `
-          <button class="library-playlist-track" type="button" data-action="play-library-track" data-source="playlist" data-playlist="${playlist.id}" data-index="${entry.queueIndex}" data-video="${entry.track.videoId}">
-            <img src="${getTrackArtwork(entry.track)}" alt="${entry.track.title || 'Track artwork'}">
+          <button class="library-playlist-track" type="button" data-action="play-library-track" data-source="playlist" data-playlist="${Number(playlist.id)}" data-index="${Number(entry.queueIndex)}" data-video="${safeIdValue(entry.track.videoId)}">
+            <img src="${escapeAttr(getTrackArtwork(entry.track))}" alt="${escapeAttr(normalizeText(entry.track.title || 'Track artwork', { fallback: 'Track artwork', maxLength: 140 }))}">
             <span>
-              <strong>${entry.track.title}</strong>
-              <small>${entry.track.artist}</small>
+              <strong>${safeText(entry.track.title, 'Unknown track')}</strong>
+              <small>${safeText(entry.track.artist, 'Unknown artist')}</small>
             </span>
           </button>
         `).join('') : '<div class="library-empty-inline">No tracks here yet.</div>'}
       </div>
 
       <div class="inline-actions">
-        <button class="btn btn-primary" type="button" data-action="play-playlist" data-playlist="${playlist.id}">${icon('play')} Play stack</button>
+        <button class="btn btn-primary" type="button" data-action="play-playlist" data-playlist="${Number(playlist.id)}">${icon('play')} Play stack</button>
       </div>
     </article>
   `;
@@ -267,36 +282,39 @@ export function libraryPlaylistCard(playlist, signature, previewEntries){
 
 export function playlistPickerCard(playlist, signature, match, previewEntries){
   return `
-    <button class="playlist-picker-card is-${match.tone}" data-playlist="${playlist.id}" ${match.disabled ? 'disabled' : ''}>
-      <div class="playlist-picker-art" style="--playlist-gradient:${signature.gradient}">
+    <button class="playlist-picker-card is-${escapeAttr(match.tone || 'default')}" data-playlist="${Number(playlist.id)}" ${match.disabled ? 'disabled' : ''}>
+      <div class="playlist-picker-art" style="--playlist-gradient:${safeStyleValue(signature.gradient, 'linear-gradient(135deg,#17121a,#43253c)')}">
         ${renderPlaylistArtwork(previewEntries, { emptyClass: 'playlist-picker-art-empty' })}
       </div>
       <div class="playlist-picker-copy">
         <div class="playlist-picker-topline">
           <span class="panel-kicker">Playlist</span>
-          <span class="playlist-picker-match is-${match.tone}">${match.label}</span>
+          <span class="playlist-picker-match is-${escapeAttr(match.tone || 'default')}">${safeText(match.label || '')}</span>
         </div>
-        <h4>${playlist.name}</h4>
-        <p class="section-copy">${signature.summary}</p>
-        <div class="meta-tags">${signature.tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+        <h4>${safeText(playlist.name, 'Untitled Playlist')}</h4>
+        <p class="section-copy">${safeText(signature.summary || '')}</p>
+        <div class="meta-tags">${(signature.tags || []).map(tag => `<span class="mini-tag">${safeText(tag)}</span>`).join('')}</div>
       </div>
     </button>
   `;
 }
 
 export function emptyState(copy){
-  return `<div class="empty">${copy}</div>`;
+  return `<div class="empty">${safeText(copy)}</div>`;
 }
 
 export function pageHead({ kicker, title, copy, linkText = '', linkHref = '' }){
+  const safeHref = safeUrl(linkHref, '');
   return `
     <div class="section-head">
       <div>
-        <span class="panel-kicker">${kicker}</span>
-        <div class="section-title">${title}</div>
-        <p class="section-copy">${copy}</p>
+        <span class="panel-kicker">${safeText(kicker)}</span>
+        <div class="section-title">${safeText(title)}</div>
+        <p class="section-copy">${safeText(copy)}</p>
       </div>
-      ${linkText ? `<a class="section-link" href="${linkHref}">${linkText}</a>` : ''}
+      ${linkText && safeHref ? `<a class="section-link" href="${escapeAttr(safeHref)}">${safeText(linkText)}</a>` : ''}
     </div>
   `;
 }
+
+export { escapeHtml, safeUrl };

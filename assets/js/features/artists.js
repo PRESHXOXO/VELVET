@@ -108,7 +108,7 @@ function artistRailFeature(profile, tracks = [], { isPinned = false, isRecent = 
       <div class="artist-rail-feature-thumb ${image ? '' : 'is-fallback'}">
         <span>${getArtistInitials(profile.name)}</span>
         ${image
-          ? `<img src="${image}" alt="${profile.name || 'Artist'} portrait" onerror="this.parentElement.classList.add('is-fallback');this.remove();">`
+          ? `<img src="${image}" alt="${profile.name || 'Artist'} portrait">`
           : ''}
       </div>
       <div class="artist-rail-feature-copy">
@@ -203,7 +203,7 @@ function renderArtistStageVisual(profile, tracks = [], activeTrack = null, image
     <div class="artist-stage-visual-frame ${image ? '' : 'is-image-missing'}">
       <div class="artist-stage-fallback">${getArtistInitials(profile?.name)}</div>
       ${image
-        ? `<img class="artist-stage-image" src="${image}" alt="${profile?.name || 'Artist'} portrait" onerror="this.closest('.artist-stage-visual-frame')?.classList.add('is-image-missing');this.remove();">`
+        ? `<img class="artist-stage-image" src="${image}" alt="${profile?.name || 'Artist'} portrait">`
         : ''}
       <div class="artist-stage-visual-glass"></div>
       <div class="artist-stage-orbit artist-stage-orbit--halo"></div>
@@ -400,6 +400,19 @@ export function renderArtistsPage(container) {
     </section>
   `;
 
+  container.querySelectorAll('.artist-rail-feature-thumb img').forEach(img => {
+    img.addEventListener('error', () => {
+      img.parentElement?.classList.add('is-fallback');
+      img.remove();
+    }, { once: true });
+  });
+
+  container.querySelectorAll('.artist-stage-image').forEach(img => {
+    img.addEventListener('error', () => {
+      img.closest('.artist-stage-visual-frame')?.classList.add('is-image-missing');
+      img.remove();
+    }, { once: true });
+  });
   document.getElementById('playArtistTracks')?.addEventListener('click', () => {
     if (!tracks.length) return;
     playFromQueue(tracks, 0);

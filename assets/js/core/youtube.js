@@ -1,5 +1,6 @@
-const API_KEY = 'AIzaSyBFlcDJ8UCnt7JnnAEC96fGDTwPvsapw1U';
-const API_ENDPOINT = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video';
+import { normalizeText, sanitizeTrack, safeVideoId } from './sanitize.js';
+
+const API_ENDPOINT = '/api/youtube-search';
 
 let iframeApiPromise = null;
 let playerInstance = null;
@@ -29,15 +30,12 @@ function safePlayer(player) {
 }
 
 function ytThumb(videoId = '') {
-  return videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : '';
-}
-
-function cleanText(value = '') {
-  return String(value).replace(/\s+/g, ' ').trim();
+  const safeId = safeVideoId(videoId);
+  return safeId ? `https://i.ytimg.com/vi/${safeId}/hqdefault.jpg` : '';
 }
 
 function looksPlayable(videoId = '') {
-  return typeof videoId === 'string' && videoId.trim().length >= 6;
+  return typeof videoId === 'string' && safeVideoId(videoId).length >= 6;
 }
 
 function ensureIframeApi() {
@@ -117,16 +115,16 @@ async function waitForPlayerReady() {
 }
 
 export async function loadVideo(videoId) {
-  if (!looksPlayable(videoId)) {
+  const safeId = safeVideoId(videoId);
+  if (!looksPlayable(safeId)) {
     throw new Error('Invalid videoId');
   }
 
   const requestToken = ++loadRequestToken;
   const yt = safePlayer(await waitForPlayerReady());
 
-  yt.loadVideoById(videoId);
+  yt.loadVideoById(safeId);
 
-  // tiny settle delay so rapid clicks don't stomp each other immediately
   await wait(120);
 
   if (requestToken !== loadRequestToken) {
@@ -137,12 +135,13 @@ export async function loadVideo(videoId) {
 }
 
 export async function cueVideo(videoId) {
-  if (!looksPlayable(videoId)) {
+  const safeId = safeVideoId(videoId);
+  if (!looksPlayable(safeId)) {
     throw new Error('Invalid videoId');
   }
 
   const yt = safePlayer(await waitForPlayerReady());
-  yt.cueVideoById(videoId);
+  yt.cueVideoById(safeId);
   return yt;
 }
 
@@ -178,34 +177,36 @@ export async function getDuration() {
 export { ytThumb };
 
 export async function fetchSongs(query, max = 12) {
-  if (!API_KEY) return [];
+  const normalizedQuery = normalizeText(query, { maxLength: 120 });
+  if (!normalizedQuery) return [];
 
-  const url =
-    `${API_ENDPOINT}&maxResults=${max}&q=${encodeURIComponent(query)}&key=${API_KEY}`;
+  if (window.location.protocol === 'file:') {
+    return [];
+  }
 
-  const response = await fetch(url);
+  const safeMax = Math.max(1, Math.min(25, Number(max) || 12));
+  const url = `${API_ENDPOINT}?q=${encodeURIComponent(normalizedQuery)}&max=${safeMax}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    credentials: 'same-origin',
+    headers: {
+      Accept: 'application/json'
+    }
+  });
+
   if (!response.ok) {
     throw new Error('YouTube request failed');
   }
 
   const data = await response.json();
-
-  return (data.items || [])
-    .map(item => {
-      const videoId = item.id?.videoId || '';
-      const snippet = item.snippet || {};
-
-      return {
-        title: cleanText(snippet.title || 'Untitled'),
-        artist: cleanText(snippet.channelTitle || 'YouTube'),
-        videoId,
-        thumb:
-          snippet?.thumbnails?.high?.url ||
-          snippet?.thumbnails?.medium?.url ||
-          snippet?.thumbnails?.default?.url ||
-          ytThumb(videoId)
-      };
-    })
+  return (Array.isArray(data.items) ? data.items : [])
+    .map(item => sanitizeTrack({
+      title: item.title,
+      artist: item.artist,
+      videoId: item.videoId,
+      thumb: item.thumb || ytThumb(item.videoId)
+    }))
     .filter(item =>
       looksPlayable(item.videoId) &&
       item.title &&

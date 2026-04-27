@@ -1,7 +1,8 @@
 import { stations, seedSongs, artistProfiles } from '../data/catalog.js';
+import { normalizeText, safeUrl, safeVideoId, sanitizeTextList, sanitizeTrack } from './sanitize.js';
 
 export function normalizeSearch(value = '') {
-  return value.toLowerCase().trim();
+  return String(value ?? '').toLowerCase().trim();
 }
 
 export function slugify(value = '') {
@@ -11,28 +12,23 @@ export function slugify(value = '') {
 }
 
 export function ytThumb(videoId = '') {
-  return videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : '';
+  const safeId = safeVideoId(videoId);
+  return safeId ? `https://i.ytimg.com/vi/${safeId}/hqdefault.jpg` : '';
 }
 
 export function hydrateTrack(track = {}) {
-  const moods = Array.isArray(track.moods) && track.moods.length
-    ? track.moods
-    : (Array.isArray(track.tags) ? track.tags : []);
+  const hydrated = sanitizeTrack(track);
+  const moods = Array.isArray(hydrated.moods) && hydrated.moods.length
+    ? hydrated.moods
+    : sanitizeTextList(track.tags || [], { maxItems: 8, maxLength: 36 });
 
   return {
-    title: track.title || 'Unknown track',
-    artist: track.artist || 'Unknown artist',
-    thumb:
-      track.thumb ||
-      track.thumbnail ||
-      track.image ||
-      track.artwork ||
-      track?.snippet?.thumbnails?.high?.url ||
-      track?.snippet?.thumbnails?.medium?.url ||
-      track?.snippet?.thumbnails?.default?.url ||
-      ytThumb(track.videoId),
-    videoId: track.videoId || '',
-    year: track.year || '',
+    ...hydrated,
+    title: hydrated.title || 'Unknown track',
+    artist: hydrated.artist || 'Unknown artist',
+    thumb: hydrated.thumb || hydrated.thumbnail || hydrated.image || hydrated.artwork || ytThumb(hydrated.videoId),
+    videoId: hydrated.videoId || '',
+    year: hydrated.year || '',
     moods
   };
 }
@@ -50,41 +46,45 @@ export function getArtistTracks(slug) {
 export function getArtistProfile(slug) {
   const tracks = getArtistTracks(slug);
   const leadTrack = tracks[0] || null;
-  const leadImage = leadTrack?.thumb || '';
+  const leadImage = safeUrl(leadTrack?.thumb || '', '');
 
   if (artistProfiles[slug]) {
     const profile = artistProfiles[slug];
-    const portraitImage = profile.portraitImage || profile.image || leadImage;
-    const featureImage = profile.featureImage || profile.heroImage || profile.image || portraitImage || leadImage;
+    const portraitImage = safeUrl(profile.portraitImage || profile.image || leadImage || '', '');
+    const featureImage = safeUrl(profile.featureImage || profile.heroImage || profile.image || portraitImage || leadImage || '', '');
 
     return {
       slug,
       ...profile,
-      description: profile.description || profile.bio || profile.tagline || 'Velvet artist profile.',
-      tags: profile.tags || [],
-      image: profile.image || portraitImage || featureImage || leadImage,
+      name: normalizeText(profile.name || slug, { fallback: slug, maxLength: 80 }),
+      description: normalizeText(profile.description || profile.bio || profile.tagline || 'Velvet artist profile.', { fallback: 'Velvet artist profile.', maxLength: 260 }),
+      tagline: normalizeText(profile.tagline || '', { maxLength: 140 }),
+      bio: normalizeText(profile.bio || '', { maxLength: 260 }),
+      tags: sanitizeTextList(profile.tags || [], { maxItems: 6, maxLength: 32 }),
+      image: safeUrl(profile.image || portraitImage || featureImage || leadImage || '', ''),
       portraitImage,
       featureImage,
-      heroImage: profile.heroImage || featureImage || portraitImage || leadImage
+      heroImage: safeUrl(profile.heroImage || featureImage || portraitImage || leadImage || '', '')
     };
   }
 
   if (!tracks.length) {
     return {
       slug,
-      name: slug,
+      name: normalizeText(slug, { fallback: slug, maxLength: 80 }),
       description: 'No profile yet.',
       gradient: 'linear-gradient(135deg,#17121a,#43253c)',
       image: '',
       portraitImage: '',
       featureImage: '',
-      heroImage: ''
+      heroImage: '',
+      tags: []
     };
   }
 
   return {
     slug,
-    name: tracks[0].artist,
+    name: normalizeText(tracks[0].artist, { fallback: slug, maxLength: 80 }),
     description: `A Velvet profile built from ${tracks.length} seed tracks.`,
     gradient: 'linear-gradient(135deg,#17121a,#43253c)',
     tags: ['Velvet profile'],
@@ -126,11 +126,11 @@ export function getStationVisual(index) {
   if (!station) return '';
 
   if (station.heroImage || station.cardImage || station.image) {
-    return station.heroImage || station.cardImage || station.image || '';
+    return safeUrl(station.heroImage || station.cardImage || station.image || '', '');
   }
 
   const leadTrack = getStationTracks(index)[0];
-  return leadTrack?.thumb || '';
+  return safeUrl(leadTrack?.thumb || '', '');
 }
 
 export function searchCatalog(query) {
@@ -150,7 +150,20 @@ export function searchCatalog(query) {
     );
 
   const stationMatches = stations
-    .map((station, index) => ({ station, index }))
+    .map((station, index) => ({
+      station: {
+        ...station,
+        name: normalizeText(station.name || '', { fallback: 'Station', maxLength: 80 }),
+        signal: normalizeText(station.signal || '', { maxLength: 80 }),
+        query: normalizeText(station.query || '', { maxLength: 180 }),
+        description: normalizeText(station.description || '', { maxLength: 220 }),
+        tags: sanitizeTextList(station.tags || [], { maxItems: 6, maxLength: 32 }),
+        heroImage: safeUrl(station.heroImage || '', ''),
+        cardImage: safeUrl(station.cardImage || '', ''),
+        image: safeUrl(station.image || '', '')
+      },
+      index
+    }))
     .filter(entry =>
       normalizeSearch(entry.station.name).includes(q) ||
       normalizeSearch(entry.station.query).includes(q)
@@ -164,8 +177,9 @@ export function searchCatalog(query) {
 }
 
 export function findTrackByVideoId(videoId) {
-  if (!videoId) return null;
-  return catalogTracks.find(track => track.videoId === videoId) || null;
+  const safeId = safeVideoId(videoId);
+  if (!safeId) return null;
+  return catalogTracks.find(track => track.videoId === safeId) || null;
 }
 
 export { stations };
