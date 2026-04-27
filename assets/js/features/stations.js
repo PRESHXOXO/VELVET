@@ -1,8 +1,8 @@
 import { stations, getStationTracks, getStationVisual } from '../core/catalog.js';
 import { fetchSongs } from '../core/youtube.js';
 import { playFromQueue, togglePlay } from '../core/player.js';
-import { createPlaylistFromTracks, isFavoriteStation, pushRecentStation, state, toggleFavoriteStation } from '../core/state.js';
-import { pageHead, songRow, emptyState, mediaSlot } from '../ui/templates.js';
+import { createPlaylistFromTracks, isFavoriteStation, isLiked, pushRecentStation, state, toggleFavoriteStation } from '../core/state.js';
+import { pageHead, emptyState, mediaSlot, getTrackArtwork, icon } from '../ui/templates.js';
 import { bindSongRowActions, resolveTrack, toast } from '../core/ui.js';
 
 function formatStationOrdinal(index) {
@@ -152,6 +152,53 @@ function getActiveQueueTrack(queue = []) {
   return { track: queue[0] || null, index: 0, isCurrent: false };
 }
 
+function stationQueueRow(track, index, { isCurrent = false, isLive = false } = {}) {
+  const thumb = getTrackArtwork(track);
+  const pillClass = isCurrent ? (isLive ? 'is-live' : 'is-focus') : 'is-next';
+  const pillLabel = isCurrent ? (isLive ? '<i></i><i></i><i></i> live' : 'in focus') : 'up next';
+
+  return `
+    <article class="song-row station-song-row ${isCurrent ? 'is-current' : ''}">
+      <button class="song-index" data-action="play-track" data-video="${track.videoId}" data-index="${index}">
+        ${icon('play')}
+      </button>
+
+      <img
+        class="song-thumb"
+        src="${thumb}"
+        alt="${track.title || 'Track artwork'}"
+        data-action="play-track"
+        data-video="${track.videoId}"
+        data-index="${index}"
+      >
+
+      <div
+        class="song-main"
+        data-action="play-track"
+        data-video="${track.videoId}"
+        data-index="${index}"
+      >
+        <div class="song-title">${track.title || 'Unknown track'}</div>
+        <div class="song-sub">${track.artist || 'Unknown artist'}</div>
+      </div>
+
+      <div class="station-song-status" aria-hidden="true">
+        <span class="station-song-pill ${pillClass}">
+          ${pillLabel}
+        </span>
+      </div>
+
+      <button class="btn-icon ${isLiked(track.videoId) ? 'on' : ''}" data-action="toggle-like" data-video="${track.videoId}">
+        ${icon('heart')}
+      </button>
+
+      <button class="btn-icon" data-action="add-playlist" data-video="${track.videoId}">
+        ${icon('plus')}
+      </button>
+    </article>
+  `;
+}
+
 let hashListenerBound = false;
 
 export async function renderStationsPage(container) {
@@ -219,6 +266,8 @@ export async function renderStationsPage(container) {
     : 'Press play to load this station into the persistent player.';
   const isPinnedLane = isFavoriteStation(activeIndex);
   const routePlaylistName = `${station.name} Route`;
+  const sampleArtists = [...new Set(queue.map(track => track?.artist).filter(Boolean))].slice(0, 3);
+  const liveCountLabel = liveTracks.length ? `${liveTracks.length} live pulls` : 'Local only';
 
   container.innerHTML = `
     <section class="stations-page">
@@ -236,6 +285,23 @@ export async function renderStationsPage(container) {
               <div class="section-title station-player-title">${station.name}</div>
               <p class="section-copy station-player-copy">${station.description || station.query}</p>
               <div class="meta-tags">${focusTags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+              <div class="station-player-signal-strip">
+                <div class="station-player-metric-card">
+                  <span>Anchors</span>
+                  <strong>${seedCount || 0}</strong>
+                  <small>${seedLabel}</small>
+                </div>
+                <div class="station-player-metric-card">
+                  <span>Blend</span>
+                  <strong>${queue.length}</strong>
+                  <small>${liveCountLabel}</small>
+                </div>
+                <div class="station-player-metric-card">
+                  <span>Room voice</span>
+                  <strong>${sampleArtists[0] || station.signal || 'Velvet'}</strong>
+                  <small>${sampleArtists.slice(1).join(' / ') || 'Suite-led'}</small>
+                </div>
+              </div>
             </div>
             <div class="station-player-route-note">
               <span>Route signal</span>
@@ -285,7 +351,7 @@ export async function renderStationsPage(container) {
                 </div>
                 <div class="station-song-scroll station-song-scroll--chamber">
                   ${queue.length
-                    ? `<div class="song-list station-song-list">${queue.map((track, index) => songRow(track, index)).join('')}</div>`
+                    ? `<div class="song-list station-song-list">${queue.map((track, index) => stationQueueRow(track, index, { isCurrent: track.videoId === chamberTrack?.videoId, isLive: track.videoId === state.currentTrack?.videoId })).join('')}</div>`
                     : emptyState('This station does not have a mix yet.')}
                 </div>
               </div>
@@ -422,4 +488,5 @@ export async function renderStationsPage(container) {
     hashListenerBound = true;
   }
 }
+
 
