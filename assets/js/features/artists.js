@@ -10,6 +10,7 @@ import {
 import { pageHead, emptyState, getTrackArtwork, icon } from '../ui/templates.js';
 import { bindSongRowActions, toast } from '../core/ui.js';
 import { readStorage, writeStorage } from '../core/storage.js';
+import { artistProfiles as seededArtistProfiles } from '../data/catalog.js';
 
 const ARTIST_ALPHA_KEY = 'vlv_artist_alpha';
 
@@ -71,6 +72,11 @@ function getTrackCountLabel(trackCount = 0) {
   return `${trackCount} ${trackCount === 1 ? 'track' : 'tracks'}`;
 }
 
+function getExplicitArtistImage(profile) {
+  const seededProfile = seededArtistProfiles?.[profile?.slug] || null;
+  return seededProfile?.featureImage || seededProfile?.portraitImage || seededProfile?.image || '';
+}
+
 function getArtistEraLabel(tracks = []) {
   const years = tracks
     .map(track => Number(track?.year))
@@ -94,15 +100,16 @@ function getArtistAtmosphere(profile, tracks = []) {
 }
 
 function artistRailFeature(profile, tracks = [], { isPinned = false, isRecent = false } = {}) {
-  const image = profile?.portraitImage || profile?.image || '';
+  const image = getExplicitArtistImage(profile);
   const descriptor = getArtistLeadLine(profile, tracks);
 
   return `
     <button class="artist-rail-feature" type="button" data-action="open-artist" data-slug="${profile.slug}">
-      <div class="artist-rail-feature-thumb">
+      <div class="artist-rail-feature-thumb ${image ? '' : 'is-fallback'}">
+        <span>${getArtistInitials(profile.name)}</span>
         ${image
-          ? `<img src="${image}" alt="${profile.name || 'Artist'} portrait">`
-          : `<span>${getArtistInitials(profile.name)}</span>`}
+          ? `<img src="${image}" alt="${profile.name || 'Artist'} portrait" onerror="this.parentElement.classList.add('is-fallback');this.remove();">`
+          : ''}
       </div>
       <div class="artist-rail-feature-copy">
         <span class="panel-kicker">${isPinned ? 'Pinned voice' : (isRecent ? 'Recent voice' : 'Featured voice')}</span>
@@ -195,7 +202,7 @@ export function renderArtistsPage(container) {
     : (filteredProfiles[0] || requestedProfile || getArtistProfile(fallbackSlug));
   const activeSlug = activeProfile?.slug || fallbackSlug;
   const tracks = getArtistTracks(activeSlug);
-  const activeImage = activeProfile?.featureImage || activeProfile?.portraitImage || activeProfile?.image || '';
+  const activeImage = getExplicitArtistImage(activeProfile);
 
   pushRecentArtist(activeSlug);
 
@@ -307,10 +314,11 @@ export function renderArtistsPage(container) {
             </div>
 
             <div class="artist-stage-visual-wrap">
-              <div class="artist-stage-visual-frame">
+              <div class="artist-stage-visual-frame ${activeImage ? '' : 'is-image-missing'}">
+                <div class="artist-stage-fallback">${getArtistInitials(activeProfile?.name)}</div>
                 ${activeImage
-                  ? `<img class="artist-stage-image" src="${activeImage}" alt="${activeProfile?.name || 'Artist'} portrait">`
-                  : `<div class="artist-stage-fallback">${getArtistInitials(activeProfile?.name)}</div>`}
+                  ? `<img class="artist-stage-image" src="${activeImage}" alt="${activeProfile?.name || 'Artist'} portrait" onerror="this.closest('.artist-stage-visual-frame')?.classList.add('is-image-missing');this.remove();">`
+                  : ''}
                 <div class="artist-stage-visual-glass"></div>
               </div>
               <div class="artist-stage-floating-card">
@@ -398,3 +406,4 @@ export function renderArtistsPage(container) {
     hashListenerBound = true;
   }
 }
+
