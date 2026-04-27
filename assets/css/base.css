@@ -5,10 +5,10 @@ html,body{min-height:100%}
 html{scroll-behavior:smooth}
 body{
   background:
-    radial-gradient(circle at 14% 8%,rgba(111,23,48,.12),transparent 26%),
-    radial-gradient(circle at 84% 6%,rgba(188,199,211,.18),transparent 22%),
-    radial-gradient(circle at 50% 100%,rgba(111,23,48,.06),transparent 36%),
-    linear-gradient(180deg,#fffdfb 0%,#f7f1eb 46%,#f3ece5 100%);
+    radial-gradient(circle at 14% 8%,rgba(111,23,48,.1),transparent 24%),
+    radial-gradient(circle at 84% 6%,rgba(121,132,150,.08),transparent 18%),
+    radial-gradient(circle at 50% 100%,rgba(111,23,48,.05),transparent 32%),
+    linear-gradient(180deg,#050507 0%,#090b10 46%,#050507 100%);
   color:var(--text);
   font-family:"Poppins",sans-serif;
   line-height:1.5;
@@ -19,9 +19,9 @@ body::before{
   inset:0;
   pointer-events:none;
   background:
-    radial-gradient(circle at center,transparent 58%,rgba(143,126,134,.08) 100%),
-    linear-gradient(180deg,rgba(255,255,255,.6),transparent 18%,transparent 82%,rgba(255,255,255,.35));
-  opacity:.8;
+    radial-gradient(circle at center,transparent 56%,rgba(0,0,0,.18) 100%),
+    linear-gradient(180deg,rgba(255,255,255,.035),transparent 18%,transparent 82%,rgba(255,255,255,.02));
+  opacity:1;
 }
 img{display:block;max-width:100%}
 button,input,textarea,select{font:inherit}
@@ -38,34 +38,34 @@ input:focus-visible,button:focus-visible,a:focus-visible{
   box-shadow:0 0 0 1px rgba(111,23,48,.14),0 0 0 4px rgba(111,23,48,.1);
 }
 .page-velvet{
-  --bg:#fffdfb;
-  --bg-soft:#f4ede7;
-  --panel:rgba(255,255,255,.76);
-  --panel-strong:rgba(255,255,255,.9);
-  --card:rgba(255,255,255,.84);
-  --card-soft:rgba(255,255,255,.64);
-  --line:rgba(106,62,74,.11);
-  --line-strong:rgba(106,62,74,.22);
-  --text:#23181c;
-  --muted:rgba(69,51,58,.66);
-  --accent:#73152d;
-  --accent-2:#fffaf7;
-  --warm:#bcc7d3;
-  --accent-rgb:115,21,45;
-  --accent-2-rgb:255,250,247;
-  --warm-rgb:188,199,211;
+  --bg:#050507;
+  --bg-soft:#0c0d12;
+  --panel:rgba(15,17,23,.68);
+  --panel-strong:rgba(18,20,28,.82);
+  --card:rgba(22,24,32,.8);
+  --card-soft:rgba(20,22,30,.6);
+  --line:rgba(255,255,255,.08);
+  --line-strong:rgba(255,255,255,.16);
+  --text:#f5f0ed;
+  --muted:rgba(227,219,215,.62);
+  --accent:#8f1630;
+  --accent-2:#d58b9d;
+  --warm:#8c97ab;
+  --accent-rgb:143,22,48;
+  --accent-2-rgb:213,139,157;
+  --warm-rgb:140,151,171;
   background:
-    radial-gradient(circle at 12% 0%,rgba(var(--accent-rgb),.11),transparent 30%),
-    radial-gradient(circle at 88% 3%,rgba(var(--warm-rgb),.16),transparent 22%),
-    radial-gradient(circle at 50% 100%,rgba(var(--accent-rgb),.05),transparent 40%),
-    linear-gradient(180deg,#fffdfb 0%,#f7f1eb 46%,#f3ece5 100%);
+    radial-gradient(circle at 12% 0%,rgba(var(--accent-rgb),.14),transparent 28%),
+    radial-gradient(circle at 88% 3%,rgba(var(--warm-rgb),.08),transparent 18%),
+    radial-gradient(circle at 50% 100%,rgba(var(--accent-rgb),.05),transparent 32%),
+    linear-gradient(180deg,#050507 0%,#090b10 46%,#050507 100%);
   font-family:"Poppins",sans-serif;
 }
 .page-velvet::before{
   background:
-    radial-gradient(circle at center,transparent 58%,rgba(154,138,146,.08) 100%),
-    linear-gradient(180deg,rgba(255,255,255,.62),transparent 16%,transparent 84%,rgba(255,255,255,.4));
-  opacity:.72;
+    radial-gradient(circle at center,transparent 56%,rgba(0,0,0,.22) 100%),
+    linear-gradient(180deg,rgba(255,255,255,.035),transparent 16%,transparent 84%,rgba(255,255,255,.02));
+  opacity:1;
 }
 .page-velvet h1,
 .page-velvet h2,
@@ -86,65 +86,66 @@ input:focus-visible,button:focus-visible,a:focus-visible{
 
 .page-home{
   background:
-    radial-gradient(circle at 12% 0%,rgba(var(--accent-rgb),.13),transparent 28%),
-    radial-gradient(circle at 88% 2%,rgba(var(--warm-rgb),.17),transparent 20%),
-    radial-gradient(circle at 50% 100%,rgba(var(--accent-rgb),.06),transparent 34%),
-    linear-gradient(180deg,#fffdfb 0%,#f8f1eb 44%,#f5ede6 100%);
+    radial-gradient(circle at 12% 0%,rgba(var(--accent-rgb),.16),transparent 26%),
+    radial-gradient(circle at 88% 2%,rgba(var(--warm-rgb),.08),transparent 18%),
+    radial-gradient(circle at 50% 100%,rgba(var(--accent-rgb),.05),transparent 30%),
+    linear-gradient(180deg,#050507 0%,#090b10 44%,#050507 100%);
 }
-.page-home::before{opacity:.72}
+.page-home::before{opacity:1}
 
 .page-stations{
   --accent:#7a1733;
-  --accent-2:#fffaf7;
-  --warm:#c4ced9;
+  --accent-2:#d38ea0;
+  --warm:#8f99ad;
   --accent-rgb:122,23,51;
-  --accent-2-rgb:255,250,247;
-  --warm-rgb:196,206,217;
+  --accent-2-rgb:211,142,160;
+  --warm-rgb:143,153,173;
   background:
-    radial-gradient(circle at 10% 0%,rgba(var(--accent-rgb),.11),transparent 28%),
-    radial-gradient(circle at 88% 4%,rgba(var(--warm-rgb),.18),transparent 22%),
-    radial-gradient(circle at 50% 100%,rgba(86,16,34,.06),transparent 34%),
-    linear-gradient(180deg,#fefcf9 0%,#f4eee8 46%,#f2ebe4 100%);
+    radial-gradient(circle at 10% 0%,rgba(var(--accent-rgb),.13),transparent 26%),
+    radial-gradient(circle at 88% 4%,rgba(var(--warm-rgb),.08),transparent 18%),
+    radial-gradient(circle at 50% 100%,rgba(86,16,34,.05),transparent 30%),
+    linear-gradient(180deg,#060608 0%,#0a0c11 46%,#050507 100%);
 }
 
 .page-search{
   --accent:#8a1d39;
-  --accent-2:#fffaf7;
-  --warm:#cad2dc;
+  --accent-2:#d99cac;
+  --warm:#9099ad;
   --accent-rgb:138,29,57;
-  --accent-2-rgb:255,250,247;
-  --warm-rgb:202,210,220;
+  --accent-2-rgb:217,156,172;
+  --warm-rgb:144,153,173;
   background:
-    radial-gradient(circle at 14% 0%,rgba(var(--accent-rgb),.1),transparent 28%),
-    radial-gradient(circle at 84% 0%,rgba(var(--warm-rgb),.18),transparent 20%),
-    radial-gradient(circle at 52% 100%,rgba(78,18,34,.05),transparent 34%),
-    linear-gradient(180deg,#fffdfb 0%,#f5efea 48%,#f2ece6 100%);
+    radial-gradient(circle at 14% 0%,rgba(var(--accent-rgb),.12),transparent 26%),
+    radial-gradient(circle at 84% 0%,rgba(var(--warm-rgb),.08),transparent 18%),
+    radial-gradient(circle at 52% 100%,rgba(78,18,34,.05),transparent 30%),
+    linear-gradient(180deg,#060608 0%,#0a0c11 48%,#050507 100%);
 }
 
 .page-library{
   --accent:#6e1830;
-  --accent-2:#fffaf7;
-  --warm:#b7c2cf;
+  --accent-2:#cd8798;
+  --warm:#8692a7;
   --accent-rgb:110,24,48;
-  --accent-2-rgb:255,250,247;
-  --warm-rgb:183,194,207;
+  --accent-2-rgb:205,135,152;
+  --warm-rgb:134,146,167;
   background:
-    radial-gradient(circle at 14% 0%,rgba(var(--accent-rgb),.1),transparent 28%),
-    radial-gradient(circle at 86% 2%,rgba(var(--warm-rgb),.16),transparent 22%),
-    radial-gradient(circle at 50% 100%,rgba(72,22,34,.05),transparent 32%),
-    linear-gradient(180deg,#fefcf9 0%,#f4eee7 44%,#f2ebe4 100%);
+    radial-gradient(circle at 14% 0%,rgba(var(--accent-rgb),.12),transparent 26%),
+    radial-gradient(circle at 86% 2%,rgba(var(--warm-rgb),.08),transparent 18%),
+    radial-gradient(circle at 50% 100%,rgba(72,22,34,.05),transparent 28%),
+    linear-gradient(180deg,#060608 0%,#090b10 44%,#050507 100%);
 }
 
 .page-artists{
   --accent:#7c1d3b;
-  --accent-2:#fffaf7;
-  --warm:#c3ccd7;
+  --accent-2:#d698a8;
+  --warm:#8d98ad;
   --accent-rgb:124,29,59;
-  --accent-2-rgb:255,250,247;
-  --warm-rgb:195,204,215;
+  --accent-2-rgb:214,152,168;
+  --warm-rgb:141,152,173;
   background:
-    radial-gradient(circle at 12% 0%,rgba(var(--accent-rgb),.11),transparent 28%),
-    radial-gradient(circle at 88% 4%,rgba(var(--warm-rgb),.18),transparent 20%),
-    radial-gradient(circle at 52% 100%,rgba(70,20,44,.06),transparent 34%),
-    linear-gradient(180deg,#fffdfb 0%,#f6efe9 46%,#f2ebe6 100%);
+    radial-gradient(circle at 12% 0%,rgba(var(--accent-rgb),.13),transparent 26%),
+    radial-gradient(circle at 88% 4%,rgba(var(--warm-rgb),.08),transparent 18%),
+    radial-gradient(circle at 52% 100%,rgba(70,20,44,.05),transparent 30%),
+    linear-gradient(180deg,#060608 0%,#090b10 46%,#050507 100%);
 }
+

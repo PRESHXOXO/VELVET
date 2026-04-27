@@ -4,6 +4,8 @@ const PLATFORM_PLAY_BASELINES = {
   'w9XLDme8HQ4': 182
 };
 
+const REPEAT_MODES = new Set(['off', 'all', 'one']);
+
 function normalizePlaylist(playlist = {}) {
   const stamp = Number(playlist?.updatedAt || playlist?.createdAt || playlist?.id) || Date.now();
 
@@ -43,6 +45,15 @@ function normalizeDailyPick(value = null) {
   return { date, videoId };
 }
 
+function normalizeShuffle(value = false) {
+  return Boolean(value);
+}
+
+function normalizeRepeatMode(value = 'off') {
+  const safeValue = String(value || 'off').trim().toLowerCase();
+  return REPEAT_MODES.has(safeValue) ? safeValue : 'off';
+}
+
 function getTodayStamp() {
   const today = new Date();
   const year = today.getFullYear();
@@ -75,6 +86,8 @@ export const state = {
   queueIndex: readSession('vlv_queue_index', 0),
   currentTrack: readSession('vlv_current_track', null),
   volume: readSession('vlv_volume', 65),
+  shuffle: normalizeShuffle(readSession('vlv_shuffle', false)),
+  repeatMode: normalizeRepeatMode(readSession('vlv_repeat_mode', 'off')),
   isPlaying: false
 };
 
@@ -108,6 +121,8 @@ export function syncPlayback(){
   writeSession('vlv_queue_index', state.queueIndex);
   writeSession('vlv_current_track', state.currentTrack);
   writeSession('vlv_volume', state.volume);
+  writeSession('vlv_shuffle', state.shuffle);
+  writeSession('vlv_repeat_mode', state.repeatMode);
 }
 
 export function isLiked(videoId){
@@ -143,6 +158,21 @@ export function recordTrackPlay(track){
   return nextCount;
 }
 
+export function registerTrackPlayback(track){
+  if(!track?.videoId){ return 0; }
+  state.recent = [track, ...state.recent.filter(item => item.videoId !== track.videoId)].slice(0, 18);
+
+  const safeVideoId = String(track.videoId).trim();
+  const nextCount = (Number(state.playCounts[safeVideoId]) || 0) + 1;
+  state.playCounts = {
+    ...state.playCounts,
+    [safeVideoId]: nextCount
+  };
+
+  syncLibrary();
+  return nextCount;
+}
+
 export function getTrackPlayCount(videoId){
   const safeVideoId = String(videoId || '').trim();
   return safeVideoId ? (Number(state.playCounts[safeVideoId]) || 0) : 0;
@@ -159,6 +189,20 @@ export function getVelvetPickVideoId(fallbackVideoId = ''){
   state.dailyPick = nextVideoId ? { date: today, videoId: nextVideoId } : null;
   syncLibrary();
   return nextVideoId;
+}
+
+export function toggleShufflePlayback(){
+  state.shuffle = !state.shuffle;
+  syncPlayback();
+  return state.shuffle;
+}
+
+export function cycleRepeatMode(){
+  state.repeatMode = state.repeatMode === 'off'
+    ? 'all'
+    : (state.repeatMode === 'all' ? 'one' : 'off');
+  syncPlayback();
+  return state.repeatMode;
 }
 
 export function createPlaylist(name){
@@ -248,4 +292,3 @@ export function pushRecentArtist(slug){
   state.recentArtists = [safeSlug, ...state.recentArtists.filter(item => item !== safeSlug)].slice(0, 18);
   syncLibrary();
 }
-
