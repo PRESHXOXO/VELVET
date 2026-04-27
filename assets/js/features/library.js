@@ -3,15 +3,12 @@ import { playFromQueue } from '../core/player.js';
 import { bindSongRowActions, resolveTrack } from '../core/ui.js';
 import { getPlaylistPreviewEntries, getPlaylistSignature, getPrimaryPlaylist } from '../core/playlists.js';
 import { pageHead, emptyState, icon, getTrackArtwork, libraryPlaylistCard } from '../ui/templates.js';
+import { formatCount } from '../core/tracks.js';
 
 const LIBRARY_KEYS = new Set(['vlv_liked', 'vlv_recent', 'vlv_playlists']);
-const LIBRARY_VIEWS = ['all', 'playlists', 'liked', 'recent'];
-let activeLibraryView = 'all';
+const LIBRARY_VIEWS = ['playlists', 'liked', 'recent'];
+let activeLibraryView = 'playlists';
 
-function formatCount(value, singular, plural = `${singular}s`) {
-  const safe = Number(value) || 0;
-  return `${safe} ${safe === 1 ? singular : plural}`;
-}
 
 function getPlaylistsTrackCount() {
   return state.playlists.reduce((total, playlist) => total + (playlist.songs?.length || 0), 0);
@@ -147,7 +144,7 @@ function overviewMarkup() {
         <div class="library-hero-copy">
           <span class="panel-kicker">Memory Plane</span>
           <div class="section-title" style="margin-top:12px">Stacks with depth.</div>
-          <p class="section-copy">Saved tracks, playlists, and return lanes stay in one continuous field so the library feels like a living room, not separate shelves.</p>
+          <p class="section-copy">Likes, playlists, and recent returns stay in one controlled vault so the library feels like hardware memory, not a dashboard.</p>
         </div>
         <div class="library-hero-actions inline-actions">
           <button class="btn btn-primary" type="button" data-open-create-playlist>Build new stack</button>
@@ -228,11 +225,11 @@ function renderLibraryView(container) {
 
   sections.push(overviewMarkup());
 
-  if (activeLibraryView === 'all' || activeLibraryView === 'playlists') {
+  if (activeLibraryView === 'playlists') {
     sections.push(playlistsSection());
   }
 
-  if (activeLibraryView === 'all' || activeLibraryView === 'liked') {
+  if (activeLibraryView === 'liked') {
     sections.push(songSection({
       kicker: 'Saved plane',
       title: 'Front Saved',
@@ -243,7 +240,7 @@ function renderLibraryView(container) {
     }));
   }
 
-  if (activeLibraryView === 'all' || activeLibraryView === 'recent') {
+  if (activeLibraryView === 'recent') {
     sections.push(songSection({
       kicker: 'Return lane',
       title: 'Warm Returns',
@@ -317,3 +314,5 @@ export function mountLibraryPage(container) {
 
   renderLibraryView(container);
 }
+
+

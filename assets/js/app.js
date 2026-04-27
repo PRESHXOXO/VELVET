@@ -13,11 +13,11 @@ const ROUTES = {
     path: 'index.html',
     bodyClass: 'page-velvet page-home',
     title: 'Velvet | Home',
-    description: 'Velvet home view with a luxury player dashboard, editorial album focus, and floating dark-glass depth.',
-    brandNote: 'Luxury R&B and soul presented through floating glass, deep charcoal shadows, and album-led storytelling.',
-    sidebarKicker: 'Velvet Pick',
-    sidebarCopy: 'The daily pick leads, the player floats above it, and the rest of the room supports the album art instead of crowding it.',
-    overline: 'Velvet Private Listening',
+    description: 'Velvet home view with a Nano-grade now playing stage, acrylic vinyl motion, and deep-black device materials.',
+    brandNote: 'A private streaming device for after-hours R&B, soul, and candy-red detail.',
+    sidebarKicker: 'Now Playing',
+    sidebarCopy: 'Album art leads, the controls stay tactile, and the rest of the room disappears behind the track.',
+    overline: 'Velvet Private Device',
     searchPlaceholder: 'Search titles, artists, albums, or suites',
     render: mountHomePage
   },
@@ -25,11 +25,11 @@ const ROUTES = {
     path: 'stations.html',
     bodyClass: 'page-velvet page-stations',
     title: 'Velvet | Stations',
-    description: 'Velvet stations view with floating genre suites, cover-first browsing, and a premium chamber player.',
-    brandNote: 'Floating mood suites, deep-glass route cards, and one chamber that keeps the room in motion.',
-    sidebarKicker: 'Genre Suites',
-    sidebarCopy: 'Browse the suites like suspended cards, keep one lane active, and let the chamber do the heavy listening.',
-    overline: 'Velvet Suites',
+    description: 'Velvet stations view with sharp genre suites, restrained glass, and a premium chamber player.',
+    brandNote: 'Genre suites, matte-black surfaces, and one active chamber tuned like a private deck.',
+    sidebarKicker: 'Browse / Stations',
+    sidebarCopy: 'Each suite reads like a collectible module: crisp copy, art-first previews, and one active chamber.',
+    overline: 'Velvet Suite Deck',
     searchPlaceholder: 'Search titles, artists, albums, or suites',
     render: renderStationsPage
   },
@@ -37,11 +37,11 @@ const ROUTES = {
     path: 'search.html',
     bodyClass: 'page-velvet page-search',
     title: 'Velvet | Search',
-    description: 'Velvet search view with thumbnail-first results, floating glass filters, and premium dark-room layering.',
-    brandNote: 'Search through cover art first, keep local results forward, and let live pulls drift behind them in glass.',
-    sidebarKicker: 'Search Lounge',
-    sidebarCopy: 'Search should feel like browsing suspended covers in a luxury archive, not scanning a utility table.',
-    overline: 'Velvet Search Lounge',
+    description: 'Velvet search view with thumbnail-first results, restrained hardware surfaces, and crisp dark-room hierarchy.',
+    brandNote: 'Search the archive like a premium device: thin controls, thumbnail-first results, and no wasted chrome.',
+    sidebarKicker: 'Search',
+    sidebarCopy: 'Results stay readable and immediate, with local matches forward and live pulls behind them.',
+    overline: 'Velvet Search',
     searchPlaceholder: 'Search titles, artists, albums, or suites',
     render: mountSearchPage
   },
@@ -49,11 +49,11 @@ const ROUTES = {
     path: 'artists.html',
     bodyClass: 'page-velvet page-artists',
     title: 'Velvet | Artists',
-    description: 'Velvet artist view with a floating selector rail, portrait-led focus, and a luxury salon shell.',
-    brandNote: 'Portrait-led artist discovery, floating cards, and one featured voice held in a dark luxury salon.',
-    sidebarKicker: 'Artist Salon',
-    sidebarCopy: 'Move through artists like portraits, keep one voice featured, and let the room stay soft and editorial.',
-    overline: 'Velvet Salon',
+    description: 'Velvet artist view with a portrait-led selector rail, crisp detailing, and a premium black-device shell.',
+    brandNote: 'Portrait-led discovery, hairline dividers, and one featured voice at a time.',
+    sidebarKicker: 'Artists',
+    sidebarCopy: 'Treat each artist like a collectible portrait: one voice forward, everything else in support.',
+    overline: 'Velvet Voice Index',
     searchPlaceholder: 'Search artists, tracks, and mood lanes',
     render: renderArtistsPage
   },
@@ -61,11 +61,11 @@ const ROUTES = {
     path: 'library.html',
     bodyClass: 'page-velvet page-library',
     title: 'Velvet | Library',
-    description: 'Velvet library view with floating cover walls, private stacks, and a premium memory vault shell.',
-    brandNote: 'Private stacks, cover walls, and return paths presented in a dark floating luxury system.',
-    sidebarKicker: 'Memory Vault',
-    sidebarCopy: 'The library should feel like a private vault of cover art and memory, not a management panel.',
-    overline: 'Velvet Vault',
+    description: 'Velvet library view with private stacks, crisp tabs, and a premium black-device memory vault.',
+    brandNote: 'Likes, stacks, and recently played tracks presented like refined hardware memory.',
+    sidebarKicker: 'Library',
+    sidebarCopy: 'The library should feel precise and collectible, not bulky or dashboard-like.',
+    overline: 'Velvet Memory Vault',
     searchPlaceholder: 'Search titles, artists, albums, or suites',
     render: mountLibraryPage
   }
@@ -81,6 +81,7 @@ const routeRuntime = {
 };
 
 const LUXURY_STYLESHEET_FILE = 'assets/css/luxury-redesign.css';
+const NANO_STYLESHEET_FILE = 'assets/css/nano-redesign.css';
 
 function ensureLuxuryStylesheet() {
   const existing = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find(link =>
@@ -105,6 +106,31 @@ function ensureLuxuryStylesheet() {
   }
 }
 
+function ensureNanoStylesheet() {
+  const existing = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find(link =>
+    (link.getAttribute('href') || '').includes('nano-redesign.css')
+  );
+
+  if (existing) {
+    existing.dataset.velvetNano = 'true';
+    return;
+  }
+
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = NANO_STYLESHEET_FILE;
+  link.dataset.velvetNano = 'true';
+
+  const luxury = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find(node =>
+    (node.getAttribute('href') || '').includes('luxury-redesign.css')
+  );
+
+  if (luxury?.parentNode) {
+    luxury.insertAdjacentElement('afterend', link);
+  } else {
+    document.head.append(link);
+  }
+}
 function ensureTopbarLinks() {
   const nav = document.querySelector('.topbar-links');
   if (!nav || nav.querySelector('[data-page-link="search"]')) return;
@@ -130,7 +156,7 @@ function ensureFloatingPlayerShell() {
   const bar = document.getElementById('playerBar');
   if (!bar) return;
 
-  if (bar.dataset.luxuryPlayer === 'true' && bar.querySelector('#playerShuffle') && bar.querySelector('.player-center-top')) {
+  if (bar.dataset.luxuryPlayer === 'true' && bar.querySelector('#playerShuffle') && bar.querySelector('.player-source-row')) {
     return;
   }
 
@@ -140,30 +166,31 @@ function ensureFloatingPlayerShell() {
     <div class="player-meta">
       <div class="player-art"><img id="playerArt" data-player-artwork src="" alt=""></div>
       <div class="player-text">
-        <span class="player-kicker">Floating now playing</span>
+        <span class="player-kicker">Now Playing</span>
         <strong id="playerTitle" class="player-title" data-player-track-title></strong>
         <span id="playerArtist" class="player-artist" data-player-track-artist></span>
       </div>
     </div>
     <div class="player-center">
-      <div class="player-center-top">
+      <div class="player-source-row">
         <span class="player-chip" data-player-track-album>Velvet Select</span>
-        <div class="player-controls">
-          <button id="playerShuffle" class="btn-icon" type="button" data-player-command="shuffle" aria-label="Enable shuffle">
-            <svg viewBox="0 0 24 24"><path d="M16 3h5v5"></path><path d="M4 20l8-8"></path><path d="M12 12l4-4 5 5"></path><path d="M4 4l5 5"></path></svg>
-          </button>
-          <button id="playerPrev" class="btn-icon" type="button" aria-label="Previous track">
-            <svg viewBox="0 0 24 24"><path d="M11 19 2 12l9-7v14z" fill="currentColor" stroke="none"></path><path d="M22 5v14" stroke="currentColor" stroke-width="1.8"></path></svg>
-          </button>
-          <button id="playerToggle" class="btn btn-primary" type="button" data-player-command="toggle" aria-label="Start playback">Play</button>
-          <button id="playerNext" class="btn-icon" type="button" aria-label="Next track">
-            <svg viewBox="0 0 24 24"><path d="m13 5 9 7-9 7V5z" fill="currentColor" stroke="none"></path><path d="M2 5v14" stroke="currentColor" stroke-width="1.8"></path></svg>
-          </button>
-          <button id="playerRepeat" class="btn-icon" type="button" data-player-command="repeat" data-repeat-mode="off" aria-label="Repeat off">
-            <svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
-            <span class="player-repeat-badge" data-repeat-badge>Off</span>
-          </button>
-        </div>
+        <span class="player-source">Source: YouTube <em>HQ / Adaptive</em></span>
+      </div>
+      <div class="player-controls">
+        <button id="playerPrev" class="btn-icon" type="button" aria-label="Previous track">
+          <svg viewBox="0 0 24 24"><path d="M11 19 2 12l9-7v14z" fill="currentColor" stroke="none"></path><path d="M22 5v14" stroke="currentColor" stroke-width="1.8"></path></svg>
+        </button>
+        <button id="playerToggle" class="btn btn-primary" type="button" data-player-command="toggle" aria-label="Start playback">Play</button>
+        <button id="playerNext" class="btn-icon" type="button" aria-label="Next track">
+          <svg viewBox="0 0 24 24"><path d="m13 5 9 7-9 7V5z" fill="currentColor" stroke="none"></path><path d="M2 5v14" stroke="currentColor" stroke-width="1.8"></path></svg>
+        </button>
+        <button id="playerShuffle" class="btn-icon" type="button" data-player-command="shuffle" aria-label="Enable shuffle">
+          <svg viewBox="0 0 24 24"><path d="M16 3h5v5"></path><path d="M4 20l8-8"></path><path d="M12 12l4-4 5 5"></path><path d="M4 4l5 5"></path></svg>
+        </button>
+        <button id="playerRepeat" class="btn-icon" type="button" data-player-command="repeat" data-repeat-mode="off" aria-label="Repeat off">
+          <svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+          <span class="player-repeat-badge" data-repeat-badge>Off</span>
+        </button>
       </div>
       <div class="player-progress">
         <span id="playerTimeCurrent" class="player-time" data-player-progress-current>0:00</span>
@@ -607,6 +634,7 @@ function initInternalRouting() {
 
 function initSharedRuntime() {
   ensureLuxuryStylesheet();
+  ensureNanoStylesheet();
   ensureTopbarLinks();
   ensureFloatingPlayerShell();
   initPlayer();
@@ -643,6 +671,8 @@ export async function bootApp(initialPage = 'home') {
 }
 
 export const initSharedApp = bootApp;
+
+
 
 
 

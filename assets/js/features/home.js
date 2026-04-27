@@ -1,7 +1,7 @@
 import { createPlaylistFromTracks, getTrackPlayCount, getVelvetPickVideoId, isFavoriteStation, refreshLibraryState, state, toggleFavoriteStation } from '../core/state.js';
 import { nextTrack, playFromQueue, prevTrack, togglePlay, updateVolume } from '../core/player.js';
 import { bindSongRowActions, resolveTrack, toast } from '../core/ui.js';
-import { icon, pageHead, getTrackArtwork, mediaSlot } from '../ui/templates.js';
+import { icon, getTrackArtwork } from '../ui/templates.js';
 import { catalogTracks, findTrackByVideoId, getArtistProfile, getArtistSlug, getArtistTracks, getStationTracks, getStationVisual, stations } from '../core/catalog.js';
 import { getPlaylistPreviewEntries, getPlaylistSignature, getPrimaryPlaylist } from '../core/playlists.js';
 import { dedupeByVideoId, formatCount } from '../core/tracks.js';
@@ -129,16 +129,30 @@ function getTrackAlbumLabel(track, artistProfile, lane) {
   return 'Velvet Select';
 }
 
+function getSuiteAccent(index = 0) {
+  const tones = [
+    '169,13,42',
+    '145,24,51',
+    '185,42,31',
+    '120,18,40',
+    '147,31,63',
+    '109,18,27',
+    '208,60,52'
+  ];
+
+  return tones[Math.abs(index) % tones.length];
+}
+
 function homeQueueRow(track, index, isCurrent = false) {
   const stateMarkup = isCurrent
-    ? `<span class="velvet-queue-row-state velvet-queue-row-state--live"><span class="velvet-queue-eq" aria-hidden="true"><i></i><i></i><i></i></span><em>Live</em></span>`
-    : '<span class="velvet-queue-row-state">Up next</span>';
+    ? `<span class="nano-queue-state nano-queue-state--live"><span class="nano-queue-eq" aria-hidden="true"><i></i><i></i><i></i></span><em>Live</em></span>`
+    : '<span class="nano-queue-state">Up next</span>';
 
   return `
-    <button class="velvet-queue-row ${isCurrent ? 'is-current' : ''}" type="button" data-action="play-home-queue" data-index="${index}" data-video="${track.videoId}">
-      <span class="velvet-queue-row-index">${String(index + 1).padStart(2, '0')}</span>
+    <button class="nano-queue-row ${isCurrent ? 'is-current' : ''}" type="button" data-action="play-home-queue" data-index="${index}" data-video="${track.videoId}">
+      <span class="nano-queue-index">${String(index + 1).padStart(2, '0')}</span>
       <img src="${getTrackArtwork(track)}" alt="${track.title || 'Track artwork'}">
-      <span class="velvet-queue-row-copy">
+      <span class="nano-queue-copy">
         <strong>${track.title || 'Unknown track'}</strong>
         <small>${track.artist || 'Unknown artist'}</small>
       </span>
@@ -153,34 +167,36 @@ function buildSuiteSignal(index = 0, seedCount = 0) {
     return `<span style="--suite-level:${level}%"></span>`;
   }).join('');
 }
+
 function stationFeatureCard(entry) {
   const stationTracks = getStationTracks(entry.index);
   const seedCount = (entry.station.seedIndexes || []).length;
   const stationImage = entry.station.cardImage || entry.station.image || entry.station.heroImage || getStationVisual(entry.index) || getTrackArtwork(stationTracks[0] || {});
   const tags = (entry.station.tags || []).slice(0, 2);
-  const pinned = isFavoriteStation(entry.index);
   const sampleArtists = [...new Set(stationTracks.map(track => track?.artist).filter(Boolean))].slice(0, 3);
   const suiteLabel = entry.station.signal || entry.station.name;
+  const accent = getSuiteAccent(entry.index);
 
   return `
-    <article class="velvet-station-card" style="--station-gradient:${entry.station.gradient};${stationImage ? `--station-image:url('${stationImage}')` : ''}">
-      <div class="velvet-station-card-top">
-        <span class="panel-kicker">${pinned ? 'Pinned suite' : 'Genre suite'}</span>
-        <span class="velvet-station-card-count">${seedCount ? `${seedCount} anchors` : 'Live-led'}</span>
+    <article class="nano-suite-card" style="--suite-rgb:${accent};${stationImage ? `--suite-image:url('${stationImage}')` : ''}">
+      <div class="nano-suite-card-head">
+        <span class="nano-suite-ordinal">${String(entry.index + 1).padStart(2, '0')}</span>
+        <span class="nano-suite-status">${seedCount ? `${seedCount} curated` : 'Live-led'}</span>
       </div>
-      <div class="velvet-station-card-body">
-        <div class="velvet-station-card-copy">
-          <div class="velvet-station-card-signal">
-            <span>${suiteLabel}</span>
-            <div class="velvet-station-card-bars" aria-hidden="true">${buildSuiteSignal(entry.index, seedCount)}</div>
-          </div>
-          <h3>${entry.station.name}</h3>
-          <p>${entry.station.description || entry.station.query}</p>
-          <div class="meta-tags">${tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
-          <div class="velvet-station-card-voices">${sampleArtists.length ? sampleArtists.map(name => `<span>${name}</span>`).join('') : '<span>Velvet suite</span>'}</div>
+      <div class="nano-suite-card-visual">
+        ${stationImage ? `<img src="${stationImage}" alt="${entry.station.name || 'Station'} visual">` : ''}
+      </div>
+      <div class="nano-suite-card-body">
+        <div class="nano-suite-signal">
+          <span>${suiteLabel}</span>
+          <div class="nano-suite-bars" aria-hidden="true">${buildSuiteSignal(entry.index, seedCount)}</div>
         </div>
+        <h3>${entry.station.name}</h3>
+        <p>${entry.station.description || entry.station.query}</p>
+        <div class="nano-suite-artists">${sampleArtists.length ? sampleArtists.map(name => `<span>${name}</span>`).join('') : '<span>Velvet suite</span>'}</div>
+        <div class="nano-suite-tags">${tags.map(tag => `<span>${tag}</span>`).join('')}</div>
       </div>
-      <div class="velvet-station-card-actions">
+      <div class="nano-suite-card-foot">
         <button class="btn btn-primary" type="button" data-action="open-station" data-index="${entry.index}">${icon('play')} Enter suite</button>
       </div>
     </article>
@@ -190,14 +206,14 @@ function stationFeatureCard(entry) {
 function playlistArtworkWall(tracks = []) {
   const visuals = tracks.slice(0, 4).map(track => getTrackArtwork(track)).filter(Boolean);
   if (!visuals.length) {
-    return '<div class="velvet-cover-wall-empty">V</div>';
+    return '<div class="nano-library-cover-wall-empty">V</div>';
   }
 
   return visuals.map((image, index) => `<img src="${image}" alt="Playlist artwork ${index + 1}">`).join('');
 }
 
 function searchChip(label, query) {
-  return `<button class="velvet-search-chip" type="button" data-action="run-home-search" data-query="${query}">${label}</button>`;
+  return `<button class="nano-search-chip" type="button" data-action="run-home-search" data-query="${query}">${label}</button>`;
 }
 
 function renderHomeView(container) {
@@ -216,226 +232,180 @@ function renderHomeView(container) {
   const dashboardArtist = dashboardTrack ? getArtistProfile(getArtistSlug(dashboardTrack)) : spotlightArtist;
   const dashboardAlbum = getTrackAlbumLabel(dashboardTrack, dashboardArtist, leadStation);
   const dashboardVisual = dashboardArtist?.featureImage || dashboardArtist?.heroImage || getTrackArtwork(dashboardTrack) || '';
-  const spotlightVisual = spotlightArtist?.featureImage || spotlightArtist?.heroImage || getTrackArtwork(spotlightTrack) || '';
-  const spotlightTitle = getHomeHeroTitle(spotlightTrack, spotlightArtist?.name || spotlightTrack?.artist || 'Velvet') || 'Velvet pick';
-  const spotlightArtistName = formatDisplayText(spotlightArtist?.name || spotlightTrack?.artist || 'Velvet');
-  const spotlightAlbum = getTrackAlbumLabel(spotlightTrack, spotlightArtist, leadStation);
-  const spotlightBlurb = spotlightArtist?.bio || spotlightArtist?.description || `A fixed editorial pick that keeps the home room intentional instead of drifting with every recent play.`;
-  const spotlightTags = (spotlightTrack?.tags || spotlightTrack?.moods || []).slice(0, 3);
-  const spotlightPlayCount = getTrackPlayCount(spotlightTrack?.videoId);
+  const spotlightTitle = getHomeHeroTitle(dashboardTrack, dashboardArtist?.name || dashboardTrack?.artist || 'Velvet') || 'Velvet pick';
+  const spotlightArtistName = formatDisplayText(dashboardArtist?.name || dashboardTrack?.artist || 'Velvet');
+  const heroBlurb = dashboardArtist?.tagline || dashboardArtist?.bio || dashboardArtist?.description || `A fixed editorial pick keeps the room collected while the player stays immediate and tactile.`;
+  const spotlightPlayCount = getTrackPlayCount(dashboardTrack?.videoId);
   const likedCount = state.liked.length;
   const playlistCount = state.playlists.length;
   const recentCount = state.recent.length;
   const buildStackName = leadStation?.station?.name ? `${leadStation.station.name} Velvet Stack` : `${spotlightArtistName} Velvet Stack`;
   const spotlightIndex = curatedTracks.findIndex(track => track.videoId === spotlightTrack?.videoId);
+  const heroAccent = getSuiteAccent(leadStation?.index || 0);
+  const heroStateLabel = state.currentTrack ? 'Now Playing' : 'Velvet Pick of the Day';
   const quickSearchTerms = [
     { label: 'Snoh Aalegra', query: 'Snoh Aalegra' },
-    { label: 'Late Night Drive', query: 'Late Night Drive' },
     { label: 'Neo Soul', query: 'Neo Soul' },
-    { label: 'Slow Jams', query: 'Slow Jams' }
+    { label: 'Late Night Drive', query: 'Late Night Drive' },
+    { label: 'Girl Power', query: 'Girl Power' }
   ];
 
   container.innerHTML = `
-    <section class="velvet-home-shell">
-      <article class="panel velvet-home-hero" style="${spotlightVisual ? `--hero-image:url('${spotlightVisual}')` : ''}">
-        <div class="velvet-home-hero-copy">
-          <span class="panel-kicker">Velvet Pick of the Day</span>
-          <div class="velvet-home-hero-meta">
-            <span>${spotlightArtistName}</span>
-            <span>${spotlightTrack?.year || 'After hours'}</span>
-            <span>${formatCount(spotlightPlayCount, 'play')}</span>
+    <section class="nano-home-shell">
+      <section class="nano-home-top">
+        <article class="panel nano-nowplaying-hero" data-player-surface style="--hero-rgb:${heroAccent}">
+          <div class="nano-nowplaying-head">
+            <span class="nano-device-label">${heroStateLabel}</span>
+            <span class="nano-source-badge">Source: YouTube <em>HQ / Adaptive</em></span>
           </div>
-          <h1>${spotlightTitle}</h1>
-          <p>${spotlightBlurb}</p>
-          <div class="meta-tags velvet-home-hero-tags">
-            ${(spotlightTags.length ? spotlightTags : ['editorial', 'night drive', 'velvet']).map(tag => `<span class="mini-tag">${tag}</span>`).join('')}
-          </div>
-          <div class="velvet-home-hero-actions inline-actions">
-            <button class="btn btn-primary" type="button" data-action="play-spotlight">${icon('play')} Play pick</button>
-            ${leadStation ? `<button class="btn btn-secondary" type="button" data-action="open-station" data-index="${leadStation.index}">Open ${leadStation.station.name}</button>` : ''}
-            ${spotlightArtist?.slug ? `<a class="btn btn-secondary" href="artists.html#artist-${spotlightArtist.slug}">Open artist</a>` : ''}
-          </div>
-        </div>
-        <div class="velvet-home-hero-visual">
-          <div class="velvet-home-hero-float velvet-home-hero-float--lead">
-            <span>Lead suite</span>
-            <strong>${leadStation?.station?.name || 'Velvet room'}</strong>
-            <small>${leadStation?.station?.description || 'Editorial route of the day.'}</small>
-          </div>
-          <div class="velvet-home-hero-art-shell">
-            ${mediaSlot({
-              image: spotlightVisual,
-              alt: `${spotlightTitle} cover art`,
-              label: spotlightArtistName || 'Velvet pick',
-              eyebrow: spotlightAlbum,
-              monogram: spotlightArtistName || 'V',
-              className: 'velvet-home-hero-art',
-              kind: 'feature',
-              ratio: 'hero'
-            })}
-          </div>
-          <div class="velvet-home-hero-float velvet-home-hero-float--album">
-            <span>Album focus</span>
-            <strong>${spotlightAlbum}</strong>
-            <small>${leadStation?.station?.signal || 'Luxury editorial playback'}</small>
-          </div>
-        </div>
-      </article>
-
-      <section class="velvet-home-dashboard-grid">
-        <article class="panel velvet-player-dashboard" data-player-surface>
-          <div class="velvet-player-dashboard-head">
-            <div>
-              <span class="panel-kicker">Main player dashboard</span>
-              <p class="velvet-player-dashboard-label">${state.currentTrack ? 'Current room playback' : 'Ready to start the room'}</p>
-            </div>
-            <span class="velvet-player-dashboard-state">${state.isPlaying ? 'Live' : 'Idle'}</span>
-          </div>
-
-          <div class="velvet-player-dashboard-grid">
-            <div class="velvet-player-album-column">
-              <div class="velvet-player-album-shell">
-                ${mediaSlot({
-                  image: dashboardVisual,
-                  alt: `${dashboardTrack?.title || 'Velvet track'} artwork`,
-                  label: dashboardArtist?.name || dashboardTrack?.artist || 'Velvet',
-                  eyebrow: dashboardAlbum,
-                  monogram: dashboardArtist?.name || dashboardTrack?.artist || 'V',
-                  className: 'velvet-player-album-art',
-                  kind: 'player-album',
-                  ratio: 'portrait'
-                })}
+          <div class="nano-nowplaying-grid">
+            <div class="nano-vinyl-stage">
+              <div class="nano-vinyl-disc" aria-hidden="true"></div>
+              <div class="nano-cover-card">
+                <img src="${dashboardVisual}" alt="${spotlightTitle} cover art" data-player-artwork>
               </div>
             </div>
+            <div class="nano-nowplaying-copy">
+              <span class="nano-track-kicker" data-player-track-album>${dashboardAlbum}</span>
+              <h1 data-player-track-title>${spotlightTitle}</h1>
+              <div class="nano-track-line">
+                <span data-player-track-artist>${spotlightArtistName}</span>
+                <span class="divider" aria-hidden="true"></span>
+                <span>${dashboardTrack?.year || 'Velvet select'}</span>
+              </div>
+              <p class="nano-track-blurb">${heroBlurb}</p>
 
-            <div class="velvet-player-copy-column">
-              <div class="velvet-player-copy-stack">
-                <span class="velvet-player-overline">Now holding</span>
-                <h2 class="velvet-player-track-title" data-player-track-title>${dashboardTrack?.title || 'Velvet pick'}</h2>
-                <div class="velvet-player-track-meta">
-                  <span data-player-track-artist>${dashboardTrack?.artist || spotlightArtistName}</span>
-                  <span class="velvet-player-divider">/</span>
-                  <span data-player-track-album>${dashboardAlbum}</span>
+              <div class="nano-progress-stack">
+                <div class="nano-progress-meta">
+                  <span class="velvet-player-time" data-player-progress-current>0:00</span>
+                  <div class="nano-progress-track"><div class="nano-progress-fill" data-player-progress-fill></div></div>
+                  <span class="velvet-player-time" data-player-progress-duration>0:00</span>
                 </div>
-                <p class="velvet-player-description">${dashboardArtist?.tagline || 'A polished front-and-center track surface with tactile controls, floating depth, and a queue that stays close.'}</p>
               </div>
 
-              <div class="velvet-player-control-row">
-                <button class="btn-icon velvet-control-button" type="button" data-action="home-prev-track" data-player-command="prev" aria-label="Previous track"><svg viewBox="0 0 24 24"><path d="M11 19 2 12l9-7v14z" fill="currentColor" stroke="none"></path><path d="M22 5v14" stroke="currentColor" stroke-width="1.8"></path></svg></button>
-                <button class="velvet-control-main" type="button" data-action="home-toggle-track" data-player-command="toggle" aria-label="Play or pause">
-                  <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"></path></svg>
+              <div class="nano-main-controls">
+                <button class="btn-icon" type="button" data-action="home-prev-track" aria-label="Previous track"><svg viewBox="0 0 24 24"><path d="M11 19 2 12l9-7v14z" fill="currentColor" stroke="none"></path><path d="M22 5v14" stroke="currentColor" stroke-width="1.8"></path></svg></button>
+                <button class="nano-primary-button" type="button" data-action="home-toggle-track" data-player-command="toggle" aria-label="Play or pause"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"></path></svg></button>
+                <button class="btn-icon" type="button" data-action="home-next-track" aria-label="Next track"><svg viewBox="0 0 24 24"><path d="m13 5 9 7-9 7V5z" fill="currentColor" stroke="none"></path><path d="M2 5v14" stroke="currentColor" stroke-width="1.8"></path></svg></button>
+                <div class="nano-aux-controls">
+                  <button class="btn-icon" type="button" data-action="home-toggle-shuffle" data-player-command="shuffle" aria-label="Toggle shuffle">${icon('shuffle')}</button>
+                  <button class="btn-icon" type="button" data-action="home-toggle-repeat" data-player-command="repeat" aria-label="Toggle repeat"><svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg><span class="player-repeat-badge" data-repeat-badge>Off</span></button>
+                </div>
+              </div>
+
+              <div class="nano-secondary-controls">
+                <button class="nano-secondary-button" type="button" data-action="home-toggle-like" data-player-like-toggle aria-label="Like current track">
+                  <span>Cloud Like</span>
+                  <strong>Save to likes</strong>
                 </button>
-                <button class="btn-icon velvet-control-button" type="button" data-action="home-next-track" data-player-command="next" aria-label="Next track"><svg viewBox="0 0 24 24"><path d="m13 5 9 7-9 7V5z" fill="currentColor" stroke="none"></path><path d="M2 5v14" stroke="currentColor" stroke-width="1.8"></path></svg></button>
-                <button class="btn-icon velvet-control-button" type="button" data-action="home-toggle-shuffle" data-player-command="shuffle" aria-label="Toggle shuffle">${icon('shuffle')}</button>
-                <button class="btn-icon velvet-control-button velvet-control-button--repeat" type="button" data-action="home-toggle-repeat" data-player-command="repeat" aria-label="Toggle repeat"><svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg><span class="player-repeat-badge" data-repeat-badge>Off</span></button>
-                <button class="btn-icon velvet-control-button" type="button" data-action="home-toggle-like" data-player-like-toggle aria-label="Like current track"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.2A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"></path></svg></button>
-              </div>
-
-              <div class="velvet-player-progress-block">
-                <span class="velvet-player-time" data-player-progress-current>0:00</span>
-                <div class="velvet-player-progress-track">
-                  <div class="velvet-player-progress-fill" data-player-progress-fill></div>
-                </div>
-                <span class="velvet-player-time" data-player-progress-duration>0:00</span>
-              </div>
-
-              <div class="velvet-player-support-row">
-                <label class="velvet-volume-control">
-                  <span>Volume</span>
+                <button class="nano-secondary-button" type="button" data-action="open-station" data-index="${leadStation?.index ?? 0}" aria-label="Create a station from the current suite">
+                  <span>Radio Sail</span>
+                  <strong>${leadStation?.station?.name || 'Open suite'}</strong>
+                </button>
+                <label class="nano-volume-strip">
+                  <span>Output</span>
                   <input class="velvet-volume-slider" type="range" min="0" max="100" value="${state.volume}" data-action="set-home-volume" data-player-volume-input aria-label="Adjust playback volume">
+                  <small data-player-volume-value>${state.volume}%</small>
                 </label>
-                <div class="velvet-player-support-card">
-                  <span>Queue loaded</span>
-                  <strong>${formatCount(queueTracks.length, 'track')}</strong>
+              </div>
+
+              <div class="nano-detail-strip">
+                <div class="nano-detail-card">
+                  <span>Suite</span>
+                  <strong>${leadStation?.station?.name || 'Velvet room'}</strong>
                 </div>
-                <div class="velvet-player-support-card">
-                  <span>Volume</span>
-                  <strong data-player-volume-value>${state.volume}%</strong>
+                <div class="nano-detail-card">
+                  <span>State</span>
+                  <strong>${state.isPlaying ? 'Playing' : 'Standby'}</strong>
+                </div>
+                <div class="nano-detail-card">
+                  <span>Most played</span>
+                  <strong>${formatCount(spotlightPlayCount, 'play')}</strong>
                 </div>
               </div>
             </div>
           </div>
         </article>
 
-        <aside class="panel velvet-queue-panel">
-          <div class="velvet-queue-head">
+        <aside class="panel nano-queue-dock">
+          <div class="nano-queue-head">
             <div>
               <span class="panel-kicker">Queue</span>
-              <h3>On deck</h3>
+              <h2>On deck</h2>
             </div>
-            <span class="velvet-queue-caption">${primaryPlaylist?.name || (leadStation?.station?.name ? `${leadStation.station.name} suite` : 'Daily pick queue')}</span>
+            <span class="nano-queue-stamp">${primaryPlaylist?.name || (leadStation?.station?.name ? `${leadStation.station.name} suite` : 'Daily queue')}</span>
           </div>
-          <div class="velvet-queue-list">
-            ${queueTracks.length ? queueTracks.slice(0, 7).map((track, index) => homeQueueRow(track, index, index === queueActiveIndex)).join('') : '<div class="empty">Start the room and the queue will settle here.</div>'}
+          <div class="nano-queue-list">
+            ${queueTracks.length ? queueTracks.slice(0, 6).map((track, index) => homeQueueRow(track, index, index === queueActiveIndex)).join('') : '<div class="empty">Start the room and the queue will settle here.</div>'}
           </div>
-          <div class="velvet-queue-actions inline-actions">
+          <div class="nano-queue-actions">
             <button class="btn btn-primary" type="button" data-action="build-home-stack" data-name="${buildStackName}">${icon('plus')} Build stack</button>
             <a class="btn btn-secondary" href="library.html">Open library</a>
           </div>
         </aside>
       </section>
 
-      <section class="panel velvet-station-salon">
-        ${pageHead({
-          kicker: 'Genre stations',
-          title: 'Float between suites',
-          copy: 'Curated lanes designed to feel like suspended editorial cards instead of a basic genre grid.'
-        })}
-        <div class="velvet-station-grid">
+      <section class="panel nano-suite-deck">
+        <div class="nano-station-head">
+          <div>
+            <span class="panel-kicker">Browse / Stations</span>
+            <h2>Genre suites</h2>
+          </div>
+          <span class="nano-queue-stamp">${homeStations.length} surfaced</span>
+        </div>
+        <div class="nano-suite-grid">
           ${homeStations.map(stationFeatureCard).join('')}
         </div>
       </section>
 
-      <section class="velvet-home-lower-grid">
-        <article class="panel velvet-library-vault">
-          <div class="velvet-vault-head">
+      <section class="nano-home-support">
+        <article class="panel nano-module-card">
+          <div class="nano-module-head">
             <div>
-              <span class="panel-kicker">Library vault</span>
-              <h3>Your private stacks</h3>
+              <span class="panel-kicker">Library</span>
+              <h2>Private stacks</h2>
             </div>
             <a class="section-link" href="library.html">Open library</a>
           </div>
-          <div class="velvet-vault-grid">
-            <div class="velvet-cover-wall">${playlistArtworkWall(primaryPlaylistPreview)}</div>
-            <div class="velvet-vault-copy">
-              <p>${primaryPlaylistSignature?.summary || 'Liked songs, recently played tracks, and custom stacks stay close so the app feels collected instead of cluttered.'}</p>
-              <div class="velvet-vault-stats">
-                <article><span>Liked</span><strong>${formatCount(likedCount, 'song')}</strong></article>
-                <article><span>Recent</span><strong>${formatCount(recentCount, 'track')}</strong></article>
-                <article><span>Playlists</span><strong>${formatCount(playlistCount, 'stack')}</strong></article>
+          <div class="nano-library-grid">
+            <div class="nano-library-cover-wall">${playlistArtworkWall(primaryPlaylistPreview)}</div>
+            <div class="nano-library-copy">
+              <p>${primaryPlaylistSignature?.summary || 'Likes, playlists, and recently played tracks stay in one crisp vault so the app feels collected, not crowded.'}</p>
+              <div class="nano-library-stats">
+                <article class="nano-library-stat"><span>Likes</span><strong>${formatCount(likedCount, 'track')}</strong></article>
+                <article class="nano-library-stat"><span>Playlists</span><strong>${formatCount(playlistCount, 'stack')}</strong></article>
+                <article class="nano-library-stat"><span>Recent</span><strong>${formatCount(recentCount, 'track')}</strong></article>
               </div>
-              <div class="inline-actions">
-                <button class="btn btn-secondary" type="button" data-action="play-liked-collection">${icon('play')} Play liked</button>
+              <div class="nano-module-actions">
+                <button class="btn btn-secondary" type="button" data-action="play-liked-collection">${icon('play')} Play likes</button>
                 <button class="btn btn-secondary" type="button" data-open-create-playlist>Create playlist</button>
               </div>
             </div>
           </div>
         </article>
 
-        <article class="panel velvet-search-lounge">
-          <div class="velvet-search-lounge-head">
+        <article class="panel nano-module-card">
+          <div class="nano-module-head">
             <div>
-              <span class="panel-kicker">Search lounge</span>
-              <h3>Find the next mood</h3>
+              <span class="panel-kicker">Search</span>
+              <h2>Archive sweep</h2>
             </div>
             <a class="section-link" href="search.html">Open search</a>
           </div>
-          <form class="velvet-search-lounge-form" action="search.html" method="get">
-            <label class="visually-hidden" for="homeSearchQuery">Search Velvet</label>
-            <input id="homeSearchQuery" name="q" type="text" placeholder="Search titles, artists, albums, or suites">
-            <button class="btn btn-primary" type="submit">Search Velvet</button>
-          </form>
-          <div class="velvet-search-chip-row">
-            ${quickSearchTerms.map(item => searchChip(item.label, item.query)).join('')}
-          </div>
-          <div class="velvet-search-support">
-            <div>
-              <span>Lead voice</span>
-              <strong>${spotlightArtistName}</strong>
+          <div class="nano-search-copy">
+            <p>Search should feel like using a premium device: tight controls, quick thumbnails, and a direct path back into playback.</p>
+            <form class="nano-search-form" action="search.html" method="get">
+              <label class="visually-hidden" for="homeSearchQuery">Search Velvet</label>
+              <input id="homeSearchQuery" name="q" type="text" placeholder="Search titles, artists, albums, or suites">
+              <button class="btn btn-primary" type="submit">Search</button>
+            </form>
+            <div class="nano-search-shortcuts">
+              ${quickSearchTerms.map(item => searchChip(item.label, item.query)).join('')}
             </div>
-            <div>
-              <span>Album focus</span>
-              <strong>${spotlightAlbum}</strong>
+            <div class="nano-search-insights">
+              <div><span>Lead voice</span><strong>${spotlightArtistName}</strong></div>
+              <div><span>Album</span><strong>${dashboardAlbum}</strong></div>
+              <div><span>Suite</span><strong>${leadStation?.station?.name || 'Velvet room'}</strong></div>
             </div>
           </div>
         </article>
@@ -518,7 +488,6 @@ function renderHomeView(container) {
     }
   });
 }
-
 export function mountHomePage(container){
   if (!container) return;
 
@@ -541,4 +510,5 @@ export function mountHomePage(container){
 
   renderHomeView(container);
 }
+
 
