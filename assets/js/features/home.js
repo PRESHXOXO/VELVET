@@ -130,6 +130,10 @@ function getTrackAlbumLabel(track, artistProfile, lane) {
 }
 
 function homeQueueRow(track, index, isCurrent = false) {
+  const stateMarkup = isCurrent
+    ? `<span class="velvet-queue-row-state velvet-queue-row-state--live"><span class="velvet-queue-eq" aria-hidden="true"><i></i><i></i><i></i></span><em>Live</em></span>`
+    : '<span class="velvet-queue-row-state">Up next</span>';
+
   return `
     <button class="velvet-queue-row ${isCurrent ? 'is-current' : ''}" type="button" data-action="play-home-queue" data-index="${index}" data-video="${track.videoId}">
       <span class="velvet-queue-row-index">${String(index + 1).padStart(2, '0')}</span>
@@ -138,32 +142,46 @@ function homeQueueRow(track, index, isCurrent = false) {
         <strong>${track.title || 'Unknown track'}</strong>
         <small>${track.artist || 'Unknown artist'}</small>
       </span>
-      <span class="velvet-queue-row-state">${isCurrent ? 'Playing' : 'Queue'}</span>
+      ${stateMarkup}
     </button>
   `;
 }
 
+function buildSuiteSignal(index = 0, seedCount = 0) {
+  return Array.from({ length: 4 }, (_, barIndex) => {
+    const level = 28 + (((index + 1) * (barIndex + 2) * 11) + seedCount * 7) % 46;
+    return `<span style="--suite-level:${level}%"></span>`;
+  }).join('');
+}
 function stationFeatureCard(entry) {
+  const stationTracks = getStationTracks(entry.index);
   const seedCount = (entry.station.seedIndexes || []).length;
-  const stationImage = entry.station.cardImage || entry.station.image || entry.station.heroImage || getStationVisual(entry.index) || getTrackArtwork(getStationTracks(entry.index)[0] || {});
+  const stationImage = entry.station.cardImage || entry.station.image || entry.station.heroImage || getStationVisual(entry.index) || getTrackArtwork(stationTracks[0] || {});
   const tags = (entry.station.tags || []).slice(0, 2);
   const pinned = isFavoriteStation(entry.index);
+  const sampleArtists = [...new Set(stationTracks.map(track => track?.artist).filter(Boolean))].slice(0, 3);
+  const suiteLabel = entry.station.signal || entry.station.name;
 
   return `
     <article class="velvet-station-card" style="--station-gradient:${entry.station.gradient};${stationImage ? `--station-image:url('${stationImage}')` : ''}">
       <div class="velvet-station-card-top">
-        <span class="panel-kicker">${pinned ? 'Pinned lane' : 'Genre suite'}</span>
+        <span class="panel-kicker">${pinned ? 'Pinned suite' : 'Genre suite'}</span>
         <span class="velvet-station-card-count">${seedCount ? `${seedCount} anchors` : 'Live-led'}</span>
       </div>
       <div class="velvet-station-card-body">
         <div class="velvet-station-card-copy">
+          <div class="velvet-station-card-signal">
+            <span>${suiteLabel}</span>
+            <div class="velvet-station-card-bars" aria-hidden="true">${buildSuiteSignal(entry.index, seedCount)}</div>
+          </div>
           <h3>${entry.station.name}</h3>
           <p>${entry.station.description || entry.station.query}</p>
           <div class="meta-tags">${tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+          <div class="velvet-station-card-voices">${sampleArtists.length ? sampleArtists.map(name => `<span>${name}</span>`).join('') : '<span>Velvet suite</span>'}</div>
         </div>
       </div>
       <div class="velvet-station-card-actions">
-        <button class="btn btn-primary" type="button" data-action="open-station" data-index="${entry.index}">${icon('play')} Open lane</button>
+        <button class="btn btn-primary" type="button" data-action="open-station" data-index="${entry.index}">${icon('play')} Enter suite</button>
       </div>
     </article>
   `;
@@ -523,3 +541,4 @@ export function mountHomePage(container){
 
   renderHomeView(container);
 }
+

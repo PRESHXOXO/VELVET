@@ -92,13 +92,14 @@ function stationBrowserItem(station, index, isActive = false) {
   const seedCount = (station.seedIndexes || []).length;
   const sourceLabel = seedCount ? `${seedCount} curated` : 'Live-led';
   const tags = [
-    ...(isFavoriteStation(index) ? ['Pinned lane'] : []),
+    ...(isFavoriteStation(index) ? ['Pinned suite'] : []),
     ...(station.tags || [])
   ].slice(0, 2);
-  const visualBadge = isActive ? 'Selected route' : sourceLabel;
+  const visualBadge = isActive ? 'Selected suite' : sourceLabel;
   const visualHint = seedCount ? `${seedCount} anchors` : 'YouTube led';
   const previewLabel = localTracks[0]?.artist || station.signal || station.query;
   const previewCopy = station.description || station.query;
+  const sampleArtists = [...new Set(localTracks.map(track => track?.artist).filter(Boolean))].slice(0, 3);
 
   return `
     <button class="station-list-item ${isActive ? 'is-active' : ''}" data-action="open-station" data-index="${index}" style="--station-gradient:${station.gradient || 'linear-gradient(135deg,#2a0910,#8b1730)'}">
@@ -127,6 +128,7 @@ function stationBrowserItem(station, index, isActive = false) {
         <strong>${station.name}</strong>
         <span>${previewCopy}</span>
         <div class="station-list-tags">${tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+        <div class="station-list-artists">${sampleArtists.length ? sampleArtists.map(name => `<span>${name}</span>`).join('') : '<span>Velvet suite</span>'}</div>
       </div>
       <div class="station-list-side" aria-hidden="true">
         <div class="station-list-signal">
@@ -420,3 +422,4 @@ export async function renderStationsPage(container) {
     hashListenerBound = true;
   }
 }
+
