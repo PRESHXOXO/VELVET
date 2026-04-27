@@ -180,6 +180,65 @@ function rotationTrackCard(track, index, isCurrent = false) {
   `;
 }
 
+function artistStageVisualChip(track, index) {
+  return `
+    <button class="artist-stage-vignette ${index === 0 ? 'is-primary' : ''}" type="button" data-action="play-artist-track" data-index="${index}" data-video="${track.videoId}">
+      <div class="artist-stage-vignette-art is-fallback">
+        <span>${getArtistInitials(track.artist || track.title)}</span>
+        <em>${String(index + 1).padStart(2, '0')}</em>
+      </div>
+      <div class="artist-stage-vignette-copy">
+        <strong>${track.title || 'Velvet cut'}</strong>
+        <small>${track.artist || 'Velvet'}</small>
+      </div>
+    </button>
+  `;
+}
+
+function renderArtistStageVisual(profile, tracks = [], activeTrack = null, image = '') {
+  const stageTracks = tracks.slice(0, 3);
+  const signalTrack = activeTrack || stageTracks[0] || null;
+
+  return `
+    <div class="artist-stage-visual-frame ${image ? '' : 'is-image-missing'}">
+      <div class="artist-stage-fallback">${getArtistInitials(profile?.name)}</div>
+      ${image
+        ? `<img class="artist-stage-image" src="${image}" alt="${profile?.name || 'Artist'} portrait" onerror="this.closest('.artist-stage-visual-frame')?.classList.add('is-image-missing');this.remove();">`
+        : ''}
+      <div class="artist-stage-visual-glass"></div>
+      <div class="artist-stage-orbit artist-stage-orbit--halo"></div>
+      <div class="artist-stage-orbit artist-stage-orbit--side"></div>
+      <div class="artist-stage-cover-stack">
+        ${stageTracks.length
+          ? stageTracks.map((track, index) => artistStageVisualChip(track, index)).join('')
+          : `
+            <div class="artist-stage-vignette is-empty">
+              <div class="artist-stage-vignette-art is-fallback"><span>${getArtistInitials(profile?.name)}</span></div>
+              <div class="artist-stage-vignette-copy">
+                <strong>${profile?.name || 'Velvet voice'}</strong>
+                <small>Tracks will settle here as the room fills.</small>
+              </div>
+            </div>
+          `}
+      </div>
+      ${signalTrack
+        ? `
+          <div class="artist-stage-signal-card">
+            <div class="artist-stage-signal-thumb is-fallback">
+              <span>${getArtistInitials(signalTrack.artist || signalTrack.title)}</span>
+            </div>
+            <div class="artist-stage-signal-copy">
+              <span class="panel-kicker">Lead Cut</span>
+              <strong>${signalTrack.title || 'Quiet room'}</strong>
+              <small>${signalTrack.artist || 'Velvet'}</small>
+            </div>
+          </div>
+        `
+        : ''}
+    </div>
+  `;
+}
+
 let hashListenerBound = false;
 
 export function renderArtistsPage(container) {
@@ -314,13 +373,7 @@ export function renderArtistsPage(container) {
             </div>
 
             <div class="artist-stage-visual-wrap">
-              <div class="artist-stage-visual-frame ${activeImage ? '' : 'is-image-missing'}">
-                <div class="artist-stage-fallback">${getArtistInitials(activeProfile?.name)}</div>
-                ${activeImage
-                  ? `<img class="artist-stage-image" src="${activeImage}" alt="${activeProfile?.name || 'Artist'} portrait" onerror="this.closest('.artist-stage-visual-frame')?.classList.add('is-image-missing');this.remove();">`
-                  : ''}
-                <div class="artist-stage-visual-glass"></div>
-              </div>
+              ${renderArtistStageVisual(activeProfile, tracks, activeTrack, activeImage)}
               <div class="artist-stage-floating-card">
                 <span class="panel-kicker">Now Holding</span>
                 <strong>${activeTrack?.title || 'Quiet room'}</strong>
@@ -406,4 +459,3 @@ export function renderArtistsPage(container) {
     hashListenerBound = true;
   }
 }
-
